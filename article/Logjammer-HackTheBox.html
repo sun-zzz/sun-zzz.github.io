@@ -24,7 +24,7 @@
 
   <meta name="description" content="多个Windows日志文件进行分析，不同的操作被记录在不同的日志并且对应的事件ID很重要，极大方便我们审计日志">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Logjammer-HackTheBox">
+<meta property="og:title" content="Logjammer">
 <meta property="og:url" content="https://sun-zzz.github.io/article/Logjammer-HackTheBox.html">
 <meta property="og:site_name" content="rev1ve&#39;s blog">
 <meta property="og:description" content="多个Windows日志文件进行分析，不同的操作被记录在不同的日志并且对应的事件ID很重要，极大方便我们审计日志">
@@ -39,7 +39,7 @@
 <meta property="og:image" content="https://sun-zzz.github.io/article/Logjammer-HackTheBox/image-20240422202108317.png">
 <meta property="og:image" content="https://sun-zzz.github.io/article/Logjammer-HackTheBox/image-20240422202827593.png">
 <meta property="article:published_time" content="2024-04-22T08:42:03.000Z">
-<meta property="article:modified_time" content="2024-04-22T12:31:11.711Z">
+<meta property="article:modified_time" content="2024-09-01T14:39:53.799Z">
 <meta property="article:author" content="rev1ve">
 <meta property="article:tag" content="HackTheBox">
 <meta property="article:tag" content="Windows">
@@ -59,7 +59,7 @@
   };
 </script>
 
-  <title>Logjammer-HackTheBox | rev1ve's blog</title>
+  <title>Logjammer | rev1ve's blog</title>
   
 
 
@@ -225,7 +225,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Logjammer-HackTheBox
+          Logjammer
         </h1>
 
         <div class="post-meta">
@@ -234,10 +234,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2024-04-22 16:42:03 / 修改时间：20:31:11" itemprop="dateCreated datePublished" datetime="2024-04-22T16:42:03+08:00">2024-04-22</time>
+              <time title="创建时间：2024-04-22 16:42:03" itemprop="dateCreated datePublished" datetime="2024-04-22T16:42:03+08:00">2024-04-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:39:53" itemprop="dateModified" datetime="2024-09-01T22:39:53+08:00">2024-09-01</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -249,7 +255,7 @@
             </span>
 
           
-            <span id="/article/Logjammer-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Logjammer-HackTheBox" title="阅读次数">
+            <span id="/article/Logjammer-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Logjammer" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -285,14 +291,14 @@
 
 
 
-<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><blockquote>
+<h1 id="Logjammer"><a href="#Logjammer" class="headerlink" title="Logjammer"></a>Logjammer</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
 <p>您有机会在一家大型咨询公司担任初级 DFIR 顾问。但是，他们提供了技术评估供您完成。咨询公司 Forela-Security 希望评估您对 Windows 事件日志分析的了解。请分析并报告他们提出的问题。</p>
 </blockquote>
-<h1 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h1><p><strong>用户 cyberjunkie 何时成功登录他的计算机？ （世界标准时间）</strong></p>
+<h2 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>用户 cyberjunkie 何时成功登录他的计算机？ （世界标准时间）</strong></p>
 <p>题目附件有五个，其中记录Windows登录的日志文件为<code>Security.evtx</code></p>
 <p>我们进行搜索找到cyberjunkie登录的时间，转换一下为<code>27/03/2023 14:37:09</code></p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422170139500.png"></p>
-<h1 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h1><p><strong>用户篡改了系统上的防火墙设置。分析防火墙事件日志以找出添加的防火墙规则的名称？</strong></p>
+<h2 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>用户篡改了系统上的防火墙设置。分析防火墙事件日志以找出添加的防火墙规则的名称？</strong></p>
 <p>我们切换到<code>Windows Firewall-Firewall.evtx</code>日志文件，初步发现事件2004是修改&#x2F;添加规则的</p>
 <p>那么我们在Windows系统下，使用工具EvtxeCmd将其转换成json格式</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./EvtxeCmd.exe -f D:\网安工具\取证\附件\Windows-Firewall-Firewall.evtx --json D:\网安工具\取证\附件</span><br></pre></td></tr></table></figure>
@@ -302,46 +308,46 @@
 
 <p>得到添加的规则为<code>Metasploit C2 Bypass</code></p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422194553198.png"></p>
-<h1 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h1><p><strong>防火墙规则的方向是什么？</strong></p>
+<h2 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>防火墙规则的方向是什么？</strong></p>
 <p>很明显是出站，英文就是outbound</p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422195244130.png"></p>
-<h1 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h1><p><strong>用户更改了计算机的审计策略。这个更改策略的子类是什么？</strong></p>
+<h2 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h2><p><strong>用户更改了计算机的审计策略。这个更改策略的子类是什么？</strong></p>
 <p>审计策略更改的日志 ID 为 <code>4719</code></p>
 <p>子类为<code>Other Object Access Events</code></p>
-<h1 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h1><p><strong>用户“cyberjunkie”创建了一个计划任务。这个任务的名字是什么？</strong></p>
+<h2 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h2><p><strong>用户“cyberjunkie”创建了一个计划任务。这个任务的名字是什么？</strong></p>
 <blockquote>
 <p>在 Windows 操作系统中，创建计划任务的事件将被记录在 Windows 安全事件日志（Security Event Log）中，并使用事件 ID 4698</p>
 </blockquote>
 <p>直接筛选事件为4698，任务名为<code>HTB-AUTOMATION</code></p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422200633789.png"></p>
-<h1 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h1><p><strong>为任务安排的文件的完整路径是什么？</strong></p>
+<h2 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h2><p><strong>为任务安排的文件的完整路径是什么？</strong></p>
 <p>在前一题的TaskContent找到路径</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\CyberJunkie\Desktop\Automation-HTB.ps1</span><br></pre></td></tr></table></figure>
 
 
 
-<h1 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h1><p><strong>该命令的参数是什么？</strong></p>
+<h2 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h2><p><strong>该命令的参数是什么？</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-A cyberjunkie@hackthebox.eu</span><br></pre></td></tr></table></figure>
 
 <p><img src="/article/Logjammer-HackTheBox/image-20240422200911551.png"></p>
-<h1 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h1><p><strong>系统上运行的防病毒软件识别出威胁并对其执行操作。哪个工具被防病毒软件识别为恶意软件？</strong></p>
+<h2 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h2><p><strong>系统上运行的防病毒软件识别出威胁并对其执行操作。哪个工具被防病毒软件识别为恶意软件？</strong></p>
 <p>该操作是在<code>Windows Defender</code>日志文件下记录的，并且对应ID为1117、1003、1004、1116等</p>
 <p>所以我们直接锁定到事件1117，发现恶意软件被警告</p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422201354285.png"></p>
-<h1 id="Task9"><a href="#Task9" class="headerlink" title="Task9"></a>Task9</h1><p><strong>引发警报的恶意软件的完整路径是什么？</strong></p>
+<h2 id="Task9"><a href="#Task9" class="headerlink" title="Task9"></a>Task9</h2><p><strong>引发警报的恶意软件的完整路径是什么？</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\CyberJunkie\Downloads\SharpHound-v1.1.0.zip</span><br></pre></td></tr></table></figure>
 
-<h1 id="Task10"><a href="#Task10" class="headerlink" title="Task10"></a>Task10</h1><p><strong>防病毒软件采取了什么行动？</strong></p>
+<h2 id="Task10"><a href="#Task10" class="headerlink" title="Task10"></a>Task10</h2><p><strong>防病毒软件采取了什么行动？</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Quarantine  //隔离</span><br></pre></td></tr></table></figure>
 
 <p><img src="/article/Logjammer-HackTheBox/image-20240422201658602.png"></p>
-<h1 id="Task11"><a href="#Task11" class="headerlink" title="Task11"></a>Task11</h1><p><strong>用户使用Powershell执行命令。用户执行了什么命令？</strong></p>
+<h2 id="Task11"><a href="#Task11" class="headerlink" title="Task11"></a>Task11</h2><p><strong>用户使用Powershell执行命令。用户执行了什么命令？</strong></p>
 <blockquote>
 <p>一般情况下，用户在 PowerShell 中执行命令所生成的事件记录在 Windows 安全事件日志（Security Event Log）中的事件 ID 4104。</p>
 </blockquote>
 <p>直接切换到<code>Powershell-Operational</code>日志文件，然后筛选事件4104，找到执行的命令</p>
 <p><img src="/article/Logjammer-HackTheBox/image-20240422202108317.png"></p>
-<h1 id="Task12"><a href="#Task12" class="headerlink" title="Task12"></a>Task12</h1><p><strong>我们怀疑用户删除了一些事件日志。哪个事件日志文件被清除？</strong></p>
+<h2 id="Task12"><a href="#Task12" class="headerlink" title="Task12"></a>Task12</h2><p><strong>我们怀疑用户删除了一些事件日志。哪个事件日志文件被清除？</strong></p>
 <p>切换到System日志文件，找到被删除的日志文件</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Microsoft-Windows-Windows Firewall With Advanced Security/Firewall</span><br></pre></td></tr></table></figure>
 
@@ -365,8 +371,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/article/Unit42-HackTheBox.html" rel="prev" title="Unit42-HackTheBox">
-      <i class="fa fa-chevron-left"></i> Unit42-HackTheBox
+    <a href="/article/Unit42-HackTheBox.html" rel="prev" title="Unit42">
+      <i class="fa fa-chevron-left"></i> Unit42
     </a></div>
       <div class="post-nav-item">
     <a href="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html" rel="next" title="信息安全铁人三项数据赛2018">
@@ -431,7 +437,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task1"><span class="nav-number">2.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task2"><span class="nav-number">3.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task3"><span class="nav-number">4.</span> <span class="nav-text">Task3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task4"><span class="nav-number">5.</span> <span class="nav-text">Task4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task5"><span class="nav-number">6.</span> <span class="nav-text">Task5</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task6"><span class="nav-number">7.</span> <span class="nav-text">Task6</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task7"><span class="nav-number">8.</span> <span class="nav-text">Task7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task8"><span class="nav-number">9.</span> <span class="nav-text">Task8</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task9"><span class="nav-number">10.</span> <span class="nav-text">Task9</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task10"><span class="nav-number">11.</span> <span class="nav-text">Task10</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task11"><span class="nav-number">12.</span> <span class="nav-text">Task11</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Task12"><span class="nav-number">13.</span> <span class="nav-text">Task12</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Logjammer"><span class="nav-number">1.</span> <span class="nav-text">Logjammer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1"><span class="nav-number">1.2.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2"><span class="nav-number">1.3.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3"><span class="nav-number">1.4.</span> <span class="nav-text">Task3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task4"><span class="nav-number">1.5.</span> <span class="nav-text">Task4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task5"><span class="nav-number">1.6.</span> <span class="nav-text">Task5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task6"><span class="nav-number">1.7.</span> <span class="nav-text">Task6</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task7"><span class="nav-number">1.8.</span> <span class="nav-text">Task7</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task8"><span class="nav-number">1.9.</span> <span class="nav-text">Task8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task9"><span class="nav-number">1.10.</span> <span class="nav-text">Task9</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task10"><span class="nav-number">1.11.</span> <span class="nav-text">Task10</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task11"><span class="nav-number">1.12.</span> <span class="nav-text">Task11</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task12"><span class="nav-number">1.13.</span> <span class="nav-text">Task12</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -447,7 +453,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">58</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -460,7 +466,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">29</span>
+        <span class="site-state-item-count">30</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
