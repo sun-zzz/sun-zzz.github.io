@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中间人攻击是非常经典的攻击方式，不过也有限制条件就是得在同一网段">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用ettercap实现中间人攻击">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="中间人攻击是非常经典的攻击方式，不过也有限制条件就是得在同一网段">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101049733.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101121230.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101215013.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101238953.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101652451.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915102917046.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103010475.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103216567.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103329946.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103421819.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103459228.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103548136.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103716837.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915104954726.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915105515643.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915105616528.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915122332474.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915110142926.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915120939523.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915121024232.png">
+<meta property="article:published_time" content="2024-09-15T02:03:24.000Z">
+<meta property="article:modified_time" content="2024-09-24T15:49:44.984Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="ARP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101049733.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>利用ettercap实现中间人攻击 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          利用ettercap实现中间人攻击
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-09-15 10:03:24" itemprop="dateCreated datePublished" datetime="2024-09-15T10:03:24+08:00">2024-09-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-24 23:49:44" itemprop="dateModified" datetime="2024-09-24T23:49:44+08:00">2024-09-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html" class="post-meta-item leancloud_visitors" data-flag-title="利用ettercap实现中间人攻击" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>中间人攻击是非常经典的攻击方式，不过也有限制条件就是得在同一网段</p>
+<span id="more"></span>
+
+<h1 id="利用ettercap实现中间人攻击"><a href="#利用ettercap实现中间人攻击" class="headerlink" title="利用ettercap实现中间人攻击"></a>利用ettercap实现中间人攻击</h1><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><ul>
+<li>攻击机kali：192.168.132.138</li>
+<li>靶机win7：192.168.132.136</li>
+</ul>
+<p><strong>软件准备</strong></p>
+<blockquote>
+<p>ettercap是一种网络嗅探器和中间人攻击工具，通常用于网络安全测试和攻击。它可以捕获网络流量并进行分析，同时还可以修改和重定向流量以执行中间人攻击。使用ettercap，攻击者可以轻松地欺骗受害者，从而获取敏感信息，例如登录凭据、信用卡号码等。然而，ettercap也可以用作网络安全工具，以检测和纠正网络漏洞和安全漏洞。</p>
+</blockquote>
+<p>这里使用的是kali自带的ettercap工具</p>
+<h2 id="攻击原理"><a href="#攻击原理" class="headerlink" title="攻击原理"></a>攻击原理</h2><p>在局域网中（同一网段）通信时使用的是MAC地址，而不是常见的IP地址。所以在局域网的两台主机间通信时，必须要知道对方的MAC地址，这就是ARP协议要做的事：将IP地址转换为MAC地址。在ARP回复时，发送请求包的主机A并不会验证ARP回复包的真实性，也就是不能判断回复主机A的是不是主机B。由此引出一个局域网攻击方式ARP欺骗，ARP欺骗攻击可以在各种各样的场景中进行，比如通过 Wi-Fi 热点、路由器、以及局域网上的任意设备。 因此，在保护自己的网络安全时，我们需要注意防止 ARP 欺骗攻击的发生，如启用 ARP 防火墙、使用加密协议、限制对网络的物理访问等。</p>
+<h2 id="ARP欺骗"><a href="#ARP欺骗" class="headerlink" title="ARP欺骗"></a>ARP欺骗</h2><p>查看win7的ip地址</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101049733.png"></p>
+<p>查看kali的ip地址</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101121230.png"></p>
+<p>使用ping命令看是否ping通</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101215013.png"></p>
+<p>执行以下命令查看win7被攻击前的arp信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arp -a</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101238953.png"></p>
+<p>在kali打开ettercap</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ettercap -G</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915101652451.png"></p>
+<p>点击右上角的勾后，点击扫描主机</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915102917046.png"></p>
+<p>扫描结束后，点击右边的主机列表，可以看到已经将靶机win7的ip扫出来了</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103010475.png"></p>
+<p>接下来我们来尝试一下ARP欺骗，先查看下win7的网关</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103216567.png"></p>
+<p>然后在ettercap分别将网关ip和win7的ip添加为Target1和Target2</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103329946.png"></p>
+<p>添加好后，点击小地球图标（MITM menu）中选择ARP Poisoning，点击OK</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103421819.png"></p>
+<p>这里可以看到攻击已经开始</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103459228.png"></p>
+<p>我们再执行<code>arp -a</code>看下win7的arp信息，注意到前后的MAC地址发生变化</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103548136.png"></p>
+<p>已经成功变成了我们kali的mac地址<code>00:0c:29:16:83:5a</code></p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915103716837.png"></p>
+<p>我们新建一个终端，输入wireshark后选择eth0接口，筛选arp抓取下流量。可以看到网关将Kali的MAC地址当做win7的MAC地址进行发送（也就是说<code>sender MAC address</code>和<code>sender IP address</code>不一致），成功进行了ARP的欺骗</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915104954726.png"></p>
+<h2 id="DNS劫持"><a href="#DNS劫持" class="headerlink" title="DNS劫持"></a>DNS劫持</h2><blockquote>
+<p>当我们成功进行了ARP欺骗后，我们可以加以利用再制作一个钓鱼页面</p>
+</blockquote>
+<p>再新建一个终端，输入如下命令进入配置文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/ettercap/etter.dns</span><br></pre></td></tr></table></figure>
+
+<p>这里我们将攻击机kali的ip地址192.168.132.138添加到如下位置，使得win7对<code>*.com</code>的网络访问转移到攻击机kali上</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915105515643.png"></p>
+<p>然后打开apache服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/apache2 start</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915105616528.png"></p>
+<p>先尝试ping一下淘宝看看正常状态</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915122332474.png"></p>
+<p>回到我们的ettercap，开始DNS劫持。依次点击<code>右上方的三点 -&gt; Plugins -&gt; Manage plugins</code></p>
+<p>选择<code>dns_spoof</code>，双击开始攻击</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915110142926.png"></p>
+<p>我们回到win7再次ping一下淘宝，发现没成功。上网搜了一下原来在使用ettercap图形化界面实现DNS劫持时，有可能会不生效。可以尝试命令行直接进行DNS劫持</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ettercap -i eth0 -Tp -M arp:remote -P dns_spoof /192.168.132.136// /192.168.132.2//</span><br></pre></td></tr></table></figure>
+
+<p>DNS劫持成功，ping的地址变成我们的攻击机kali</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915120939523.png"></p>
+<p>我们访问<code>taobao.com</code>发现是我们攻击机开启的apache服务</p>
+<p><img src="/article/%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB/image-20240915121024232.png"></p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>中间人攻击</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_74806866/article/details/134853842?spm=1001.2014.3001.5506">https://blog.csdn.net/m0_74806866/article/details/134853842?spm=1001.2014.3001.5506</a></li>
+</ul>
+<p>DNS劫持失败解决办法</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/bomb324/article/details/121824533">https://blog.csdn.net/bomb324/article/details/121824533</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ARP/" rel="tag"># ARP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Jr-Penetration-Tester%E5%AD%A6%E4%B9%A0.html" rel="prev" title="Jr Penetration Tester学习">
+      <i class="fa fa-chevron-left"></i> Jr Penetration Tester学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Domain-fronting%E5%9F%9F%E5%90%8D%E5%89%8D%E7%BD%AE%E6%94%BB%E5%87%BB.html" rel="next" title="Domain fronting域名前置攻击">
+      Domain fronting域名前置攻击 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%A9%E7%94%A8ettercap%E5%AE%9E%E7%8E%B0%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB"><span class="nav-number">1.</span> <span class="nav-text">利用ettercap实现中间人攻击</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">环境配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">攻击原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP%E6%AC%BA%E9%AA%97"><span class="nav-number">1.3.</span> <span class="nav-text">ARP欺骗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DNS%E5%8A%AB%E6%8C%81"><span class="nav-number">1.4.</span> <span class="nav-text">DNS劫持</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.5.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

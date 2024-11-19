@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="了解区块链中的交易，了解智能合约的使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="区块链实训5">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="了解区块链中的交易，了解智能合约的使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026143316698.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026163252655.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026165533515.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026165902029.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026172149944.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026171947590.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026144008306.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026144509165.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026144411259.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026144552743.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026145656398.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026160726959.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026160801151.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026161440294.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026161523266.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026163651849.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026164040215.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026164544315.png">
+<meta property="article:published_time" content="2024-10-26T06:19:48.000Z">
+<meta property="article:modified_time" content="2024-11-01T12:08:24.391Z">
+<meta property="article:author" content="rev1ve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241026143316698.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>区块链实训5 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          区块链实训5
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-10-26 14:19:48" itemprop="dateCreated datePublished" datetime="2024-10-26T14:19:48+08:00">2024-10-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-11-01 20:08:24" itemprop="dateModified" datetime="2024-11-01T20:08:24+08:00">2024-11-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html" class="post-meta-item leancloud_visitors" data-flag-title="区块链实训5" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD5.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>了解区块链中的交易，了解智能合约的使用</p>
+<span id="more"></span>
+
+<h2 id="第一部分：区块链中的交易"><a href="#第一部分：区块链中的交易" class="headerlink" title="第一部分：区块链中的交易"></a>第一部分：区块链中的交易</h2><h3 id="1-交易的概念"><a href="#1-交易的概念" class="headerlink" title="1. 交易的概念"></a>1. 交易的概念</h3><p>在区块链中，交易是指两方之间价值的转移。这可以是货币、资产或数据的交换。交易的基本概念建立在信任与透明的基础上，通过区块链的分布式账本，所有参与者都可以验证交易的有效性，确保没有人能篡改历史记录。这种机制使得区块链特别适用于金融系统和需要去中心化信任的场景。</p>
+<h3 id="2-交易的组成部分"><a href="#2-交易的组成部分" class="headerlink" title="2. 交易的组成部分"></a>2. 交易的组成部分</h3><p>每笔交易由以下几个主要组成部分构成：</p>
+<ul>
+<li><strong>金额（Amount）</strong>：表示转账的具体数量。</li>
+<li><strong>交易ID</strong>：为每笔交易生成的唯一标识符，用于区分不同的交易。（hashNo）</li>
+<li><strong>时间戳</strong>：记录交易的创建时间，确保时间线的透明性。</li>
+</ul>
+<h3 id="3-交易的生命周期"><a href="#3-交易的生命周期" class="headerlink" title="3. 交易的生命周期"></a>3. 交易的生命周期</h3><p>交易的生命周期包括多个关键步骤：</p>
+<ol>
+<li><strong>创建交易</strong>：用户通过钱包软件输入交易的基本信息（接收方地址、金额等），并生成交易。</li>
+<li><strong>签名</strong>：交易使用用户的私钥进行数字签名，以证明其合法性。</li>
+<li><strong>广播</strong>：交易被发送到区块链网络，所有节点接收到该交易信息。</li>
+<li><strong>验证</strong>：节点验证交易的有效性，包括检查输入是否有效、签名是否正确等。</li>
+<li><strong>打包</strong>：经过验证的交易被矿工打包成区块，并与其他交易一起处理。</li>
+<li><strong>确认</strong>：矿工通过工作量证明等机制确认区块，交易被写入区块链。</li>
+<li><strong>最终性</strong>：交易一旦被多个区块确认后，便被认为是不可更改的，完成整个交易流程。</li>
+</ol>
+<h3 id="4-交易实体类"><a href="#4-交易实体类" class="headerlink" title="4. 交易实体类"></a>4. 交易实体类</h3><p>项目地址：<code>https://gitee.com/daitoulin/block_contract.git</code></p>
+<p>实体类路径：<code>block_contract/src/main/java/com/example/blockchain/entity/TradeObject.java</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.blockchain.entity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TradeObject</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String from;</span><br><span class="line">    <span class="keyword">private</span> String to;</span><br><span class="line">    <span class="keyword">private</span> String hashNo;</span><br><span class="line">    <span class="keyword">private</span> String type;</span><br><span class="line">    <span class="keyword">private</span> String imgUrl;</span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line">    <span class="keyword">private</span> String blockIndex;</span><br><span class="line">    <span class="keyword">private</span> String contentjson;</span><br><span class="line">    <span class="keyword">private</span> String jsoncreatetime;</span><br><span class="line">    <span class="keyword">private</span> String uId;</span><br><span class="line">    <span class="keyword">private</span> String annexPath;</span><br><span class="line">    <span class="keyword">private</span> String filePath;</span><br><span class="line">    <span class="keyword">private</span> String blockHash;</span><br><span class="line">    <span class="keyword">private</span> String createTime;</span><br><span class="line">    <span class="keyword">private</span> String sign;</span><br><span class="line">    <span class="keyword">private</span> String contractContent;</span><br><span class="line">    <span class="keyword">private</span> String paramStr;</span><br><span class="line">    <span class="keyword">private</span> String lastData;</span><br><span class="line">    <span class="keyword">private</span> String objToString;</span><br><span class="line">    <span class="keyword">private</span> String dataStr;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;TradeObject&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;from=&#x27;&quot;</span> + from + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, to=&#x27;&quot;</span> + to + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, type=&#x27;&quot;</span> + type + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, imgUrl=&#x27;&quot;</span> + imgUrl + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, content=&#x27;&quot;</span> + content + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, blockIndex=&#x27;&quot;</span> + blockIndex + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, contentjson=&#x27;&quot;</span> + contentjson + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, jsoncreatetime=&#x27;&quot;</span> + jsoncreatetime + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, uId=&#x27;&quot;</span> + uId + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, annexPath=&#x27;&quot;</span> + annexPath + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, filePath=&#x27;&quot;</span> + filePath + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, contractContent=&#x27;&quot;</span> + contractContent + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, paramStr=&#x27;&quot;</span> + paramStr + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, lastData=&#x27;&quot;</span> + lastData + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getFrom</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> from;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setFrom</span><span class="params">(String from)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.from = from;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getTo</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> to;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setTo</span><span class="params">(String to)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.to = to;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getHashNo</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> hashNo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setHashNo</span><span class="params">(String hashNo)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.hashNo = hashNo;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getType</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> type;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setType</span><span class="params">(String type)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.type = type;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getImgUrl</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> imgUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setImgUrl</span><span class="params">(String imgUrl)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.imgUrl = imgUrl;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getContent</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> content;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContent</span><span class="params">(String content)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.content = content;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getBlockIndex</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> blockIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBlockIndex</span><span class="params">(String blockIndex)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.blockIndex = blockIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getContentjson</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> contentjson;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContentjson</span><span class="params">(String contentjson)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.contentjson = contentjson;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getJsoncreatetime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> jsoncreatetime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setJsoncreatetime</span><span class="params">(String jsoncreatetime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.jsoncreatetime = jsoncreatetime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getuId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> uId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setuId</span><span class="params">(String uId)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.uId = uId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getAnnexPath</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> annexPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAnnexPath</span><span class="params">(String annexPath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.annexPath = annexPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getFilePath</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> filePath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setFilePath</span><span class="params">(String filePath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.filePath = filePath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getBlockHash</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> blockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBlockHash</span><span class="params">(String blockHash)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.blockHash = blockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getCreateTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> createTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCreateTime</span><span class="params">(String createTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.createTime = createTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getSign</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> sign;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setSign</span><span class="params">(String sign)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.sign = sign;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getContractContent</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> contractContent;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContractContent</span><span class="params">(String contractContent)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.contractContent = contractContent;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getParamStr</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> paramStr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setParamStr</span><span class="params">(String paramStr)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.paramStr = paramStr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getLastData</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> lastData;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setLastData</span><span class="params">(String lastData)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.lastData = lastData;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getObjToString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> objToString;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setObjToString</span><span class="params">(String objToString)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.objToString = objToString;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDataStr</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> dataStr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setDataStr</span><span class="params">(String dataStr)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.dataStr = dataStr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-交易相关接口"><a href="#5-交易相关接口" class="headerlink" title="5. 交易相关接口"></a>5. 交易相关接口</h3><ol>
+<li><p>获取交易实体类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/data/getTradeObject&quot;, method = &#123;RequestMethod.POST&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;JSONObject&gt; <span class="title function_">getTradeObject</span><span class="params">(<span class="meta">@RequestBody</span> TradeBO tradeBO)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeBO.getContent()) || tradeBO.getContent() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易content值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeBO.getFrom()) || tradeBO.getFrom() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易from值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeBO.getPrivateKey()) || tradeBO.getPrivateKey() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;私钥privateKey不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">BigInteger</span> <span class="variable">pri</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BigInteger</span>(tradeBO.getPrivateKey(), <span class="number">16</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">TradeObject</span> <span class="variable">tradeObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TradeObject</span>();</span><br><span class="line">        tradeObject.setFrom(tradeBO.getFrom());</span><br><span class="line">        tradeObject.setTo(<span class="string">&quot;system&quot;</span>);</span><br><span class="line">        tradeObject.setType(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        tradeObject.setContent(tradeBO.getContent());</span><br><span class="line">        tradeObject.setJsoncreatetime(DateUtils.getTime());</span><br><span class="line">        tradeObject.setObjToString(tradeObject.toString());</span><br><span class="line"></span><br><span class="line">        Sign.<span class="type">SignatureData</span> <span class="variable">signatureData</span> <span class="operator">=</span> EthUtils.signMessage(tradeObject.toString(),pri);</span><br><span class="line">        <span class="type">String</span> <span class="variable">sign</span> <span class="operator">=</span> EthUtils.getSignStr(signatureData);</span><br><span class="line">        tradeObject.setSign(sign);</span><br><span class="line"></span><br><span class="line">        jo.setO(tradeObject);</span><br><span class="line">        jo.setMsg(<span class="string">&quot;签名成功&quot;</span>);</span><br><span class="line">        jo.setCode(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>交易接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/data/trade&quot;, method = &#123;RequestMethod.POST&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;JSONObject&gt; <span class="title function_">trade</span><span class="params">(<span class="meta">@RequestBody</span> TradeObject tradeObject)</span> &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        List&lt;Pending&gt; pes = PendingServiceImpl.queryPendings();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeObject.getFrom()) || tradeObject.getFrom() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易from值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(<span class="string">&quot;&quot;</span>.equals(tradeObject.getTo()) || tradeObject.getTo() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易to值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeObject.getObjToString()) || tradeObject.getObjToString() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易objToString值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeObject.getSign()) || tradeObject.getSign() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易sign值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;&quot;</span>.equals(tradeObject.getType()) || tradeObject.getType() == <span class="literal">null</span>)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;交易type值不能为空&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">no</span> <span class="operator">=</span> PendingServiceImpl.genTradeNo(tradeObject);</span><br><span class="line">        tradeObject.setHashNo(no);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Pending p : pes) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p.getOrderNo().equals(no)) &#123;</span><br><span class="line">                jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">                jo.setMsg(<span class="string">&quot;交易已存在&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Sign.<span class="type">SignatureData</span> <span class="variable">signatureData</span> <span class="operator">=</span> EthUtils.stringToSignatureData(tradeObject.getSign());</span><br><span class="line">        <span class="comment">//验证钱包地址</span></span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isValid</span> <span class="operator">=</span> EthUtils.verifySignature(tradeObject.getObjToString(), signatureData, tradeObject.getFrom());</span><br><span class="line">        <span class="keyword">if</span> (!isValid)&#123;</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;验签失败，请重新签名&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().toJson(tradeObject);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            PendingServiceImpl.validateTradeNo(tradeObject);</span><br><span class="line">            <span class="type">Pending</span> <span class="variable">pending</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Pending</span>();</span><br><span class="line">            pending.setTradeBody(body);</span><br><span class="line">            pending.setCreateTime(tradeObject.getJsoncreatetime());</span><br><span class="line">            pending.setOrderNo(tradeObject.getHashNo());</span><br><span class="line">            pending.setTradeType(tradeObject.getType());</span><br><span class="line">            PendingServiceImpl.save(pending);</span><br><span class="line">            <span class="keyword">for</span> (String port : map.getFs().keySet()) &#123;</span><br><span class="line">                <span class="type">Friends</span> <span class="variable">f</span> <span class="operator">=</span> map.getFs().get(port);</span><br><span class="line">                <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> f.getIp();</span><br><span class="line">                <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://&quot;</span> + ip + <span class="string">&quot;:8001/data/trade&quot;</span>;</span><br><span class="line">                restTemplate.postForEntity(url, tradeObject, TradeObject.class);</span><br><span class="line">            &#125;</span><br><span class="line">            jo.setCode(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            System.out.println(e.getMessage());</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;失败&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>交易接口参数展示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">        <span class="string">&quot;from&quot;</span>: <span class="string">&quot;0xa0cc1fc72ced8facab08ebe5d6ad5d806ddbd8aa&quot;</span>,</span><br><span class="line">        <span class="string">&quot;to&quot;</span>: <span class="string">&quot;system&quot;</span>,</span><br><span class="line">        <span class="string">&quot;hashNo&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;type&quot;</span>: <span class="string">&quot;1&quot;</span>,</span><br><span class="line">        <span class="string">&quot;imgUrl&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;content&quot;</span>: <span class="string">&quot;good good study,day day up&quot;</span>,</span><br><span class="line">        <span class="string">&quot;blockIndex&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;contentjson&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;jsoncreatetime&quot;</span>: <span class="string">&quot;2024-10-22 10:41:14&quot;</span>,</span><br><span class="line">        <span class="string">&quot;uId&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;annexPath&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;filePath&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;blockHash&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;createTime&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;sign&quot;</span>: <span class="string">&quot;fba08b9a782606b5cfd40c68b24604df2c669bbfa78440b6848ffd826c684b5c58e2b4c7a1db3805dd1e31bb30da233af80cca4edd0cca73e8f8e4dddb452d551c&quot;</span>,</span><br><span class="line">        <span class="string">&quot;contractContent&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;paramStr&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;lastData&quot;</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;objToString&quot;</span>: <span class="string">&quot;TradeObject&#123;from=&#x27;0xa0cc1fc72ced8facab08ebe5d6ad5d806ddbd8aa&#x27;, to=&#x27;system&#x27;, type=&#x27;1&#x27;, imgUrl=&#x27;null&#x27;, content=&#x27;good good study,day day up&#x27;, blockIndex=&#x27;null&#x27;, contentjson=&#x27;null&#x27;, jsoncreatetime=&#x27;2024-10-22 10:41:14&#x27;, uId=&#x27;null&#x27;, annexPath=&#x27;null&#x27;, filePath=&#x27;null&#x27;, contractContent=&#x27;null&#x27;, paramStr=&#x27;null&#x27;, lastData=&#x27;null&#x27;&#125;&quot;</span>,</span><br><span class="line">        <span class="string">&quot;dataStr&quot;</span>: <span class="literal">null</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026143316698.png" alt="image-20241026143316698"></p>
+<p>上链完的普通交易详情如图所示</p>
+<h3 id="6-实现交易"><a href="#6-实现交易" class="headerlink" title="6. 实现交易"></a>6. 实现交易</h3><p>我们启动项目，访问8001端口的<code>/data/getWallet</code>，获取钱包地址和公私钥</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;生成钱包成功&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;o&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;publicKey&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2e58fdca4a243486b9ecfd9287e3c56258eaee31761025ebc4acbe636e5c767b453b5465b755b22c1cb572c32e7e98241193b7e8dbe6ed2b6d3eb81668883772&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;privateKey&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ced6cc51ee0d2063211564e53012aaac4c0b4978e8cc22a11ed998de4e4bcc3b&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;address&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0xed6d1bcb771e59765ab65f43b9406669428af057&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026163252655.png" alt="image-20241026163252655"></p>
+<p>发送交易信息</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;privateKey&quot;</span><span class="punctuation">:</span><span class="string">&quot;ced6cc51ee0d2063211564e53012aaac4c0b4978e8cc22a11ed998de4e4bcc3b&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;from&quot;</span><span class="punctuation">:</span><span class="string">&quot;0xed6d1bcb771e59765ab65f43b9406669428af057&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span><span class="string">&quot;test&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026165533515.png" alt="image-20241026165533515"></p>
+<p>成功创建和签名交易对象</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;签名成功&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;o&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;from&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0xed6d1bcb771e59765ab65f43b9406669428af057&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;to&quot;</span><span class="punctuation">:</span> <span class="string">&quot;system&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;hashNo&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;imgUrl&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;blockIndex&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;contentjson&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;jsoncreatetime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2024-10-26 16:55:19&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;uId&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;annexPath&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;filePath&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;blockHash&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;createTime&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;sign&quot;</span><span class="punctuation">:</span> <span class="string">&quot;e653a51fb50421d0e58143342ce0b6c945378581331c247235d5121010926b5560db66b042bc2f01a4a4ff6e9cc2edc3af164a2608e7068cb507f099cd237c971b&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;contractContent&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;paramStr&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;lastData&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;objToString&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TradeObject&#123;from=&#x27;0xed6d1bcb771e59765ab65f43b9406669428af057&#x27;, to=&#x27;system&#x27;, type=&#x27;1&#x27;, imgUrl=&#x27;null&#x27;, content=&#x27;test&#x27;, blockIndex=&#x27;null&#x27;, contentjson=&#x27;null&#x27;, jsoncreatetime=&#x27;2024-10-26 16:55:19&#x27;, uId=&#x27;null&#x27;, annexPath=&#x27;null&#x27;, filePath=&#x27;null&#x27;, contractContent=&#x27;null&#x27;, paramStr=&#x27;null&#x27;, lastData=&#x27;null&#x27;&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;dataStr&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>发送交易信息进行交易</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;from&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0xed6d1bcb771e59765ab65f43b9406669428af057&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;to&quot;</span><span class="punctuation">:</span> <span class="string">&quot;system&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;hashNo&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;imgUrl&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;blockIndex&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;contentjson&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;jsoncreatetime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2024-10-26 16:55:19&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;uId&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;annexPath&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;filePath&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;blockHash&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;createTime&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;sign&quot;</span><span class="punctuation">:</span> <span class="string">&quot;e653a51fb50421d0e58143342ce0b6c945378581331c247235d5121010926b5560db66b042bc2f01a4a4ff6e9cc2edc3af164a2608e7068cb507f099cd237c971b&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;contractContent&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;paramStr&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;lastData&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;objToString&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TradeObject&#123;from=&#x27;0xed6d1bcb771e59765ab65f43b9406669428af057&#x27;, to=&#x27;system&#x27;, type=&#x27;1&#x27;, imgUrl=&#x27;null&#x27;, content=&#x27;test&#x27;, blockIndex=&#x27;null&#x27;, contentjson=&#x27;null&#x27;, jsoncreatetime=&#x27;2024-10-26 16:55:19&#x27;, uId=&#x27;null&#x27;, annexPath=&#x27;null&#x27;, filePath=&#x27;null&#x27;, contractContent=&#x27;null&#x27;, paramStr=&#x27;null&#x27;, lastData=&#x27;null&#x27;&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;dataStr&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026165902029.png" alt="image-20241026165902029"></p>
+<p>我们直接开挖<code>http://127.0.0.1:8001/starMining</code>，在浏览器打开</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026172149944.png" alt="image-20241026172149944"></p>
+<p>可以看到挖到的是我们前面进行的test交易</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026171947590.png" alt="image-20241026171947590"></p>
+<h2 id="第二部分：智能合约"><a href="#第二部分：智能合约" class="headerlink" title="第二部分：智能合约"></a>第二部分：智能合约</h2><h3 id="1-智能合约定义"><a href="#1-智能合约定义" class="headerlink" title="1. 智能合约定义"></a>1. 智能合约定义</h3><h4 id="1-1-什么是智能合约："><a href="#1-1-什么是智能合约：" class="headerlink" title="1.1. 什么是智能合约："></a>1.1. 什么是智能合约：</h4><p>智能合约是一种自执行的合约，协议条款直接写入代码中，并存储在区块链上。它能够在特定条件被满足时，自动执行合约的条款。这种合约确保交易的透明性和可信性，因为所有的操作都记录在区块链上，且不可篡改。</p>
+<h4 id="1-2-与传统合约的比较："><a href="#1-2-与传统合约的比较：" class="headerlink" title="1.2. 与传统合约的比较："></a>1.2. 与传统合约的比较：</h4><ol>
+<li><strong>执行方式</strong>：</li>
+</ol>
+<ul>
+<li><strong>传统合约</strong>：通常需要第三方（如律师）来执行和执行条款。</li>
+<li><strong>智能合约</strong>：自动在区块链上执行，无需中介。</li>
+</ul>
+<ol>
+<li><strong>透明性与安全性</strong>：</li>
+</ol>
+<ul>
+<li><strong>传统合约</strong>：可能会因为人为错误或欺诈而受到影响，透明度较低。</li>
+<li><strong>智能合约</strong>：所有交易记录透明，且由于区块链的不可篡改性，更加安全。</li>
+</ul>
+<ol>
+<li><strong>成本与效率</strong>：</li>
+</ol>
+<ul>
+<li><strong>传统合约</strong>：涉及中介费用，处理时间较长。</li>
+<li><strong>智能合约</strong>：降低了交易成本，提高了执行效率，因为省去了中介的参与。</li>
+</ul>
+<h3 id="2-工作原理"><a href="#2-工作原理" class="headerlink" title="2. 工作原理"></a>2. 工作原理</h3><h4 id="2-1-区块链技术基础"><a href="#2-1-区块链技术基础" class="headerlink" title="2.1. 区块链技术基础"></a>2.1. 区块链技术基础</h4><ol>
+<li><strong>区块链概念</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>区块链是一种去中心化的分布式账本技术，能够安全地记录交易和信息。</li>
+<li>数据以“区块”的形式存储，每个区块包含一组交易记录，并通过加密技术连接成链。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>去中心化</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>区块链网络没有单一控制点，所有节点共同维护账本。</li>
+<li>去中心化增强了系统的安全性和抗攻击能力。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>共识机制</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>为了确保所有节点对账本的一致性，区块链使用共识机制（如工作量证明、权益证明等）来验证和确认交易。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>不可篡改性</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>一旦数据被添加到区块链上，就几乎不可能被修改或删除，确保了交易的真实性和可靠性。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-2-如何执行智能合约"><a href="#2-2-如何执行智能合约" class="headerlink" title="2.2. 如何执行智能合约"></a>2.2. 如何执行智能合约</h4><ol>
+<li><strong>合约的编写</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>智能合约通常用特定的编程语言（如Solidity）编写，代码中定义了合约的条款和条件。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>部署到区块链</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>编写好的智能合约被部署到区块链上，成为网络的一部分。部署后，合约的地址会被记录，任何人都可以与其交互。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>触发条件</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>智能合约在特定条件下被触发。例如，某项交易的完成、主动调用，时间的到达等。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>自动执行</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>一旦条件满足，智能合约将自动执行合约中的指令，如转账、更新数据等。这一过程不需要任何人的干预。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>记录与验证</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>执行的结果会被记录在区块链上，并通过共识机制进行验证，确保每个节点都有相同的信息。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>反馈与更新</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>执行完毕后，智能合约可以生成反馈信息，告知相关方执行结果。若合约设计中包括更新逻辑，合约状态也可以相应更新</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-常用语言与平台"><a href="#3-常用语言与平台" class="headerlink" title="3. 常用语言与平台"></a>3. 常用语言与平台</h3><h4 id="3-1-Solidity简介"><a href="#3-1-Solidity简介" class="headerlink" title="3.1. Solidity简介"></a>3.1. Solidity简介</h4><ol>
+<li><strong>编程语言</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>Solidity是一种专门为智能合约开发而设计的高层编程语言。它受到了JavaScript、Python和C++等语言的影响，使得其语法相对易于理解。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>特性</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li><strong>类型安全</strong>：支持静态类型检查，减少运行时错误。</li>
+<li><strong>合约结构</strong>：允许定义合约、库和接口，便于代码的组织和重用。</li>
+<li><strong>事件</strong>：提供事件日志功能，便于在区块链上跟踪状态变化和交易。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>开发工具</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>常用的开发环境包括Remix、Truffle和Hardhat，这些工具提供了测试、编译和部署的功能，使得开发者能够高效地构建和管理智能合约。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-2-以太坊平台"><a href="#3-2-以太坊平台" class="headerlink" title="3.2. 以太坊平台"></a>3.2. 以太坊平台</h4><ol>
+<li><strong>概述</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>以太坊是一个开放的区块链平台，支持智能合约和去中心化应用（DApp）的开发。它由Vitalik Buterin于2015年推出，成为最流行的智能合约平台之一。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>虚拟机</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>以太坊使用以太坊虚拟机（EVM）来执行智能合约，EVM是一个完全去中心化的执行环境，确保合约在全球所有节点上的一致性。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>原生代币</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>以太坊平台的原生代币是以太（ETH），用于支付交易费用和计算资源。用户在调用智能合约时需要支付“Gas”费用。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>生态系统</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>以太坊拥有丰富的生态系统，包括去中心化金融（DeFi）、非同质化代币（NFT）、游戏和社交平台等，吸引了大量开发者和用户。</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li><strong>发展方向</strong>：</li>
+</ol>
+<ul>
+<li><ul>
+<li>以太坊已经进行2.0版本更新，采用权益证明（PoS）机制，提高交易速度和降低能耗，同时增强安全性和可扩展性。</li>
+</ul>
+</li>
+</ul>
+<h4 id><a href="#" class="headerlink" title></a></h4><h3 id="4-智能合约应用场景"><a href="#4-智能合约应用场景" class="headerlink" title="4. 智能合约应用场景"></a>4. 智能合约应用场景</h3><h4 id="4-1-金融服务"><a href="#4-1-金融服务" class="headerlink" title="4.1. 金融服务"></a>4.1. 金融服务</h4><ul>
+<li><p><strong>去中心化金融（DeFi）</strong>：</p>
+</li>
+<li><ul>
+<li>智能合约使得金融产品（如借贷、交易所、衍生品等）可以在去中心化平台上自动执行，无需传统金融中介。用户可以直接在区块链上进行交易，降低费用和提高效率。</li>
+</ul>
+</li>
+<li><p><strong>自动化清算与结算</strong>：</p>
+</li>
+<li><ul>
+<li>在金融交易中，智能合约可以自动处理结算流程，确保交易各方在条件达成时自动进行资金转移和清算，减少人工干预和错误。</li>
+</ul>
+</li>
+<li><p><strong>保险理赔</strong>：</p>
+</li>
+<li><ul>
+<li>智能合约可用于保险行业，自动验证理赔请求并在条件满足时自动支付。这可以加快理赔流程，提高客户满意度。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-2-供应链管理"><a href="#4-2-供应链管理" class="headerlink" title="4.2. 供应链管理"></a>4.2. 供应链管理</h4><ul>
+<li><p><strong>透明度与追踪</strong>：</p>
+</li>
+<li><ul>
+<li>智能合约可以记录每个供应链环节的信息，如原材料来源、生产过程、运输状态等。所有参与方都可以实时查看数据，增强透明度和信任。</li>
+</ul>
+</li>
+<li><p><strong>自动执行合同条款</strong>：</p>
+</li>
+<li><ul>
+<li>在供应链中，智能合约能够自动触发付款和交货等操作。例如，当货物到达指定地点时，系统会自动释放付款，确保交易顺利进行。</li>
+</ul>
+</li>
+<li><p><strong>防止伪造与欺诈</strong>：</p>
+</li>
+<li><ul>
+<li>通过在区块链上记录产品的每个环节，智能合约可以帮助品牌防止伪造和欺诈行为，维护品牌声誉。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-3-投票系统"><a href="#4-3-投票系统" class="headerlink" title="4.3. 投票系统"></a>4.3. 投票系统</h4><ul>
+<li><p><strong>安全与透明</strong>：</p>
+</li>
+<li><ul>
+<li>智能合约可以用于构建去中心化的投票系统，确保每一票的记录都是安全和透明的。投票结果可在区块链上实时更新，确保投票过程的公正性。</li>
+</ul>
+</li>
+<li><p><strong>减少舞弊行为</strong>：</p>
+</li>
+<li><ul>
+<li>由于区块链的不可篡改性，智能合约能够有效防止投票舞弊，确保每位合格选民只能投一次票，且投票记录无法被修改。</li>
+</ul>
+</li>
+<li><p><strong>快速结果统计</strong>：</p>
+</li>
+<li><ul>
+<li>智能合约能够自动计算和发布投票结果，减少传统投票系统中的人工统计时间，提高效率</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-以太坊智能合约"><a href="#5-以太坊智能合约" class="headerlink" title="5. 以太坊智能合约"></a>5. 以太坊智能合约</h3><p>访问下面任一地址即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://remix.ethereum.org/</span><br><span class="line"></span><br><span class="line">https://remix.ethereum.org/#lang=en&amp;optimize=false&amp;runs=200&amp;evmVersion=null&amp;version=soljson-v0.8.26+commit.8a97fa7a.js</span><br></pre></td></tr></table></figure>
+
+<p>来到合约界面</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026144008306.png" alt="image-20241026144008306"></p>
+<p>contracts文件夹下有3个.sol文件，就是官方给初学者准备的3个最基础的合约</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: GPL-3.0</span><br><span class="line"></span><br><span class="line">pragma solidity &gt;=0.8.2 &lt;0.9.0;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @title Storage</span><br><span class="line"> * @dev Store &amp; retrieve value in a variable</span><br><span class="line"> * @custom:dev-run-script ./scripts/deploy_with_ethers.ts</span><br><span class="line"> */</span><br><span class="line">contract Storage &#123;</span><br><span class="line"></span><br><span class="line">    uint256 number;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Store value in variable</span><br><span class="line">     * @param num value to store</span><br><span class="line">     */</span><br><span class="line">    function store(uint256 num) public &#123;</span><br><span class="line">        number = num;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * @dev Return value </span><br><span class="line">     * @return value of &#x27;number&#x27;</span><br><span class="line">     */</span><br><span class="line">    function retrieve() public view returns (uint256)&#123;</span><br><span class="line">        return number;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Solidity 合约通常包含以下几个主要部分：</p>
+<ol>
+<li><strong>SPDX 许可标识</strong>：指定代码的开源许可。</li>
+<li><strong>pragma 指令</strong>：声明 Solidity 版本。</li>
+<li><strong>导入语句</strong>：引入其他合约或库。</li>
+<li><strong>合约声明</strong>：使用 <code>contract</code> 关键字。</li>
+<li><strong>状态变量</strong>：存储在区块链上的持久数据。</li>
+<li><strong>函数</strong>：合约的可执行代码单元。</li>
+</ol>
+<p>合约写好了我们对合约进行编译</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026144509165.png" alt="image-20241026144509165"></p>
+<p>编译完后，点击左侧部署，来到部署页面，点击deploy，在最下方会出现Deployed Contracts</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026144411259.png" alt="image-20241026144411259"></p>
+<p>点击收缩符号，就可以看到合约里拥有的方法，点击就可以对合约方法进行调用。</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026144552743.png" alt="image-20241026144552743"></p>
+<h3 id="6-智能合约系统"><a href="#6-智能合约系统" class="headerlink" title="6. 智能合约系统"></a>6. 智能合约系统</h3><p>项目是根据开源项目xxl-job进行修改完成的，项目地址：<code>https://gitee.com/daitoulin/contract_admin.git</code></p>
+<p>我们先配置数据库</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026145656398.png" alt="image-20241026145656398"></p>
+<p>导入前面第一部分区块链交易学习的项目代码中的sql文件</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026160726959.png" alt="image-20241026160726959"></p>
+<p>我们查看下，成功导入</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026160801151.png" alt="image-20241026160801151"></p>
+<h4 id="6-1-启动项目"><a href="#6-1-启动项目" class="headerlink" title="6.1. 启动项目"></a>6.1. 启动项目</h4><p>application.properties配置文件（在<code>contract_admin/xxl-job-admin/src/main/resources/application.properties</code>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">### web</span><br><span class="line">server.port=7896</span><br><span class="line">server.servlet.context-path=/xxl-job-admin</span><br><span class="line"></span><br><span class="line">### actuator</span><br><span class="line">management.server.servlet.context-path=/actuator</span><br><span class="line">management.health.mail.enabled=false</span><br><span class="line"></span><br><span class="line">### resources</span><br><span class="line">spring.mvc.servlet.load-on-startup=0</span><br><span class="line">spring.mvc.static-path-pattern=/static/**</span><br><span class="line">spring.resources.static-locations=classpath:/static/</span><br><span class="line"></span><br><span class="line">### freemarker</span><br><span class="line">spring.freemarker.templateLoaderPath=classpath:/templates/</span><br><span class="line">spring.freemarker.suffix=.ftl</span><br><span class="line">spring.freemarker.charset=UTF-8</span><br><span class="line">spring.freemarker.request-context-attribute=request</span><br><span class="line">spring.freemarker.settings.number_format=0.##########</span><br><span class="line">spring.freemarker.settings.new_builtin_class_resolver=safer</span><br><span class="line"></span><br><span class="line">### mybatis</span><br><span class="line">mybatis.mapper-locations=classpath:/mybatis-mapper/*Mapper.xml</span><br><span class="line">mybatis.configuration.map-underscore-to-camel-case=true</span><br><span class="line">#mybatis.type-aliases-package=com.xxl.job.admin.core.model</span><br><span class="line"></span><br><span class="line">### xxl-job, datasource</span><br><span class="line">spring.datasource.url=jdbc:mysql://localhost:3306/xxl_job?useUnicode=true&amp;useSSL=false&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;serverTimezone=Asia/Shanghai</span><br><span class="line">spring.datasource.username=root</span><br><span class="line">spring.datasource.password=root</span><br><span class="line">spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver</span><br><span class="line"></span><br><span class="line">### datasource-pool</span><br><span class="line">spring.datasource.type=com.zaxxer.hikari.HikariDataSource</span><br><span class="line">spring.datasource.hikari.minimum-idle=10</span><br><span class="line">spring.datasource.hikari.maximum-pool-size=30</span><br><span class="line">spring.datasource.hikari.auto-commit=true</span><br><span class="line">spring.datasource.hikari.idle-timeout=30000</span><br><span class="line">spring.datasource.hikari.pool-name=HikariCP</span><br><span class="line">spring.datasource.hikari.max-lifetime=900000</span><br><span class="line">spring.datasource.hikari.connection-timeout=10000</span><br><span class="line">spring.datasource.hikari.connection-test-query=SELECT 1</span><br><span class="line">spring.datasource.hikari.validation-timeout=1000</span><br><span class="line"></span><br><span class="line">### xxl-job, email</span><br><span class="line">spring.mail.host=smtp.qq.com</span><br><span class="line">spring.mail.port=25</span><br><span class="line">spring.mail.username=xxx@qq.com</span><br><span class="line">spring.mail.from=xxx@qq.com</span><br><span class="line">spring.mail.password=xxx</span><br><span class="line">spring.mail.properties.mail.smtp.auth=true</span><br><span class="line">spring.mail.properties.mail.smtp.starttls.enable=true</span><br><span class="line">spring.mail.properties.mail.smtp.starttls.required=true</span><br><span class="line">spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory</span><br><span class="line"></span><br><span class="line">### xxl-job, access token</span><br><span class="line">xxl.job.accessToken=abbbq.bbc!</span><br><span class="line"></span><br><span class="line">### xxl-job, i18n (default is zh_CN, and you can choose &quot;zh_CN&quot;, &quot;zh_TC&quot; and &quot;en&quot;)</span><br><span class="line">xxl.job.i18n=zh_CN</span><br><span class="line"></span><br><span class="line">## xxl-job, triggerpool max size</span><br><span class="line">xxl.job.triggerpool.fast.max=200</span><br><span class="line">xxl.job.triggerpool.slow.max=100</span><br><span class="line"></span><br><span class="line">### xxl-job, log retention days</span><br><span class="line">xxl.job.logretentiondays=15</span><br><span class="line"></span><br><span class="line">node.ip=192.168.132.1</span><br></pre></td></tr></table></figure>
+
+<p>开启节点项目，观察节点是否成功注册到合约系统</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026161440294.png" alt="image-20241026161440294"></p>
+<p>访问<code>http://127.0.0.1:7896/xxl-job-admin/</code>后，使用<code>admin:123456</code>登录</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026161523266.png" alt="image-20241026161523266"></p>
+<h4 id="6-2-创建合约"><a href="#6-2-创建合约" class="headerlink" title="6.2. 创建合约"></a>6.2. 创建合约</h4><p>点击任务管理，然后点击右上角新增</p>
+<p>需要填写以下内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">任务描述：随意填写</span><br><span class="line">负责人：随意填写</span><br><span class="line">//私钥和钱包地址前面的在在交易项目已经获取</span><br><span class="line">私钥：区块链项目那边生成的ETH钱包私钥</span><br><span class="line">钱包地址：区块链项目那边生成的ETH钱包地址</span><br><span class="line">运行模式：选择GLUE(Java)我们要用java语言来写智能合约</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026163651849.png" alt="image-20241026163651849"></p>
+<p>新增此合约对应的接口，检查上述输入内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/add&quot;)</span></span><br><span class="line">	<span class="meta">@ResponseBody</span></span><br><span class="line">	<span class="keyword">public</span> ReturnT&lt;String&gt; <span class="title function_">add</span><span class="params">(XxlJobInfo jobInfo)</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		jobInfo.setScheduleType(<span class="string">&quot;NONE&quot;</span>);</span><br><span class="line"></span><br><span class="line">		<span class="type">String</span> <span class="variable">privateKey</span> <span class="operator">=</span> jobInfo.getPrivateKey();</span><br><span class="line">		<span class="type">String</span> <span class="variable">walletAddress</span> <span class="operator">=</span> jobInfo.getWalletAddress();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (privateKey == <span class="literal">null</span> || <span class="string">&quot;&quot;</span>.equals(privateKey))&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ReturnT</span>&lt;String&gt;(ReturnT.FAIL_CODE,<span class="string">&quot;私钥不能为空&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (walletAddress == <span class="literal">null</span> || <span class="string">&quot;&quot;</span>.equals(walletAddress))&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ReturnT</span>&lt;String&gt;(ReturnT.FAIL_CODE,<span class="string">&quot;钱包地址不能为空&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="type">Credentials</span> <span class="variable">credentials</span> <span class="operator">=</span> Credentials.create(privateKey);</span><br><span class="line">		<span class="comment">// 获取 Ethereum 地址</span></span><br><span class="line">		<span class="type">String</span> <span class="variable">address</span> <span class="operator">=</span> credentials.getAddress();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (!address.equals(walletAddress))&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ReturnT</span>&lt;String&gt;(ReturnT.FAIL_CODE,<span class="string">&quot;私钥与钱包地址不匹配，请检查后再试&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		<span class="type">TContract</span> <span class="variable">tContract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TContract</span>();</span><br><span class="line">		tContract.setContractContent(jobInfo.getGlueSource());</span><br><span class="line"></span><br><span class="line">		tContract.setWalletAddress(walletAddress);</span><br><span class="line">		<span class="type">String</span> <span class="variable">time</span> <span class="operator">=</span> DateUtil.formatDateTime(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">		tContract.setCreateTime(time);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		<span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> encryptSHA1(walletAddress + time);</span><br><span class="line">		tContract.setContractAddress(s);</span><br><span class="line">		System.out.println(s);</span><br><span class="line"></span><br><span class="line">		ReturnT&lt;String&gt; add = xxlJobService.add(jobInfo);</span><br><span class="line">		tContract.setJobId(add.getContent());</span><br><span class="line">		contractDao.save(tContract);</span><br><span class="line"></span><br><span class="line">		System.out.println(<span class="string">&quot;jobId:&quot;</span> + add.getContent());</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> add;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-3-修改合约内容"><a href="#6-3-修改合约内容" class="headerlink" title="6.3. 修改合约内容"></a>6.3. 修改合约内容</h4><p>点击GLUE IDE到合约修改页面</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026164040215.png" alt="image-20241026164040215"></p>
+<p>合约内容如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xxl.job.service.handler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.context.XxlJobHelper;</span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.handler.IJobHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.service.impl.ContractServiceImpl;</span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TradeObject;</span><br><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TContract;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoGlueJobHandler</span> <span class="keyword">extends</span> <span class="title class_">IJobHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ContractServiceImpl contractServiceImpl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		XxlJobHelper.log(<span class="string">&quot;XXL-JOB, Hello World.&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">Param</span> <span class="operator">=</span> XxlJobHelper.getJobParam();</span><br><span class="line">        HashMap&lt;String, Object&gt; map = contractServiceImpl.jsonToMap(Param);</span><br><span class="line">        System.out.println(map);</span><br><span class="line">        XxlJobHelper.log(map.toString());</span><br><span class="line">        <span class="type">TradeObject</span> <span class="variable">trade</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().fromJson(map.get(<span class="string">&quot;tradeObject&quot;</span>),TradeObject.class);</span><br><span class="line">        <span class="type">TContract</span> <span class="variable">contract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TContract</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        trade.setDataStr(data);</span><br><span class="line">        contract.setId(map.get(<span class="string">&quot;contractId&quot;</span>));</span><br><span class="line">        contract.setData(data);</span><br><span class="line">        contract.setLastData(trade.getLastData());</span><br><span class="line">        contractServiceImpl.setData(contract);</span><br><span class="line">        contractServiceImpl.toChain(trade);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="6-4-调用合约"><a href="#6-4-调用合约" class="headerlink" title="6.4. 调用合约"></a>6.4. 调用合约</h4><p>在需要执行的合约点击右边的操作，点击执行一次。然后在任务参数这里我们需要输入privateKey，以及你想传递给合约的参数，需要以json形式书写。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;privateKey&quot;</span><span class="punctuation">:</span><span class="string">&quot;ced6cc51ee0d2063211564e53012aaac4c0b4978e8cc22a11ed998de4e4bcc3b&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span><span class="string">&quot;123456&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241026164544315.png" alt="image-20241026164544315"></p>
+<h4 id="6-5-合约案例"><a href="#6-5-合约案例" class="headerlink" title="6.5. 合约案例"></a>6.5. 合约案例</h4><ol>
+<li><p>最简单的存储参数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xxl.job.service.handler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.context.XxlJobHelper;</span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.handler.IJobHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.service.impl.ContractServiceImpl;</span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TradeObject;</span><br><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TContract;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoGlueJobHandler</span> <span class="keyword">extends</span> <span class="title class_">IJobHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ContractServiceImpl contractServiceImpl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		XxlJobHelper.log(<span class="string">&quot;XXL-JOB, Hello World.&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">Param</span> <span class="operator">=</span> XxlJobHelper.getJobParam();</span><br><span class="line">        HashMap&lt;String, Object&gt; map = contractServiceImpl.jsonToMap(Param);</span><br><span class="line">        System.out.println(map);</span><br><span class="line">        XxlJobHelper.log(map.toString());</span><br><span class="line">        <span class="type">TradeObject</span> <span class="variable">trade</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().fromJson(map.get(<span class="string">&quot;tradeObject&quot;</span>),TradeObject.class);</span><br><span class="line">        <span class="type">TContract</span> <span class="variable">contract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TContract</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">		</span><br><span class="line">        data = map.get(<span class="string">&quot;printData&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        trade.setDataStr(data);</span><br><span class="line">        contract.setId(Integer.valueOf(map.get(<span class="string">&quot;contractId&quot;</span>)));</span><br><span class="line">        contract.setData(data);</span><br><span class="line">        contract.setLastData(trade.getLastData());</span><br><span class="line">        contractServiceImpl.setData(contract);</span><br><span class="line">        contractServiceImpl.toChain(trade);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按前文执行一次调用合约，然后区块浏览器查看上链数据</p>
+</li>
+<li><p>多函数调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xxl.job.service.handler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.context.XxlJobHelper;</span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.handler.IJobHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.service.impl.ContractServiceImpl;</span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TradeObject;</span><br><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TContract;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoGlueJobHandler</span> <span class="keyword">extends</span> <span class="title class_">IJobHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ContractServiceImpl contractServiceImpl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		XxlJobHelper.log(<span class="string">&quot;XXL-JOB, Hello World.&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">Param</span> <span class="operator">=</span> XxlJobHelper.getJobParam();</span><br><span class="line">        HashMap&lt;String, Object&gt; map = contractServiceImpl.jsonToMap(Param);</span><br><span class="line">        System.out.println(map);</span><br><span class="line">        XxlJobHelper.log(map.toString());</span><br><span class="line">        <span class="type">TradeObject</span> <span class="variable">trade</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().fromJson(map.get(<span class="string">&quot;tradeObject&quot;</span>),TradeObject.class);</span><br><span class="line">        <span class="type">TContract</span> <span class="variable">contract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TContract</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line"></span><br><span class="line">		</span><br><span class="line">      	<span class="type">String</span> <span class="variable">method</span> <span class="operator">=</span> map.get(<span class="string">&quot;methodName&quot;</span>);</span><br><span class="line">      	<span class="keyword">if</span>(method.equals(<span class="string">&quot;initMethod&quot;</span>))&#123;</span><br><span class="line">        	<span class="type">String</span> <span class="variable">initString</span> <span class="operator">=</span> initMethod();</span><br><span class="line">          	data = initString;</span><br><span class="line">        &#125;</span><br><span class="line">      	<span class="keyword">if</span>(method.equals(<span class="string">&quot;others&quot;</span>))&#123;</span><br><span class="line">          	data = <span class="string">&quot;others method&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        trade.setDataStr(data);</span><br><span class="line">        contract.setId(Integer.valueOf(map.get(<span class="string">&quot;contractId&quot;</span>)));</span><br><span class="line">        contract.setData(data);</span><br><span class="line">        contract.setLastData(trade.getLastData());</span><br><span class="line">        contractServiceImpl.setData(contract);</span><br><span class="line">        contractServiceImpl.toChain(trade);</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">  	<span class="keyword">public</span> String <span class="title function_">initMethod</span><span class="params">()</span>&#123;</span><br><span class="line">    	<span class="keyword">return</span> <span class="string">&quot;initMethod&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>抽奖程序</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xxl.job.service.handler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.context.XxlJobHelper;</span><br><span class="line"><span class="keyword">import</span> com.xxl.job.core.handler.IJobHandler;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.service.impl.ContractServiceImpl;</span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TradeObject;</span><br><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"><span class="keyword">import</span> com.example.blockchain.entity.TContract;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoGlueJobHandler</span> <span class="keyword">extends</span> <span class="title class_">IJobHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span></span><br><span class="line">    <span class="keyword">private</span> ContractServiceImpl contractServiceImpl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        XxlJobHelper.log(<span class="string">&quot;XXL-JOB, Hello World.&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">Param</span> <span class="operator">=</span> XxlJobHelper.getJobParam();</span><br><span class="line">        HashMap&lt;String, Object&gt; map = contractServiceImpl.jsonToMap(Param);</span><br><span class="line">        System.out.println(map);</span><br><span class="line">        XxlJobHelper.log(map.toString());</span><br><span class="line">        <span class="type">TradeObject</span> <span class="variable">trade</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().fromJson(map.get(<span class="string">&quot;tradeObject&quot;</span>),TradeObject.class);</span><br><span class="line">        <span class="type">TContract</span> <span class="variable">contract</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TContract</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        List&lt;String&gt; participants = map.get(<span class="string">&quot;participants&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 生成随机数并确定中奖者</span></span><br><span class="line">        <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> random.nextInt(participants.size());</span><br><span class="line">        <span class="type">String</span> <span class="variable">winner</span> <span class="operator">=</span> participants.get(index);</span><br><span class="line">        data = winner;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        trade.setDataStr(data);</span><br><span class="line">        contract.setId(Integer.valueOf(map.get(<span class="string">&quot;contractId&quot;</span>)));</span><br><span class="line">        contract.setData(data);</span><br><span class="line">        contract.setLastData(trade.getLastData());</span><br><span class="line">        contractServiceImpl.setData(contract);</span><br><span class="line">        contractServiceImpl.toChain(trade);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E5%AD%A6%E4%B9%A0java%E4%B8%ADORM%E6%A1%86%E6%9E%B6-mybatis.html" rel="prev" title="学习java的mybatis框架及ORM映射">
+      <i class="fa fa-chevron-left"></i> 学习java的mybatis框架及ORM映射
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD6.html" rel="next" title="区块链实训6">
+      区块链实训6 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E5%8C%BA%E5%9D%97%E9%93%BE%E4%B8%AD%E7%9A%84%E4%BA%A4%E6%98%93"><span class="nav-number">1.</span> <span class="nav-text">第一部分：区块链中的交易</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BA%A4%E6%98%93%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">1. 交易的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BA%A4%E6%98%93%E7%9A%84%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86"><span class="nav-number">1.2.</span> <span class="nav-text">2. 交易的组成部分</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BA%A4%E6%98%93%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.3.</span> <span class="nav-text">3. 交易的生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BA%A4%E6%98%93%E5%AE%9E%E4%BD%93%E7%B1%BB"><span class="nav-number">1.4.</span> <span class="nav-text">4. 交易实体类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BA%A4%E6%98%93%E7%9B%B8%E5%85%B3%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.5.</span> <span class="nav-text">5. 交易相关接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E5%AE%9E%E7%8E%B0%E4%BA%A4%E6%98%93"><span class="nav-number">1.6.</span> <span class="nav-text">6. 实现交易</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6"><span class="nav-number">2.</span> <span class="nav-text">第二部分：智能合约</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">1. 智能合约定义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%EF%BC%9A"><span class="nav-number">2.1.1.</span> <span class="nav-text">1.1. 什么是智能合约：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E4%B8%8E%E4%BC%A0%E7%BB%9F%E5%90%88%E7%BA%A6%E7%9A%84%E6%AF%94%E8%BE%83%EF%BC%9A"><span class="nav-number">2.1.2.</span> <span class="nav-text">1.2. 与传统合约的比较：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">2. 工作原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%8C%BA%E5%9D%97%E9%93%BE%E6%8A%80%E6%9C%AF%E5%9F%BA%E7%A1%80"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.1. 区块链技术基础</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2. 如何执行智能合约</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E8%AF%AD%E8%A8%80%E4%B8%8E%E5%B9%B3%E5%8F%B0"><span class="nav-number">2.3.</span> <span class="nav-text">3. 常用语言与平台</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-Solidity%E7%AE%80%E4%BB%8B"><span class="nav-number">2.3.1.</span> <span class="nav-text">3.1. Solidity简介</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E5%B9%B3%E5%8F%B0"><span class="nav-number">2.3.2.</span> <span class="nav-text">3.2. 以太坊平台</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-number">2.3.3.</span> <span class="nav-text"></span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.4.</span> <span class="nav-text">4. 智能合约应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E9%87%91%E8%9E%8D%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.4.1.</span> <span class="nav-text">4.1. 金融服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E4%BE%9B%E5%BA%94%E9%93%BE%E7%AE%A1%E7%90%86"><span class="nav-number">2.4.2.</span> <span class="nav-text">4.2. 供应链管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-%E6%8A%95%E7%A5%A8%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.4.3.</span> <span class="nav-text">4.3. 投票系统</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BB%A5%E5%A4%AA%E5%9D%8A%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6"><span class="nav-number">2.5.</span> <span class="nav-text">5. 以太坊智能合约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.6.</span> <span class="nav-text">6. 智能合约系统</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#6-1-%E5%90%AF%E5%8A%A8%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.6.1.</span> <span class="nav-text">6.1. 启动项目</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-2-%E5%88%9B%E5%BB%BA%E5%90%88%E7%BA%A6"><span class="nav-number">2.6.2.</span> <span class="nav-text">6.2. 创建合约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-3-%E4%BF%AE%E6%94%B9%E5%90%88%E7%BA%A6%E5%86%85%E5%AE%B9"><span class="nav-number">2.6.3.</span> <span class="nav-text">6.3. 修改合约内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-4-%E8%B0%83%E7%94%A8%E5%90%88%E7%BA%A6"><span class="nav-number">2.6.4.</span> <span class="nav-text">6.4. 调用合约</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-5-%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B"><span class="nav-number">2.6.5.</span> <span class="nav-text">6.5. 合约案例</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

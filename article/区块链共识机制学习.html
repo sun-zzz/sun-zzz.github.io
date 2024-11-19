@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="共识机制是一套算法、规则或协议，用于确保分布式系统中的多个节点能够就特定事务或状态达成一致意见。在分布式珠境中，书志阌的通信可能受到网络延迟、故障或恶意行为的影响，因此需要共识机制来解决教据不一教性的问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="区块链实训3">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="共识机制是一套算法、规则或协议，用于确保分布式系统中的多个节点能够就特定事务或状态达成一致意见。在分布式珠境中，书志阌的通信可能受到网络延迟、故障或恶意行为的影响，因此需要共识机制来解决教据不一教性的问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210050974.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210142829.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210209169.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210230700.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210248992.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210307347.png">
+<meta property="article:published_time" content="2024-10-18T12:59:56.000Z">
+<meta property="article:modified_time" content="2024-10-26T06:19:31.070Z">
+<meta property="article:author" content="rev1ve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/C:/Users/%E7%BD%97%E6%80%9D%E8%BF%9C/AppData/Roaming/Typora/typora-user-images/image-20241018210050974.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>区块链实训3 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          区块链实训3
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-10-18 20:59:56" itemprop="dateCreated datePublished" datetime="2024-10-18T20:59:56+08:00">2024-10-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-10-26 14:19:31" itemprop="dateModified" datetime="2024-10-26T14:19:31+08:00">2024-10-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html" class="post-meta-item leancloud_visitors" data-flag-title="区块链实训3" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>共识机制是一套算法、规则或协议，用于确保分布式系统中的多个节点能够就特定事务或状态达成一致意见。在分布式珠境中，书志阌的通信可能受到网络延迟、故障或恶意行为的影响，因此需要共识机制来解决教据不一教性的问题。</p>
+<span id="more"></span>
+
+<h2 id="第一部分：区块链共识机制学习"><a href="#第一部分：区块链共识机制学习" class="headerlink" title="第一部分：区块链共识机制学习"></a>第一部分：区块链共识机制学习</h2><h3 id="1-共识机制的定义和作用"><a href="#1-共识机制的定义和作用" class="headerlink" title="1. 共识机制的定义和作用"></a>1. 共识机制的定义和作用</h3><p>共识机制是一套算法、规则或协议，用于确保分布式系统中的多个节点能够就特定事务或状态达成一致意见。在分布式珠境中，书志阌的通信可能受到网络延迟、故障或恶意行为的影响，因此需要共识机制来解决教据不一教性的问题。共识机制的主要作用包括:</p>
+<h4 id="1-1-数据一致性和完整性"><a href="#1-1-数据一致性和完整性" class="headerlink" title="1.1. 数据一致性和完整性"></a>1.1. 数据一致性和完整性</h4><p>共识机制确保所有节点在特定事件或操作上达成一致,从而维护数据的一致性和完整性。无论节点之间的通信是否受到干扰,系统都能保持统一的数据副本,避免数据冲突和不一致。</p>
+<h4 id="1-2-分布式事务处理"><a href="#1-2-分布式事务处理" class="headerlink" title="1.2. 分布式事务处理"></a>1.2. 分布式事务处理</h4><p>在分布式数据库或账本中，共识机制确保多个节点对事务的执行达成一致，从而保证事务的合法性和正确性。这对于金融交易、供应链管理等领域至关重要。</p>
+<h4 id="1-3-防止双重支付和欺诈"><a href="#1-3-防止双重支付和欺诈" class="headerlink" title="1.3. 防止双重支付和欺诈"></a>1.3. 防止双重支付和欺诈</h4><p>在加密货币领域，共识机制防止同一笔资产被多次消费，确保交易的有效性和安全性从而防止欺诈行为和双重支付。</p>
+<h4 id="1-4-网络安全和抵抗攻击"><a href="#1-4-网络安全和抵抗攻击" class="headerlink" title="1.4. 网络安全和抵抗攻击"></a>1.4. 网络安全和抵抗攻击</h4><p>共识机制可以增强系统的安全性,防止恶意节点篡改数据或发动网络攻击。它通过验证节点的行为和数据，提高系统的抵抗能力。</p>
+<h4 id="1-5-去中心化控制"><a href="#1-5-去中心化控制" class="headerlink" title="1.5. 去中心化控制"></a>1.5. 去中心化控制</h4><p>共识机制使分布式系统能够在无需中心控制机构的情况下运行。这意味着系统可以实现去中心化的控制和管理，减少了单点故障的风险。总之，共识机制是分布式系统中的关键组成部分，它确保了节点之间的协作和一致性，为系统的可靠性和稳定性提供了坚实的基础。不同的共识机制在不同的情境下具有优势和特点，我们将在接下来的小节中深入探讨这些机制的分类和特点。</p>
+<h3 id="2-共识机制的分类和特点"><a href="#2-共识机制的分类和特点" class="headerlink" title="2. 共识机制的分类和特点"></a>2. 共识机制的分类和特点</h3><p>在分布式系统和区块链技术的领域中，共识机制是确保多个节点就特定事件或状态达成一致的核心方法。不同的共识机制基于不同的原则和机制，各自具有独特的特点和优势。</p>
+<h4 id="2-1-工作量证明（Proof-of-Work，PoW）"><a href="#2-1-工作量证明（Proof-of-Work，PoW）" class="headerlink" title="2.1. 工作量证明（Proof of Work，PoW）"></a>2.1. 工作量证明（Proof of Work，PoW）</h4><p>工作量证明是最早被广泛应用的共识机制之一，其核心思想是通过解决复杂的数学难题，以证明节点对网络的贡献，从而获得权利参与共识过程。PoW机制具有以下特点：</p>
+<p>安全性高：PoW的安全性源自于解决难题的复杂性，攻击者需要大量的计算能力来破解，从而防止恶意攻击的行为。</p>
+<p>抵抗攻击：攻击者需要掌握绝大部分计算能力才能成功攻击，这在实际上是不切实际的，保护了网络的安全性。</p>
+<p>去中心化：PoW机制鼓励广泛的节点参与，没有中心化的控制权，因此具有良好的分散性。</p>
+<p>然而，PoW机制也存在能源消耗大、性能瓶颈等问题，尤其在当今环保意识高涨的情况下，其高能耗特性备受争议。</p>
+<h4 id="2-2-权益证明（Proof-of-Stake-PoS）"><a href="#2-2-权益证明（Proof-of-Stake-PoS）" class="headerlink" title="2.2. 权益证明（Proof of Stake, PoS）"></a>2.2. 权益证明（Proof of Stake, PoS）</h4><p>权益证明是另一种常见的共识机制，其核心理念是参与共识的权重与持有的加密货币数量相关。PoS机制具有以下特点：</p>
+<p>能源效率：相较于PoW，PoS消耗的能源要少得多，这在一定程度上解决了PoW的能源浪费问题。</p>
+<p>抵抗攻击：PoS同样需要攻击者掌握大量代币，才有可能进行恶意攻击，这一特点保护了网络的安全性。</p>
+<p>分散与权力：PoS可能导致持有大量代币的人在网络中拥有更多的权力，从而在一定程度上实现了权力的分散。</p>
+<p>然而，PoS机制也存在权力集中和节点不一定积极参与的问题，可能影响网络的安全性。</p>
+<h4 id="2-3-权益质押（Delegated-Proof-of-Stake-DPoS）"><a href="#2-3-权益质押（Delegated-Proof-of-Stake-DPoS）" class="headerlink" title="2.3. 权益质押（Delegated Proof of Stake, DPoS）"></a>2.3. 权益质押（Delegated Proof of Stake, DPoS）</h4><p>权益质押是在PoS机制基础上的一种改进，其核心思想是通过代理节点来参与共识过程。DPoS机制具有以下特点：</p>
+<p>快速和高吞吐：通过限制参与共识的节点数量，DPoS可以实现更快的交易确认和更高的吞吐量。</p>
+<p>分散授权：持币者可以将代币委托给代理节点，从而实现更广泛的参与和分散的授权。</p>
+<p>治理和决策：DPoS机制通常允许代币持有者就网络的治理和决策进行投票。</p>
+<p>然而，DPoS机制也存在中心化风险和安全性相对较低的问题，代理节点数量较少可能导致权力集中。</p>
+<h4 id="2-4-共识机制的组合（Hybrid）"><a href="#2-4-共识机制的组合（Hybrid）" class="headerlink" title="2.4. 共识机制的组合（Hybrid）"></a>2.4. 共识机制的组合（Hybrid）</h4><p>在实际应用中，也可以采用不同共识机制的组合，以取得各自机制的优势，实现更好的性能、安全性和可扩展性。通过综合不同机制，可以应对特定问题，如提高网络的能源效率或减少中心化风险。然而，混合共识机制可能引入更多的复杂性，需要权衡不同机制的权衡和劣势。</p>
+<h4 id="2-5-区块链中的共识机制"><a href="#2-5-区块链中的共识机制" class="headerlink" title="2.5. 区块链中的共识机制"></a>2.5. 区块链中的共识机制</h4><p>共识机制在区块链技术中至关重要，确保所有节点对账本的修改达成一致。不同类型的区块链（公有链、私有链、联盟链）可以根据其需求选择适合的共识机制。以下是一些示例：</p>
+<p>比特币（公有链）使用PoW共识机制，保障了分布式数字货币的安全性。</p>
+<p>以太坊（公有链）已经过渡到PoS，以提高能源效率和可扩展性。</p>
+<p>超级账本（联盟链）理论上支持所有共识机制，但需要自己实现。</p>
+<p>深入理解共识机制的分类、特点和应用，有助于在不同场景中做出明智的选择，以满足区块链应用的需求。在接下来的章节中，我们将进一步深入探讨每种共识机制的工作原理、实际应用案例和未来发展趋势。</p>
+<h3 id="3-常见共识机制详解"><a href="#3-常见共识机制详解" class="headerlink" title="3. 常见共识机制详解"></a>3. 常见共识机制详解</h3><p>在本章节中我们将介绍一些共识机制的原理、流程、优势以及他们的局限性</p>
+<h4 id="3-1-工作量证明（Proof-of-Work，-PoW）"><a href="#3-1-工作量证明（Proof-of-Work，-PoW）" class="headerlink" title="3.1. 工作量证明（Proof of Work， PoW）"></a>3.1. 工作量证明（Proof of Work， PoW）</h4><p>工足量证明（Proof of Work， PoW）是一种十分常见的区块链共识机制，最早由比特币引入，以太坊1.0以及许多货币都使用工作量证明来当做他们的底层共识机制。它通过解决数学难题来证明参与者的工作量，从而获得创建新区块的权利。由于PoW的概念相对简单，因此十分适合新手们对共识机制进行学习。</p>
+<h5 id="3-1-1-PoW的原理和流程"><a href="#3-1-1-PoW的原理和流程" class="headerlink" title="3.1.1. PoW的原理和流程"></a>3.1.1. PoW的原理和流程</h5><p>PoW的核心原理是基于哈希函数的不可预测性和随机性。在PoW中，矿工需要寻找一个特定的哈希值，使得区块头的哈希满足一定的条件，通常要求哈希值以一定数量的前导零开头。这个条件在数学上是难以预测的，唯一的方法是通过不断尝试不同的随机数来进行哈希计算，直到找到满足条件的哈希值，这需要大量的计算能力。</p>
+<p>具体来说，PoW的原理可以概括为以下步骤：</p>
+<p>（1）选择交易和构建区块头：矿工从交易池中选择一组待确认的交易，并构建区块头，包括前一个区块的哈希、交易列表的哈希等信息。</p>
+<p>（2）挑战难题：网络根据当前的难度目标，提出一个数学难题，要求找到一个特定的哈希值，使得区块头的哈希满足条件。</p>
+<p>（3）工作量竞赛：矿工开始尝试不同的随机数，将随机数插入区块头中，然后进行哈希计算。由于哈希函数的随机性，不同的随机数会产生不同的哈希值。</p>
+<p>（4）寻找满足条件的哈希值：矿工不断尝试不同的随机数，计算区块头的哈希，直到找到一个哈希值，满足难题条件（即以一定数量的前导零开头）。</p>
+<p>PoW的整体流程可以分为以下几个关键步骤：</p>
+<p>（1）交易池和构建区块：首先，网络中的节点将待确认的交易放入交易池。矿工从交易池中选择一定数量的交易，并将它们组合成一个区块。</p>
+<p>（2）难题设置：网络设定一个难度目标，通常是一个表示难度的数字。这个数字决定了满足难题条件的哈希值需要以多少前导零开头。</p>
+<p>（3）工作量竞赛：矿工开始尝试不同的Nonce值，将Nonce插入区块头中，然后计算区块头的哈希值。</p>
+<p>（4）验证和广播：一旦矿工找到满足条件的哈希值，就将该区块广播给网络中的其他节点。其他节点会验证这个区块的工作量，以确保矿工的计算是有效的。</p>
+<p>（5）奖励和新区块：如果其他节点验证通过，该区块将被添加到区块链中作为新的区块。矿工获得一定数量的奖励，通常包括新发行的代币和交易手续费。</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210050974.png" alt="image-20241018210050974"></p>
+<h5 id="3-1-2-PoW的优势和局限性"><a href="#3-1-2-PoW的优势和局限性" class="headerlink" title="3.1.2. PoW的优势和局限性"></a>3.1.2. PoW的优势和局限性</h5><p>PoW作为一种经典的共识算法，具有以下优势：</p>
+<p>（1）安全性高： PoW机制的安全性源于解决数学难题的复杂性。攻击者需要大量计算能力来篡改数据，阻碍了恶意行为。</p>
+<p>（2）抵抗攻击： 攻击者需要掌握网络中大多数计算能力，才能控制网络。这在实际上是难以实现的，保障了网络的去中心化和安全性。</p>
+<p>（3）去中心化： PoW鼓励广泛的节点参与共识，没有中心化的控制权。网络中的参与者通过竞争解决难题来获得权利，没有单一实体能够垄断共识过程。</p>
+<p>然而，PoW也存在以下局限性：</p>
+<p>（1）能源消耗： PoW机制耗费大量电力，特别是随着竞争的加剧，电力消耗逐渐增大，引发环保和可持续性问题。</p>
+<p>（2）性能瓶颈： 由于难题的复杂性，计算量逐渐增加，可能导致网络吞吐量下降，交易确认时间延长。通常需要数个区块确认后，交易才能被视为有效。这可能导致用户体验不佳，尤其是在需要快速完成交易的场景中。</p>
+<p>（3）中心化趋势： 为了获得更高的算力，矿工可能加入矿池，导致算力集中在少数矿池，增加了中心化风险。</p>
+<p>PoW在理论上是去中心化的，允许任何人参与，但在实践中，由于经济因素和技术要求，它可能会导致算力集中在少数矿池和资源丰富的参与者手中。这种现象并不是说PoW完全去中心化或完全中心化，而是存在一种动态的权衡。</p>
+<p>最后工作量证明机制是区块链技术的重要组成部分，尤其在比特币等公有链中发挥着关键作用。然而，其高能耗和潜在的中心化趋势也促使人们寻求更环保、更分散化的共识机制。在实际应用中，需要权衡PoW的优势与局限性，结合具体需求做选择。</p>
+<h4 id="3-2-权益证明（Proof-of-Stake，-Pos）"><a href="#3-2-权益证明（Proof-of-Stake，-Pos）" class="headerlink" title="3.2. 权益证明（Proof of Stake， Pos）"></a>3.2. 权益证明（Proof of Stake， Pos）</h4><p>权益证明（Proof of Stake，PoS）是一种与工作量证明（PoW）不同的区块链共识机制，它通过参与者持有的代币数量来决定其创建新区块的权利。PoS机制的核心思想是通过代币的权益来分配网络中的权力和责任，以实现共识过程。</p>
+<h5 id="3-2-1-PoS的原理和流程"><a href="#3-2-1-PoS的原理和流程" class="headerlink" title="3.2.1. PoS的原理和流程"></a>3.2.1. PoS的原理和流程</h5><p>PoS的核心思想是，持有更多代币的参与者在网络中具有更大的权利和责任。与PoW中通过解决数学难题来获得权利不同，PoS中的权利分配是根据持有的代币数量来确定的。参与者需要将一定数量的代币锁定（抵押）在网络中，作为参与共识的凭证。他们的抵押数量决定了他们被选中的概率。PoS的整体流程可以分为以下几个关键步骤：</p>
+<p>（1）抵押代币：参与者将一定数量的代币抵押到网络中。这些代币将被锁定，作为参与共识的凭证。抵押的数量通常与被选中的概率成正比。</p>
+<p>（2）选择出块节点：网络根据参与者抵押的代币数量来选择出块节点，即有权力创建新区块的节点。持有更多代币的参与者被选中的概率更高。</p>
+<p>（3）验证和创建区块：被选中的出块节点负责验证交易和创建新区块。他们收集待确认的交易，构建区块，然后进行签名和广播。</p>
+<p>（4）奖励和惩罚：如果出块节点成功创建新区块，他们将获得交易手续费和一定数量的奖励。然而，如果出块节点的行为被发现有问题，比如双花攻击，他们的抵押代币可能会被惩罚。</p>
+<h5 id="3-2-2-PoS的优势和局限性"><a href="#3-2-2-PoS的优势和局限性" class="headerlink" title="3.2.2. PoS的优势和局限性"></a>3.2.2. PoS的优势和局限性</h5><p>PoS相较于其他证明方式有以下几点优势：</p>
+<p>（1）能源效率：PoS相对于PoW来说，能源消耗大幅降低。PoW机制需要大量计算能力解决复杂难题，而PoS则通过代币抵押来选取节点，无需大量能源消耗。这使得PoS成为一种更环保和可持续的共识机制。</p>
+<p>（2）去中心化：PoS鼓励代币持有者积极参与共识过程，避免了PoW中可能出现的算力集中问题。持有更多代币的节点在共识中具有更大的权利，但这不同于PoW中算力竞争，不会导致资源垄断。</p>
+<p>（3）安全性：PoS机制中，攻击者需要掌握大量代币才能攻击网络，这增加了攻击的成本和难度。这种设计保障了网络的安全性，因为攻击者需要破坏自身的利益来进行攻击。</p>
+<p>（4）能够扩展性：PoS机制相对于PoW更容易实现扩展性，因为无需进行复杂的计算，节点只需要对交易进行验证和区块创建。这使得网络可以更轻松地处理更多的交易和数据。</p>
+<p>（5）减少硬件竞争：PoW机制中，矿工为了获得更高的算力，不断更新硬件，造成资源浪费。在PoS中，算力不是关键因素，减少了硬件竞争，节约了资源。</p>
+<p>同时PoS也有局限性和不足之处，主要有以下几点：</p>
+<p>（1）权力集中：虽然PoS鼓励代币持有者参与共识，但拥有更多代币的参与者在网络中拥有更大的权力。这可能导致权力集中问题，让少数人掌控网络决策。</p>
+<p>（2）节点激励问题：拥有代币并不一定意味着节点会积极参与共识过程。一些节点可能缺乏积极性，影响网络的安全性和稳定性。</p>
+<p>（3）链长问题：PoS机制中，参与者倾向于选择拥有更多代币的链，导致链长问题。这可能让拥有更多代币的人在网络决策中拥有更大话语权，不利于去中心化。</p>
+<p>（4）初始分配不公平：PoS的初始分配可能存在不公平性，最初拥有代币的人在网络中拥有更大的权利。这可能导致财富不平等问题。</p>
+<p>（5）算法设计复杂性：PoS的算法设计相对复杂，需要考虑权益抵押、随机性等因素。一个不合理的设计可能导致系统不稳定或易受攻击。</p>
+<p>综合来看，PoS作为一种区块链共识机制，在解决了能源消耗和性能问题的同时，也面临着权力集中、节点激励和初始分配不公平等一系列挑战。在选择PoS作为共识机制时，需要充分考虑其优势和局限性，结合具体应用场景做出合适的决策。</p>
+<h4 id="3-3-其他常见的共识机制"><a href="#3-3-其他常见的共识机制" class="headerlink" title="3.3. 其他常见的共识机制"></a>3.3. 其他常见的共识机制</h4><p>除了工作量证明（PoW）和权益证明（PoS），在区块链领域还存在许多其他有趣和创新的共识机制，它们各自针对不同的问题和需求，旨在提供更高效、更安全、更快速的共识算法。以下是一些其他常见的共识机制的简要介绍：</p>
+<ol>
+<li>权威共识（Delegated Proof of Stake，DPoS）<br>权威共识是一种基于代表性和选举的共识机制，代币持有者通过投票选举一组代表来确认交易和生成区块。这些代表通常由社区选出，负责验证交易和维护网络。DPoS具有较高的交易处理速度和可扩展性，但也引入了一定程度的中心化，因为少数代表可能掌握网络控制权。</li>
+<li>拜占庭容错（Byzantine Fault Tolerance，BFT）<br>拜占庭容错是一种强调在节点存在故障或恶意行为时仍然能够保持一致性的共识机制。它适用于分布式系统中存在不确定性和节点间通信存在延迟的情况。拜占庭容错机制确保只要节点中的大多数诚实，就能达成共识。Hyperledger Fabric等区块链项目采用了BFT共识机制。</li>
+<li>权益授权（Proof of Authority，PoA）<br>权益授权是一种基于授权节点的共识机制，网络中的节点由已授权的实体管理。授权实体通常是已知的组织或个人，他们负责验证交易并生成新区块。PoA具有高度的安全性和性能，但在去中心化方面存在局限，因为网络的控制权被集中在少数授权实体手中。</li>
+<li>流动性共识（Proof of Liquidity，PoL）<br>流动性共识是一种将流动性提供者纳入共识过程的机制。持有代币的用户可以将代币锁定在智能合约中，以提供流动性支持，同时获得交易手续费和奖励。这种共识机制鼓励流动性提供者参与，增加了网络的交易吞吐量。</li>
+<li>时间证明（Proof of Elapsed Time，PoET）<br>时间证明是一种通过随机等待时间来选择区块生成者的共识机制。每个节点在等待一段随机时间后，竞争获得出块的权利。这种机制在Hyperledger Sawtooth等项目中得到了应用。<br>这仅仅是一小部分其他常见共识机制的简要介绍。随着区块链技术的发展，还可能会出现新的共识算法，以满足不同场景下的需求。选择适合的共识机制需要根据项目的目标、安全性要求、性能需求等多方面因素进行权衡。</li>
+</ol>
+<h2 id="第二部分：PoW共识机制实践"><a href="#第二部分：PoW共识机制实践" class="headerlink" title="第二部分：PoW共识机制实践"></a>第二部分：PoW共识机制实践</h2><p>共识机制的主要目标是确保在分布式网络中的节点之间就特定的事务或状态达成一致。在这一特性的基础上，工作量证明（Proof of Work，PoW）机制可以被看作是一种简单而直接的方式来体现这一理念。其核心思想是定义一个共同的目标，然后根据不同机器的计算能力来先算出这个目标的结果。计算成功后，算出结果的机器将通知其他节点，其他节点在收到通知后会验证这个结果，一旦验证通过，当前区块的计算即被终止，这个结果会被广泛接受并被用于产生新的区块。</p>
+<h3 id="1-区块表结构"><a href="#1-区块表结构" class="headerlink" title="1. 区块表结构"></a>1. 区块表结构</h3><p>我们会使用新组件SQLite来构建我们的区块链表，使用SQLite的原因如下：</p>
+<ul>
+<li><p>轻量级：SQLite 是一个嵌入式数据库，资源占用少，非常适合嵌入到区块链应用中，特别是在资源有限的设备上。</p>
+</li>
+<li><p>无服务器架构：SQLite 不需要单独的服务器进程，所有数据存储在一个文件中，简化了部署和管理，提高了可用性。</p>
+</li>
+<li><p>快速读写：对于小型数据集，SQLite 的读写性能非常高，能够满足快速交易处理的需求。</p>
+</li>
+<li><p>跨平台支持：SQLite 可以在多种操作系统上运行，便于在不同环境中进行开发和部署。</p>
+</li>
+<li><p>简单易用：SQLite 的API简单，易于集成，开发者可以快速上手并实现功能</p>
+</li>
+<li><p>SQLite的应用：在 Android 开发中，SQLite 是官方推荐的本地数据存储解决方案。浏览器如 Chrome 和 Firefox 就使用 SQLite 存储浏览历史、书签等数据。</p>
+</li>
+</ul>
+<ol>
+<li>首先是block表，block表拥有以下字段</li>
+</ol>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210142829.png" alt="image-20241018210142829"></p>
+<p>下面是建表语句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String <span class="title function_">getBlockSql</span><span class="params">(String index)</span> &#123;</span><br><span class="line">		<span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;CREATE TABLE IF NOT EXISTS [block&quot;</span> + index + <span class="string">&quot;] (&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[ID] INTEGER  PRIMARY KEY AUTOINCREMENT NOT NULL,&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[blockIndex] TEXT  NOT NULL,&quot;</span> +</span><br><span class="line">				<span class="string">&quot;[preBlockHash] VARCHAR(300)  NOT NULL,&quot;</span> +</span><br><span class="line">				<span class="string">&quot;[path] VARCHAR(300)  UNIQUE NOT NULL,&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[createTime]  VARCHAR(50)  NOT NULL,&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[blockHash] VARCHAR(300)  UNIQUE NOT NULL,&quot;</span> +</span><br><span class="line">				<span class="string">&quot;[randomNumber] TEXT  NOT NULL,&quot;</span> +</span><br><span class="line">				<span class="string">&quot;[onMingChain] INTEGER DEFAULT &#x27;0&#x27; NOT NULL&quot;</span> +</span><br><span class="line">				<span class="string">&quot;)&quot;</span>;</span><br><span class="line">		<span class="keyword">return</span> sql;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>blockIndex：区块号</p>
+<p>preBlockHash：上一块区块的哈希</p>
+<p>path：区块对应的区块文件</p>
+<p>createTime：区块创建时间</p>
+<p>blockHash：本区块哈希</p>
+<p>randomNumber：随机幸运数</p>
+<p>onMingChain：该区块是否在主链上</p>
+<p>block表主要是用来存储区块对应的信息</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210209169.png" alt="image-20241018210209169"></p>
+<ol start="2">
+<li>dictionary表</li>
+</ol>
+<p>dictionary表主要存储区块的当前配置</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210230700.png" alt="image-20241018210230700"></p>
+<p>建表语句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String <span class="title function_">getDicSql</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;CREATE TABLE IF NOT EXISTS [dictionary] (&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[module] VARCHAR(20)  NOT NULL,&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[key] VARCHAR(20)  NOT NULL,&quot;</span> + </span><br><span class="line">				<span class="string">&quot;[value] VARCHAR(20)  NOT NULL&quot;</span> + </span><br><span class="line">				<span class="string">&quot;)&quot;</span>;</span><br><span class="line">		<span class="keyword">return</span> sql;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>数据展示</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210248992.png" alt="image-20241018210248992"></p>
+<p>module：什么模块</p>
+<p>key：键名</p>
+<p>value：键名对应的值</p>
+<p>currentBlockIndex：节点当前更新到的区块</p>
+<p>blockIndex：网络中当前最大区块</p>
+<p>difficulty：挖掘难度</p>
+<ol start="3">
+<li>pending表</li>
+</ol>
+<p>用来存储等待打包的交易</p>
+<p><img src="/article/C:/Users/罗思远/AppData/Roaming/Typora/typora-user-images/image-20241018210307347.png" alt="image-20241018210307347"></p>
+<p>建表语句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String <span class="title function_">getPendingSql</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;CREATE TABLE IF NOT EXISTS [pending] (&quot;</span> + </span><br><span class="line">			<span class="string">&quot;[orderNo] VARCHAR(200)  UNIQUE NOT NULL,&quot;</span> + </span><br><span class="line">			<span class="string">&quot;[tradeBody] TEXT  NOT NULL,&quot;</span> +</span><br><span class="line">			<span class="string">&quot;[tradeType] VARCHAR(1)  NULL,&quot;</span> + </span><br><span class="line">			<span class="string">&quot;[createTime] VARCHAR(50) NOT NULL&quot;</span> + </span><br><span class="line">			<span class="string">&quot;)&quot;</span>;</span><br><span class="line">	<span class="keyword">return</span> sql;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>orderNo：交易号</p>
+<p>tradeBody：交易体，包含了交易数据等等</p>
+<p>tradeType：交易类型,普通交易或者合约交易</p>
+<p>createTime：交易的创建时间</p>
+<h3 id="2-代码实现"><a href="#2-代码实现" class="headerlink" title="2. 代码实现"></a>2. 代码实现</h3><p>引导节点仓库地址：<a target="_blank" rel="noopener" href="https://gitee.com/daitoulin/p2p_bootstrap.git">https://gitee.com/daitoulin/p2p_bootstrap.git</a></p>
+<p>对等节点仓库地址：<a target="_blank" rel="noopener" href="https://gitee.com/daitoulin/block_chain.git">https://gitee.com/daitoulin/block_chain.git</a></p>
+<h4 id="2-1-难题设置以及工作量竞赛"><a href="#2-1-难题设置以及工作量竞赛" class="headerlink" title="2.1. 难题设置以及工作量竞赛"></a>2.1. 难题设置以及工作量竞赛</h4><p>首先来看下我们区块的实体类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.blockchain.entity.block;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.Getter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Block</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String blockIndex;</span><br><span class="line">    <span class="keyword">public</span> String blockHash;</span><br><span class="line">    <span class="keyword">public</span> String preBlockHash;</span><br><span class="line">    <span class="keyword">public</span> String workLoad;</span><br><span class="line">    <span class="keyword">public</span> String createTime;</span><br><span class="line">    <span class="keyword">public</span> String path;</span><br><span class="line">    <span class="keyword">public</span> String dataJson;</span><br><span class="line">    <span class="keyword">public</span> String tradeIds;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">workString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Block&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;blockIndex=&#x27;&quot;</span> + blockIndex + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, blockPreHash=&#x27;&quot;</span> + preBlockHash + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, workLoad=&#x27;&quot;</span> + workLoad + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, dataJson=&#x27;&quot;</span> + dataJson + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, createTime=&#x27;&quot;</span> + createTime + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, randomNumber=&#x27;&quot;</span> + randomNumber + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, tradeIds=&#x27;&quot;</span> + tradeIds + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Block&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;blockIndex=&#x27;&quot;</span> + blockIndex + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, blockHash=&#x27;&quot;</span> + blockHash + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, blockPreHash=&#x27;&quot;</span> + preBlockHash + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, workLoad=&#x27;&quot;</span> + workLoad + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, dataJson=&#x27;&quot;</span> + dataJson + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, createTime=&#x27;&quot;</span> + createTime + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, path=&#x27;&quot;</span> + path + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, tradeIds=&#x27;&quot;</span> + tradeIds + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, randomNumber=&#x27;&quot;</span> + randomNumber + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getBlockIndex</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> blockIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBlockIndex</span><span class="params">(String blockIndex)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.blockIndex = blockIndex;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getBlockHash</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> blockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBlockHash</span><span class="params">(String blockHash)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.blockHash = blockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getPreBlockHash</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> preBlockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPreBlockHash</span><span class="params">(String preBlockHash)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.preBlockHash = preBlockHash;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getWorkLoad</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> workLoad;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String randomNumber;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getPath</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> path;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPath</span><span class="params">(String path)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.path = path;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setWorkLoad</span><span class="params">(String workLoad)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.workLoad = workLoad;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getCreateTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> createTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setCreateTime</span><span class="params">(String createTime)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.createTime = createTime;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setId</span><span class="params">(<span class="type">int</span> id)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getRandomNumber</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> randomNumber;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setRandomNumber</span><span class="params">(String randomNumber)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.randomNumber = randomNumber;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDataJson</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> dataJson;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setDataJson</span><span class="params">(String dataJson)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.dataJson = dataJson;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getTradeIds</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> tradeIds;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setTradeIds</span><span class="params">(String tradeIds)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.tradeIds = tradeIds;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>一些常用的其他实体：</p>
+<ul>
+<li>TradeBodyPool 交易池对象</li>
+<li>BlockDownLoad 区块下载对象</li>
+</ul>
+<p>首先定义了两个数字变量，用来判断其他节点给我们返回的结果。然后从定时任务中取出当前的区块号，对区块号进行校验，如果是第一块区块则需要进行特殊处理，因为第一块区块是没有前一块区块的哈希值的。对Block对象进行赋值，需要取出交易池中的pending对象，将交易的哈希值取出进行接下来的计算工作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(<span class="string">&quot;开始运算---------------------&quot;</span>);</span><br><span class="line"><span class="type">int</span> <span class="variable">trueCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">falseCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">preBlockIndex</span> <span class="operator">=</span> String.valueOf(UpdateTimer.currentMaxBlockIndex);</span><br><span class="line">BlockServiceImpl.checkBlockTable(preBlockIndex);</span><br><span class="line">List&lt;Block&gt; blocks = BlockServiceImpl.queryBlockByBlockIndex(preBlockIndex);</span><br><span class="line"><span class="type">Block</span> <span class="variable">currentBlock</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span> (blocks.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">	currentBlock = blocks.get(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (currentBlock == <span class="literal">null</span>) &#123;</span><br><span class="line">	currentBlock = <span class="keyword">new</span> <span class="title class_">Block</span>();</span><br><span class="line">	currentBlock.setBlockHash(<span class="string">&quot;First block hash&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">Dictionary</span> <span class="variable">diffWorkload</span> <span class="operator">=</span> InitUtils.intiDifficulty();<span class="comment">// 字典表的工作量配置</span></span><br><span class="line"><span class="type">String</span> <span class="variable">maxBlockIndex</span> <span class="operator">=</span> currentBlock.getBlockIndex();</span><br><span class="line"><span class="type">String</span> <span class="variable">nextBlockIndex</span> <span class="operator">=</span> getNextBlockIndex(maxBlockIndex);</span><br><span class="line"><span class="type">Block</span> <span class="variable">block</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Block</span>();</span><br><span class="line"><span class="type">Random</span> <span class="variable">r</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line"><span class="type">String</span> <span class="variable">rand</span> <span class="operator">=</span> String.valueOf(r.nextInt(<span class="number">1000000</span>));</span><br><span class="line">block.setBlockIndex(nextBlockIndex);</span><br><span class="line">block.setCreateTime(time);</span><br><span class="line">block.setWorkLoad(diffWorkload.getValue());</span><br><span class="line">block.setCreateTime(DateUtils.getTime());</span><br><span class="line">block.setPreBlockHash(currentBlock.getBlockHash());</span><br><span class="line">block.setRandomNumber(rand);</span><br><span class="line"><span class="type">Date</span> <span class="variable">runDate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line"><span class="type">String</span> <span class="variable">blockPath</span> <span class="operator">=</span> DataUtils.getBlockPath(nextBlockIndex, runDate);<span class="comment">// gen block file path</span></span><br><span class="line">block.setPath(blockPath);</span><br><span class="line"></span><br><span class="line"><span class="comment">//取出交易</span></span><br><span class="line">List&lt;String&gt; tradeNos = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">List&lt;Pending&gt; list = PendingServiceImpl.queryPendings();</span><br><span class="line"><span class="keyword">if</span> (list.size() != <span class="number">0</span>) &#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">		tradeNos.add(list.get(i).getOrderNo());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">block.setDataJson(list.toString());</span><br></pre></td></tr></table></figure>
+
+<p>定义一个验证规则，作为工作量证明的目标。例如，以哈希运算结果的前缀为4个连续的零为例，将区块体对象的 workString 方法的输出作为输入进行哈希运算，同时使用 workLoad 作为一个随机变量来不断改变运算的结果。</p>
+<p>在这个过程中，矿工不断尝试不同的随机值（workLoad），将区块体对象的字符串表示与该随机值进行组合，然后进行哈希运算。他们的目标是找到一个特定的随机值，使得通过哈希运算得到的结果满足一定的条件，例如在结果的前面有4个连续的零。这个过程需要不断尝试不同的随机值，直到找到一个符合条件的结果为止。</p>
+<p>这个过程模拟了工作量证明机制，其中矿工需要投入大量的计算资源来不断尝试寻找符合条件的随机值，以获得权利创建新区块。这是一种保障网络安全的机制，因为其他节点需要验证这个随机值是否满足条件，从而确认该区块的有效性。</p>
+<p>简单来说就是其他的值都是固定的，只有这个随机数是变动的，所以就只能穷举一直算。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">outHash</span> <span class="operator">=</span> EncryptUtil.encryptSHA256(block.workString());</span><br><span class="line">System.out.println(outHash);</span><br><span class="line"><span class="keyword">if</span> (outHash.startsWith(diffWorkload.getValue())) &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;挖到---------------------&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-计算结果广播以及工作量验证"><a href="#2-2-计算结果广播以及工作量验证" class="headerlink" title="2.2. 计算结果广播以及工作量验证"></a>2.2. 计算结果广播以及工作量验证</h4><p>计算出答案的人会将结果进行广播，在网络中的人都会接收到区块信息并对接收到的信息进行验证，验证通过就返回true，失败则返回false，当正确的结果超过半数以上时，我们就认为这个节点是最先计算出正确答案的节点，拥有记账权，记录这个新的区块。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">block.setBlockHash(outHash);</span><br><span class="line"><span class="keyword">for</span> (String port : map.getFs().keySet()) &#123;</span><br><span class="line">    <span class="type">Friends</span> <span class="variable">f</span> <span class="operator">=</span> map.getFs().get(port);</span><br><span class="line">    <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> f.getIp();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">resp</span> <span class="operator">=</span> HttpHelper.checkBlock(ip, block);</span><br><span class="line">    <span class="type">JSONObject</span> <span class="variable">response</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().fromJson(resp, JSONObject.class);</span><br><span class="line">    <span class="keyword">if</span> (response.getCode().equals(<span class="string">&quot;1&quot;</span>)) &#123;</span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">isTrue</span> <span class="operator">=</span> (Boolean) response.getO();</span><br><span class="line">        <span class="keyword">if</span> (isTrue) &#123;</span><br><span class="line">            trueCount = trueCount + <span class="number">1</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            falseCount = falseCount + <span class="number">1</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            System.out.println(ip + <span class="string">&quot;失败&quot;</span>);</span><br><span class="line">            map.getFs().get(port).setFriendliness(<span class="number">0</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> trueCount + falseCount;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">isTrueCountMajority</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            isTrueCountMajority = trueCount &gt; (count / <span class="number">2</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isTrueCountMajority) &#123;</span><br><span class="line">            <span class="comment">//正确结果超过半数以上</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//将新区块记录到区块链中</span></span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>来看下其他节点是怎样验证计算结果的，</p>
+<ul>
+<li>收到广播的消息后，我们也会对传输的数据进行sha256哈希计算，这一步可以验证交易是否有被篡改过。</li>
+<li>然后用传输过来的区块号去本地数据库查询，查看是否已经存在该区块，</li>
+<li>查看传输过来的区块是否是当前正在计算的区块</li>
+<li>查看区块号是否符合给定的计算条件（例如以0000开头的区块号）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/mining/checkBlock&quot;, method = &#123;RequestMethod.POST&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;JSONObject&gt; <span class="title function_">checkBlock</span><span class="params">(<span class="meta">@RequestBody</span> Block b)</span> &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">Dictionary</span> <span class="variable">diffWorkload</span> <span class="operator">=</span> InitUtils.intiDifficulty();<span class="comment">// 字典表的工作量配置</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">blockHash</span> <span class="operator">=</span> EncryptUtil.encryptSHA256(b.workString());</span><br><span class="line">        List&lt;Block&gt; bs = BlockServiceImpl.queryBlockByBlockIndex(b.getBlockIndex());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (bs.size() != <span class="number">0</span> || Integer.valueOf(b.getBlockIndex()) - <span class="number">1</span> &lt; UpdateTimer.currentMaxBlockIndex.intValue() || !blockHash.equals(b.getBlockHash()) || !blockHash.startsWith(diffWorkload.getValue())) &#123;</span><br><span class="line">            jo.setO(<span class="literal">false</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            mining.isWork = <span class="literal">false</span>;</span><br><span class="line">            jo.setO(<span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        jo.setCode(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-3-定时任务每秒向其他节点请求最新区块"><a href="#2-3-定时任务每秒向其他节点请求最新区块" class="headerlink" title="2.3. 定时任务每秒向其他节点请求最新区块"></a>2.3. 定时任务每秒向其他节点请求最新区块</h4><p>我们会通过已经保存的对等节点的ip进行最新区块的获取</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateBlock</span><span class="params">(String blockIndex, Mining mining, MapFriends map)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">BlockDownLoad</span> <span class="variable">bdl</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span>(String port:map.getFs().keySet())&#123;</span><br><span class="line">            Friends f= map.getFs().get(port);</span><br><span class="line">            String ip=f.getIp();</span><br><span class="line">            <span class="keyword">if</span> (f.getFriendliness() == <span class="number">0</span>)&#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="type">NoticeParams</span> <span class="variable">np</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NoticeParams</span>(blockIndex.toString(), ip,<span class="string">&quot;&quot;</span>);</span><br><span class="line">            bdl = HttpHelper.downLoadBlock(ip, <span class="number">8888</span>, np);<span class="comment">//获取区块和区块内容</span></span><br><span class="line">            <span class="keyword">if</span>(bdl == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//检测当前区块是否已经存在</span></span><br><span class="line">            <span class="type">TradeBodyPool</span> <span class="variable">tbp</span> <span class="operator">=</span> BlockBaseUtils.genTbp(bdl);</span><br><span class="line">            List&lt;Block&gt; bs=BlockServiceImpl.queryBlockByBlockIndex(bdl.getBlock().getBlockIndex());</span><br><span class="line">            <span class="keyword">if</span>(bs.size() &gt; <span class="number">0</span> )&#123;</span><br><span class="line">                deletePending(tbp);<span class="comment">//删除pending</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            BlockServiceImpl.checkBlockTable(bdl.getBlock().getBlockIndex());<span class="comment">//检查表是否存在</span></span><br><span class="line"></span><br><span class="line">            BlockServiceImpl.save(bdl.getBlock());<span class="comment">//保存区块DB</span></span><br><span class="line">            BlockServiceImpl.saveBlockFile(bdl);<span class="comment">//保存区块文件</span></span><br><span class="line">            DicServiceImpl.updateDicBlockIndex(blockIndex);<span class="comment">//更新当前更新到的块号</span></span><br><span class="line">            DicServiceImpl.updateDicMainBockIndex(bdl.getMaxBlockIndex());<span class="comment">//更新当前更新到的块号</span></span><br><span class="line">            UpdateTimer.currentBlockIndex= <span class="keyword">new</span> <span class="title class_">BigInteger</span>(blockIndex) ;</span><br><span class="line">            UpdateTimer.currentMaxBlockIndex= <span class="keyword">new</span> <span class="title class_">BigInteger</span>(bdl.getMaxBlockIndex()) ;</span><br><span class="line">            deletePending(tbp);<span class="comment">//删除pending</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(bdl==<span class="literal">null</span>)&#123;</span><br><span class="line">            mining.updateComplete=<span class="literal">true</span>;</span><br><span class="line">            mining.isWork=<span class="literal">true</span>;</span><br><span class="line">            <span class="comment">//已经更新到最高区块</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Exception</span>();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>下载区块的具体方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> BlockDownLoad <span class="title function_">downLoadBlock</span><span class="params">(String ip, <span class="type">int</span> port, NoticeParams np)</span> &#123;</span><br><span class="line">        <span class="type">BlockDownLoad</span> <span class="variable">bdl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BlockDownLoad</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotBlank(ip)) &#123;</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span> + ip + <span class="string">&quot;:&quot;</span> + port + <span class="string">&quot;/mining/server/block.zip&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            url = <span class="string">&quot;http://&quot;</span> + np.getIp() + <span class="string">&quot;:&quot;</span> + <span class="string">&quot;8001&quot;</span> + <span class="string">&quot;/mining/server/block.zip&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// create Httpclient object</span></span><br><span class="line">        <span class="type">CloseableHttpClient</span> <span class="variable">httpClient</span> <span class="operator">=</span> HttpClients.createDefault();</span><br><span class="line">        <span class="type">CloseableHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">ZipInputStream</span> <span class="variable">zis</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">HttpPost</span> <span class="variable">httpPost</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Download Block &quot;</span>);</span><br><span class="line">            httpPost = <span class="keyword">new</span> <span class="title class_">HttpPost</span>(url);</span><br><span class="line">            httpPost.setHeader(<span class="string">&quot;Content-type&quot;</span>, <span class="string">&quot;application/json; charset=utf-8&quot;</span>);</span><br><span class="line">            httpPost.setHeader(<span class="string">&quot;Connection&quot;</span>, <span class="string">&quot;Close&quot;</span>);</span><br><span class="line">            httpPost.addHeader(<span class="string">&quot;Accept-Encoding&quot;</span>, <span class="string">&quot;GZIP&quot;</span>);</span><br><span class="line">            <span class="type">RequestConfig</span> <span class="variable">requestConfig</span> <span class="operator">=</span> RequestConfig.custom().setConnectTimeout(<span class="number">5000</span>).setConnectionRequestTimeout(<span class="number">15000</span>).setSocketTimeout(<span class="number">15000</span>).build();</span><br><span class="line">            httpPost.setConfig(requestConfig);</span><br><span class="line">            <span class="type">StringEntity</span> <span class="variable">entity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringEntity</span>(np.toJSONString(), Charset.forName(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">            entity.setContentEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">            entity.setContentType(<span class="string">&quot;application/json&quot;</span>);</span><br><span class="line">            httpPost.setEntity(entity);</span><br><span class="line">            response = httpClient.execute(httpPost);</span><br><span class="line">            <span class="comment">//get zip</span></span><br><span class="line">            zis = <span class="keyword">new</span> <span class="title class_">ZipInputStream</span>(response.getEntity().getContent(), Charset.forName(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">            <span class="type">ZipEntry</span> <span class="variable">ze</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="type">Block</span> <span class="variable">block</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="type">String</span> <span class="variable">blockFileStr</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">            <span class="type">String</span> <span class="variable">maxIndex</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">            <span class="keyword">while</span> ((ze = zis.getNextEntry()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="string">&quot;blockObject&quot;</span>.equals(ze.getName())) &#123;</span><br><span class="line">                    <span class="comment">//区块对象</span></span><br><span class="line">                    block = BlockServiceImpl.getBlockObeject(zis);</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;maxblockindex&quot;</span>.equals(ze.getName())) &#123;</span><br><span class="line">                    <span class="comment">//获得最大块编号</span></span><br><span class="line">                    maxIndex = BlockServiceImpl.getMaxBlockIndexStr(zis);</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;tokblockfile&quot;</span>.equals(ze.getName())) &#123;</span><br><span class="line">                    <span class="comment">//获得区块文件</span></span><br><span class="line">                    blockFileStr = BlockServiceImpl.getBlockFileStr(zis);</span><br><span class="line">                    System.out.println(blockFileStr);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (block == <span class="literal">null</span> || StringUtils.isBlank(blockFileStr)) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//throw new Exception(&quot;down block is not complete.&quot;);</span></span><br><span class="line">                System.out.println(<span class="string">&quot;当前block为空，无需下载&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            bdl.setBlock(block);</span><br><span class="line">            bdl.setBlockFileStr(blockFileStr);</span><br><span class="line">            bdl.setMaxBlockIndex(maxIndex);</span><br><span class="line">            <span class="keyword">return</span> bdl;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">//e.printStackTrace();</span></span><br><span class="line">            System.out.println(<span class="string">&quot;连接不到对等节点：&quot;</span> + ip);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (httpPost != <span class="literal">null</span>) &#123;</span><br><span class="line">                    httpPost.releaseConnection();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (httpClient != <span class="literal">null</span>) &#123;</span><br><span class="line">                    httpClient.close();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (response != <span class="literal">null</span>)</span><br><span class="line">                    response.close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>读取流代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bos = <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>(); <span class="comment">// 创建一个字节数组输出流</span></span><br><span class="line"><span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">512</span>];     <span class="comment">// 创建一个大小为 512 字节的缓冲区</span></span><br><span class="line"><span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> <span class="number">0</span>;                       <span class="comment">// 初始化读取长度为 0</span></span><br><span class="line"><span class="keyword">while</span> ((len = zis.read(buffer)) != -<span class="number">1</span>) &#123; <span class="comment">// 当还有数据可读时继续循环</span></span><br><span class="line">    bos.write(buffer, <span class="number">0</span>, len); <span class="comment">// 将已读取的数据写入到字节数组输出流中</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下载区块的接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostMapping(value = &quot;/mining/server/block.zip&quot;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">blockdownload</span><span class="params">(HttpServletResponse response, <span class="meta">@RequestBody</span> NoticeParams noticeParams)</span> &#123;</span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">responseBody</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">ZipOutputStream</span> <span class="variable">zos</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            List&lt;Block&gt; bs = BlockServiceImpl.queryBlockByBlockIndex(noticeParams.getBn());</span><br><span class="line">            <span class="type">Block</span> <span class="variable">b</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="comment">//</span></span><br><span class="line">            <span class="keyword">if</span> (bs != <span class="literal">null</span> &amp;&amp; bs.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                b = bs.get(<span class="number">0</span>);</span><br><span class="line">                <span class="keyword">if</span> (b != <span class="literal">null</span>) &#123;</span><br><span class="line">                    zos = <span class="keyword">new</span> <span class="title class_">ZipOutputStream</span>(response.getOutputStream());</span><br><span class="line">                    <span class="comment">//写入块对象</span></span><br><span class="line">                    zos.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(<span class="string">&quot;blockObject&quot;</span>));</span><br><span class="line">                    <span class="type">String</span> <span class="variable">boStr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().toJson(b);</span><br><span class="line">                    <span class="type">byte</span>[] b_str = boStr.getBytes();</span><br><span class="line">                    zos.write(b_str, <span class="number">0</span>, b_str.length);</span><br><span class="line">                    <span class="comment">//写入块文件</span></span><br><span class="line">                    zos.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(<span class="string">&quot;tokblockfile&quot;</span>));</span><br><span class="line">                    <span class="type">String</span> <span class="variable">blockString</span> <span class="operator">=</span> DataUtils.getBlockString(DataUtils.getRelativePath(b.getPath()));</span><br><span class="line">                    <span class="type">byte</span>[] bs_str = blockString.getBytes();</span><br><span class="line">                    zos.write(bs_str, <span class="number">0</span>, bs_str.length);</span><br><span class="line">                    <span class="comment">//写入主链上最高的编号</span></span><br><span class="line">                    zos.putNextEntry(<span class="keyword">new</span> <span class="title class_">ZipEntry</span>(<span class="string">&quot;maxblockindex&quot;</span>));</span><br><span class="line">                    <span class="type">Dictionary</span> <span class="variable">dic</span> <span class="operator">=</span> DicServiceImpl.queryDic(Dictionary.MODUAL_BLOCK, Dictionary.CURRENTBLOCKINDEX);</span><br><span class="line">                    <span class="type">byte</span>[] m_str = dic.getValue().getBytes();</span><br><span class="line">                    zos.write(m_str, <span class="number">0</span>, m_str.length);</span><br><span class="line"></span><br><span class="line">                    zos.closeEntry();</span><br><span class="line">                    zos.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.getMessage();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (responseBody != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    responseBody.close();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                    e.getMessage();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (zos != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    zos.close();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                    e.getMessage();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-数据库的保存以及修改"><a href="#2-4-数据库的保存以及修改" class="headerlink" title="2.4. 数据库的保存以及修改"></a>2.4. 数据库的保存以及修改</h4><p>SQLite操作</p>
+<p>（1）保存数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">save</span><span class="params">(Block block)</span> &#123;</span><br><span class="line">    <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">tableIndex</span> <span class="operator">=</span> DataUtils.getBlockSerial(block.getBlockIndex());</span><br><span class="line">        connection = SQLiteHelper.getConnection();</span><br><span class="line">        connection.setAutoCommit(<span class="literal">false</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;insert into [block&quot;</span> + tableIndex + <span class="string">&quot;]([blockIndex],[preBlockHash],[path],[createTime],[blockHash],[randomNumber],[onMingChain]) values(?,?,?,?,?,?,?);&quot;</span>;</span><br><span class="line">        <span class="type">PreparedStatement</span> <span class="variable">statement</span> <span class="operator">=</span> connection.prepareStatement(sql);</span><br><span class="line">        statement.setString(<span class="number">1</span>, block.getBlockIndex() + <span class="string">&quot;&quot;</span>);</span><br><span class="line">        statement.setString(<span class="number">2</span>, block.getPreBlockHash());</span><br><span class="line">        statement.setString(<span class="number">3</span>, block.getPath());</span><br><span class="line">        statement.setString(<span class="number">4</span>, block.getCreateTime());</span><br><span class="line">        statement.setString(<span class="number">5</span>, block.getBlockHash());</span><br><span class="line">        statement.setString(<span class="number">6</span>, block.getRandomNumber());</span><br><span class="line">        statement.setInt(<span class="number">7</span>, <span class="number">1</span>);</span><br><span class="line">        statement.execute();</span><br><span class="line">        connection.commit();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (connection != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                connection.rollback();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (SQLException e1) &#123;</span><br><span class="line">                e.getMessage();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        e.getMessage();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        SQLiteHelper.close(connection);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>（2）修改数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">update</span><span class="params">(Dictionary dic)</span> &#123;</span><br><span class="line">		<span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			connection = SQLiteHelper.getConnection();</span><br><span class="line">			connection.setAutoCommit(<span class="literal">false</span>);</span><br><span class="line">			<span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;update [dictionary] set [value] = ? where [module]=? and [key]=?&quot;</span>;</span><br><span class="line">			<span class="type">PreparedStatement</span> <span class="variable">statement</span> <span class="operator">=</span> connection.prepareStatement(sql);</span><br><span class="line">			statement.setString(<span class="number">1</span>, dic.getValue());</span><br><span class="line">			statement.setString(<span class="number">2</span>, dic.getModule());</span><br><span class="line">			statement.setString(<span class="number">3</span>, dic.getKey());</span><br><span class="line">			statement.execute();</span><br><span class="line">			connection.commit();</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			<span class="keyword">if</span>(connection != <span class="literal">null</span>) &#123;</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					connection.rollback();</span><br><span class="line">				&#125; <span class="keyword">catch</span> (SQLException e1) &#123;</span><br><span class="line">					e.getMessage();</span><br><span class="line"></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			e.getMessage();</span><br><span class="line"></span><br><span class="line">		&#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">			SQLiteHelper.close(connection);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>（3）删除数据</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">deletePendings</span><span class="params">(List&lt;String&gt; tradeNos)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(tradeNos == <span class="literal">null</span> || tradeNos.size() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            connection = SQLiteHelper.getConnection();</span><br><span class="line">            connection.setAutoCommit(<span class="literal">false</span>);</span><br><span class="line">            <span class="type">PreparedStatement</span> <span class="variable">statement</span> <span class="operator">=</span> connection.prepareStatement(<span class="string">&quot;delete from [pending] where [orderNo]=?&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i&lt; tradeNos.size(); i++) &#123;</span><br><span class="line">                System.out.println(tradeNos.get(i));</span><br><span class="line">                statement.setString(<span class="number">1</span>, tradeNos.get(i));</span><br><span class="line">                statement.addBatch();</span><br><span class="line">                <span class="keyword">if</span>(i % <span class="number">100</span> ==<span class="number">0</span>) &#123;</span><br><span class="line">                    statement.executeBatch();</span><br><span class="line">                    statement.clearBatch();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            statement.executeBatch();</span><br><span class="line">            statement.clearBatch();</span><br><span class="line">            connection.commit();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span>(connection != <span class="literal">null</span>) &#123;</span><br><span class="line">                    connection.rollback();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (SQLException e1) &#123;</span><br><span class="line">                e.getMessage();</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            SQLiteHelper.close(connection);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-5-发送交易"><a href="#2-5-发送交易" class="headerlink" title="2.5. 发送交易"></a>2.5. 发送交易</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/data/trade&quot;, method = &#123;RequestMethod.POST&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> ResponseEntity&lt;JSONObject&gt; <span class="title function_">trade</span><span class="params">(<span class="meta">@RequestBody</span> TradeObject tradeObject)</span> &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        List&lt;Pending&gt; pes = PendingServiceImpl.queryPendings();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">no</span> <span class="operator">=</span> PendingServiceImpl.genTradeNo(tradeObject);</span><br><span class="line">        tradeObject.setHashNo(no);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">genTradeNo</span> <span class="operator">=</span> PendingServiceImpl.genTradeNo(tradeObject);</span><br><span class="line">        <span class="keyword">for</span> (Pending p : pes) &#123;</span><br><span class="line">            <span class="keyword">if</span> (p.getOrderNo().equals(genTradeNo)) &#123;</span><br><span class="line">                jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">                jo.setMsg(<span class="string">&quot;交易已存在&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//验证钱包地址</span></span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        <span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().toJson(tradeObject);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            PendingServiceImpl.validateTradeNo(tradeObject);</span><br><span class="line">            <span class="type">Pending</span> <span class="variable">pending</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Pending</span>();</span><br><span class="line">            pending.setTradeBody(body);</span><br><span class="line">            pending.setCreateTime(tradeObject.getJsoncreatetime());</span><br><span class="line">            pending.setOrderNo(tradeObject.getHashNo());</span><br><span class="line">            pending.setTradeType(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">            PendingServiceImpl.save(pending);</span><br><span class="line">            <span class="keyword">for</span> (String port : map.getFs().keySet()) &#123;</span><br><span class="line">                <span class="type">Friends</span> <span class="variable">f</span> <span class="operator">=</span> map.getFs().get(port);</span><br><span class="line">                <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> f.getIp();</span><br><span class="line">                <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;http://&quot;</span> + ip + <span class="string">&quot;:8001/data/trade&quot;</span>;</span><br><span class="line">                restTemplate.postForEntity(url, tradeObject, TradeObject.class);</span><br><span class="line">            &#125;</span><br><span class="line">            jo.setCode(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            System.out.println(e.getMessage());</span><br><span class="line">            jo.setCode(<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">            jo.setMsg(<span class="string">&quot;失败&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ResponseEntity</span>&lt;JSONObject&gt;(jo, HttpStatus.OK);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/%E8%AE%B0%E5%BD%95%E6%B8%97%E9%80%8F%E6%9F%90%E8%BF%9C%E5%8F%A4%E7%BD%91%E7%AB%99.html" rel="prev" title="记录渗透某远古网站">
+      <i class="fa fa-chevron-left"></i> 记录渗透某远古网站
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E5%8C%BA%E5%9D%97%E9%93%BE%E5%AE%9E%E8%AE%AD4.html" rel="next" title="区块链实训4">
+      区块链实训4 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E5%8C%BA%E5%9D%97%E9%93%BE%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AD%A6%E4%B9%A0"><span class="nav-number">1.</span> <span class="nav-text">第一部分：区块链共识机制学习</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E7%9A%84%E5%AE%9A%E4%B9%89%E5%92%8C%E4%BD%9C%E7%94%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1. 共识机制的定义和作用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7%E5%92%8C%E5%AE%8C%E6%95%B4%E6%80%A7"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1. 数据一致性和完整性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E5%A4%84%E7%90%86"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2. 分布式事务处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-%E9%98%B2%E6%AD%A2%E5%8F%8C%E9%87%8D%E6%94%AF%E4%BB%98%E5%92%8C%E6%AC%BA%E8%AF%88"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3. 防止双重支付和欺诈</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8%E5%92%8C%E6%8A%B5%E6%8A%97%E6%94%BB%E5%87%BB"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.4. 网络安全和抵抗攻击</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-5-%E5%8E%BB%E4%B8%AD%E5%BF%83%E5%8C%96%E6%8E%A7%E5%88%B6"><span class="nav-number">1.1.5.</span> <span class="nav-text">1.5. 去中心化控制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E7%9A%84%E5%88%86%E7%B1%BB%E5%92%8C%E7%89%B9%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">2. 共识机制的分类和特点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E5%B7%A5%E4%BD%9C%E9%87%8F%E8%AF%81%E6%98%8E%EF%BC%88Proof-of-Work%EF%BC%8CPoW%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1. 工作量证明（Proof of Work，PoW）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E6%9D%83%E7%9B%8A%E8%AF%81%E6%98%8E%EF%BC%88Proof-of-Stake-PoS%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2. 权益证明（Proof of Stake, PoS）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E6%9D%83%E7%9B%8A%E8%B4%A8%E6%8A%BC%EF%BC%88Delegated-Proof-of-Stake-DPoS%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3. 权益质押（Delegated Proof of Stake, DPoS）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E7%9A%84%E7%BB%84%E5%90%88%EF%BC%88Hybrid%EF%BC%89"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4. 共识机制的组合（Hybrid）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E5%8C%BA%E5%9D%97%E9%93%BE%E4%B8%AD%E7%9A%84%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6"><span class="nav-number">1.2.5.</span> <span class="nav-text">2.5. 区块链中的共识机制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B8%B8%E8%A7%81%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.3.</span> <span class="nav-text">3. 常见共识机制详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E5%B7%A5%E4%BD%9C%E9%87%8F%E8%AF%81%E6%98%8E%EF%BC%88Proof-of-Work%EF%BC%8C-PoW%EF%BC%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1. 工作量证明（Proof of Work， PoW）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-1-PoW%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">3.1.1. PoW的原理和流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-2-PoW%E7%9A%84%E4%BC%98%E5%8A%BF%E5%92%8C%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">3.1.2. PoW的优势和局限性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E6%9D%83%E7%9B%8A%E8%AF%81%E6%98%8E%EF%BC%88Proof-of-Stake%EF%BC%8C-Pos%EF%BC%89"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2. 权益证明（Proof of Stake， Pos）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-1-PoS%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">3.2.1. PoS的原理和流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-2-PoS%E7%9A%84%E4%BC%98%E5%8A%BF%E5%92%8C%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">3.2.2. PoS的优势和局限性</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%81%E7%9A%84%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3. 其他常见的共识机制</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9APoW%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.</span> <span class="nav-text">第二部分：PoW共识机制实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8C%BA%E5%9D%97%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.</span> <span class="nav-text">1. 区块表结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.2.</span> <span class="nav-text">2. 代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-%E9%9A%BE%E9%A2%98%E8%AE%BE%E7%BD%AE%E4%BB%A5%E5%8F%8A%E5%B7%A5%E4%BD%9C%E9%87%8F%E7%AB%9E%E8%B5%9B"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.1. 难题设置以及工作量竞赛</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-%E8%AE%A1%E7%AE%97%E7%BB%93%E6%9E%9C%E5%B9%BF%E6%92%AD%E4%BB%A5%E5%8F%8A%E5%B7%A5%E4%BD%9C%E9%87%8F%E9%AA%8C%E8%AF%81"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2. 计算结果广播以及工作量验证</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E6%AF%8F%E7%A7%92%E5%90%91%E5%85%B6%E4%BB%96%E8%8A%82%E7%82%B9%E8%AF%B7%E6%B1%82%E6%9C%80%E6%96%B0%E5%8C%BA%E5%9D%97"><span class="nav-number">2.2.3.</span> <span class="nav-text">2.3. 定时任务每秒向其他节点请求最新区块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%BF%9D%E5%AD%98%E4%BB%A5%E5%8F%8A%E4%BF%AE%E6%94%B9"><span class="nav-number">2.2.4.</span> <span class="nav-text">2.4. 数据库的保存以及修改</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-5-%E5%8F%91%E9%80%81%E4%BA%A4%E6%98%93"><span class="nav-number">2.2.5.</span> <span class="nav-text">2.5. 发送交易</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

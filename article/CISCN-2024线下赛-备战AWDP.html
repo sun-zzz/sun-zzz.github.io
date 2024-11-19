@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="备战6月23日的CISCN线下赛 AWDP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[CISCN2024 线下赛]备战AWDP">
+<meta property="og:url" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="备战6月23日的CISCN线下赛 AWDP">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220002576.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220558021.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220708827.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220815691.png">
+<meta property="article:published_time" content="2024-05-23T04:26:56.000Z">
+<meta property="article:modified_time" content="2024-07-14T02:53:34.737Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="AWDP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220002576.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>[CISCN2024 线下赛]备战AWDP | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          [CISCN2024 线下赛]备战AWDP
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-05-23 12:26:56" itemprop="dateCreated datePublished" datetime="2024-05-23T12:26:56+08:00">2024-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-14 10:53:34" itemprop="dateModified" datetime="2024-07-14T10:53:34+08:00">2024-07-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF%E6%AF%94%E8%B5%9B/" itemprop="url" rel="index"><span itemprop="name">CTF比赛</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html" class="post-meta-item leancloud_visitors" data-flag-title="[CISCN2024 线下赛]备战AWDP" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>备战6月23日的CISCN线下赛 AWDP</p>
+<span id="more"></span>
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本次CISCN华东南赛区我们学校是承办方，当然晋级名额变成三队，不过由于本人实力有限加上最后黑灯的时候差一点做出来<code>easycms-revenge</code>，本来都打算退役了。在看到主办方发的晋级名单后，发现我们以倒一晋级线下赛，实在是续了下香火。既然都进了，总不能玩几小时pvz吧，所以打算从今天开始备战AWDP</p>
+<h1 id="AWDP"><a href="#AWDP" class="headerlink" title="AWDP"></a>AWDP</h1><p>首先了解一下什么是 AWDP ，AWDP模式（Attack,Defense,WebandPwn），分为 Break 与 Fix 环节。根据英文全称也可以看出来，只有 Web 和 Pwn 这两个方向的题目。</p>
+<p>每个战队拥有相同的起始分数及相同配置的虚拟靶机，参赛队员需对平台中的GameBox发起攻击，向平台提交正确的flag（证明自己具备对该题的攻击能力）；在此期间，由平台以轮次制的方式向参赛战队的靶机发起攻击，检查其他选手的漏洞是否修补成功，若修补成功则认为参赛战队具备该漏洞的防御能力。</p>
+<p>简单来说，AWDP 和传统 CTF 并无任何区别，仅仅是多了一个 Fix 功能，也就是你提交 flag 后拿到的是攻击分，而 Fix 成功后才会拿到防御分。</p>
+<h1 id="文件传输"><a href="#文件传输" class="headerlink" title="文件传输"></a>文件传输</h1><p>这里以xshell和xftp为例</p>
+<p>我们先使用xshell连接服务器，进入到test文件夹</p>
+<p><img src="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220002576.png"></p>
+<p>然后新建一个shell，点击新建文件传输</p>
+<p><img src="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220558021.png"></p>
+<p>然后自动弹出来xftp，添加会话连接</p>
+<p><img src="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220708827.png"></p>
+<p>连接好后，右键对应文件点击传输即可</p>
+<p><img src="/article/CISCN-2024%E7%BA%BF%E4%B8%8B%E8%B5%9B-%E5%A4%87%E6%88%98AWDP/image-20240622220815691.png"></p>
+<h1 id="防守WAF"><a href="#防守WAF" class="headerlink" title="防守WAF"></a>防守WAF</h1><p><a target="_blank" rel="noopener" href="https://github.com/Drun1baby/JavaSecFilters/tree/main/PHP">参考文章</a></p>
+<h2 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h2><h3 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function wafrce($str)&#123;</span><br><span class="line">    return !preg_match(&quot;/openlog|syslog|readlink|symlink|popepassthru|stream_socket_server|scandir|assert|pcntl_exec|fwrite|curl|system|eval|assert|tail|flag|exec|base64|passthru|exec|chroot|chgrp|chown|shell_exec|proc_open|proc_get_status|popen|ini_alter|ini_restore/i&quot;, $str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if (preg_match(&#x27;/(system|exec|shell_exec|passthru|eval|assert)/i&#x27;, $_GET[&#x27;do&#x27;])) &#123;</span><br><span class="line">        die(&#x27;hacker&#x27;);</span><br><span class="line">    &#125;</span><br><span class="line">    return $_GET[&#x27;do&#x27;];</span><br></pre></td></tr></table></figure>
+
+<h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function wafsqli($str)&#123;</span><br><span class="line">    return !preg_match(&quot;/select|and|\*|\x09|\x0a|\x0b|\x0c|\x0d|\xa0|\x00|\x26|\x7c|or|into|from|where|join|sleexml|extractvalue|+|regex|copy|read|file|create|grand|dir|insert|link|server|drop|=|&gt;|&lt;|;|\&quot;|\&#x27;|\^|\|/i&quot;, $str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function wafxss($str)&#123;</span><br><span class="line">    return !preg_match(&quot;/\&#x27;|http|\&quot;|\`|cookie|&lt;|&gt;|script/i&quot;, $str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line"></span><br><span class="line">// 允许上传的文件类型</span><br><span class="line">$allowedExtensions = array(&quot;jpg&quot;, &quot;jpeg&quot;, &quot;png&quot;, &quot;gif&quot;);</span><br><span class="line"></span><br><span class="line">// 上传文件的目录</span><br><span class="line">$uploadDir = &quot;uploads/&quot;;</span><br><span class="line"></span><br><span class="line">// 检查文件是否上传成功</span><br><span class="line">if (isset($_FILES[&quot;file&quot;])) &#123;</span><br><span class="line">    $file = $_FILES[&quot;file&quot;];</span><br><span class="line"></span><br><span class="line">    // 获取文件的扩展名</span><br><span class="line">    $extension = pathinfo($file[&quot;name&quot;], PATHINFO_EXTENSION);</span><br><span class="line"></span><br><span class="line">    // 检查文件类型是否允许上传</span><br><span class="line">    if (!in_array(strtolower($extension), $allowedExtensions)) &#123;</span><br><span class="line">        echo &quot;只允许上传以下类型的文件: &quot; . implode(&quot;, &quot;, $allowedExtensions);</span><br><span class="line">        exit;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 检查上传文件是否为真实的图像文件</span><br><span class="line">    if (getimagesize($file[&quot;tmp_name&quot;]) === false) &#123;</span><br><span class="line">        echo &quot;上传文件不是有效的图像文件。&quot;;</span><br><span class="line">        exit;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 生成一个唯一的文件名以避免重复</span><br><span class="line">    $uniqueFileName = uniqid() . &quot;.&quot; . $extension;</span><br><span class="line"></span><br><span class="line">    // 移动上传的文件到目标目录</span><br><span class="line">    if (move_uploaded_file($file[&quot;tmp_name&quot;], $uploadDir . $uniqueFileName)) &#123;</span><br><span class="line">        echo &quot;文件上传成功！&quot;;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        echo &quot;文件上传失败。&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="XXE"><a href="#XXE" class="headerlink" title="XXE"></a>XXE</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$xmlData = file_get_contents(&#x27;php://input&#x27;);</span><br><span class="line">libxml_disable_entity_loader(true);</span><br><span class="line">$xml = simplexml_load_string($xmlData);</span><br><span class="line">echo $xml-&gt;name;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h2><p>自定义过滤关键词</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">filter_list = [&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;]</span><br><span class="line">strings = &quot;ana&quot;  # 匹配包含&quot;ana&quot;的字符串</span><br><span class="line">for i in filter_list:</span><br><span class="line">    if i in strings:</span><br><span class="line">        print(&quot;Hacker!&quot; )</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nodejs"><a href="#Nodejs" class="headerlink" title="Nodejs"></a>Nodejs</h2><p>自定义过滤关键词</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const keywords = [&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;];</span><br><span class="line"></span><br><span class="line">for (const i of keywords) &#123;</span><br><span class="line">    if (code.includes(i)) &#123;</span><br><span class="line">        console.log(&quot;Hacker!&quot;) </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><h3 id="自定义过滤关键词"><a href="#自定义过滤关键词" class="headerlink" title="自定义过滤关键词"></a>自定义过滤关键词</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">String[] filterList = &#123;&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;&#125;;</span><br><span class="line">String str = &quot;ana&quot;; // 匹配包含&quot;ana&quot;的字符串</span><br><span class="line"></span><br><span class="line">for (String s : filterList) &#123;</span><br><span class="line">    if (s.contains(str)) &#123;</span><br><span class="line">        System.out.println(&quot;Hacker!&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="SSRF"><a href="#SSRF" class="headerlink" title="SSRF"></a>SSRF</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> @ author: Drunkbaby</span><br><span class="line"> @ usages: 用于 SSRF 的自定义防护</span><br><span class="line"> 去到对应的接口下面修改即可</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import javax.servlet.*;</span><br><span class="line">import javax.servlet.annotation.WebFilter;</span><br><span class="line">import javax.servlet.http.HttpServletRequest;</span><br><span class="line">import javax.servlet.http.HttpServletResponse;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.util.Enumeration;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> @ author: Drunkbaby</span><br><span class="line"> @ usages: 用于 SSRF 的自定义防护</span><br><span class="line"> @ ban 了几个协议，如果单纯全部阻挡什么 127.0.0.1，业务不一定过得去。</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">@WebFilter(urlPatterns = &quot;/system/role/list&quot;, filterName = &quot;sqlInjectFilter&quot;)</span><br><span class="line">public class sqlFilter implements Filter &#123;</span><br><span class="line">    public void destroy() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void init(FilterConfig arg0) throws ServletException &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException &#123;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest) req;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse) res;</span><br><span class="line">        // 获得所有请求参数名</span><br><span class="line">        Enumeration params = request.getParameterNames();</span><br><span class="line">        String sql = &quot;&quot;;</span><br><span class="line">        while (params.hasMoreElements()) &#123;</span><br><span class="line">            // 得到参数名</span><br><span class="line">            String name = params.nextElement().toString();</span><br><span class="line">            // 得到参数对应值</span><br><span class="line">            String[] value = request.getParameterValues(name);</span><br><span class="line">            for (int i = 0; i &lt; value.length; i++) &#123;</span><br><span class="line">                sql = sql + value[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (sqlValidate(sql)) &#123;</span><br><span class="line">            throw new IOException(&quot;您发送请求中的参数中含有非法字符&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            chain.doFilter(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 参数校验</span><br><span class="line">     * @param str</span><br><span class="line">     */</span><br><span class="line">    public static boolean sqlValidate(String str) &#123;</span><br><span class="line">        str = str.toLowerCase();//统一转为小写</span><br><span class="line">        String badStr = &quot;file|http|jar|gopher|tar|war&quot;;</span><br><span class="line">        String[] badStrs = badStr.split(&quot;\\|&quot;);</span><br><span class="line">        for (int i = 0; i &lt; badStrs.length; i++) &#123;</span><br><span class="line">            //循环检测，判断在请求参数当中是否包含SQL关键字</span><br><span class="line">            if (str.indexOf(badStrs[i]) &gt;= 0) &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="log4j2"><a href="#log4j2" class="headerlink" title="log4j2"></a>log4j2</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">package com.ruoyi.common.xss;</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">import javax.servlet.*;</span><br><span class="line">import javax.servlet.annotation.WebFilter;</span><br><span class="line">import javax.servlet.http.HttpServletRequest;</span><br><span class="line">import javax.servlet.http.HttpServletResponse;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.util.Enumeration;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> @ author: Drunkbaby</span><br><span class="line"> @ usages: 用于 log4j2 的自定义防护</span><br><span class="line"> @ 过滤 url：在 WebFilter 当中添加 urlPatterns</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">@WebFilter(urlPatterns = &quot;/system/role/list&quot;, filterName = &quot;sqlInjectFilter&quot;)</span><br><span class="line">public class Log4j2Filter implements Filter &#123;</span><br><span class="line">    public void destroy() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void init(FilterConfig arg0) throws ServletException &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException &#123;</span><br><span class="line">        HttpServletRequest request = (HttpServletRequest) req;</span><br><span class="line">        HttpServletResponse response = (HttpServletResponse) res;</span><br><span class="line">        // 获得所有请求参数名</span><br><span class="line">        Enumeration params = request.getParameterNames();</span><br><span class="line">        String sql = &quot;&quot;;</span><br><span class="line">        while (params.hasMoreElements()) &#123;</span><br><span class="line">            // 得到参数名</span><br><span class="line">            String name = params.nextElement().toString();</span><br><span class="line">            // 得到参数对应值</span><br><span class="line">            String[] value = request.getParameterValues(name);</span><br><span class="line">            for (int i = 0; i &lt; value.length; i++) &#123;</span><br><span class="line">                sql = sql + value[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (sqlValidate(sql)) &#123;</span><br><span class="line">            throw new IOException(&quot;您发送请求中的参数中含有非法字符&quot;);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            chain.doFilter(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 参数校验</span><br><span class="line">     * @param str</span><br><span class="line">     */</span><br><span class="line">    public static boolean sqlValidate(String str) &#123;</span><br><span class="line">        str = str.toLowerCase();//统一转为小写</span><br><span class="line">        String badStr = &quot;$|$$|jndi|rmi|ldap|&#123;|&#125;|&quot;;</span><br><span class="line">        String[] badStrs = badStr.split(&quot;\\|&quot;);</span><br><span class="line">        for (int i = 0; i &lt; badStrs.length; i++) &#123;</span><br><span class="line">            //循环检测，判断在请求参数当中是否包含log4j2关键字</span><br><span class="line">            if (str.indexOf(badStrs[i]) &gt;= 0) &#123;</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="文件上传-1"><a href="#文件上传-1" class="headerlink" title="文件上传"></a>文件上传</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> @ author: Drunkbaby</span><br><span class="line"> @ usages: 用于文件上传的接口修改</span><br><span class="line"> @ 需要在对应接口中修改</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">@RestController</span><br><span class="line">public class securityUpload &#123;</span><br><span class="line">    @RequestMapping(&quot;/securityUpload&quot;)</span><br><span class="line">    public String handleFileUpload(@RequestParam(&quot;file&quot;) MultipartFile file)&#123;</span><br><span class="line">        if (file.isEmpty())&#123;</span><br><span class="line">            return &quot;请上传文件&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        // 获取文件名</span><br><span class="line">        String fileName = file.getOriginalFilename();</span><br><span class="line">        String suffix = fileName.substring(fileName.lastIndexOf(&quot;.&quot;));</span><br><span class="line">        String contentType = file.getContentType();</span><br><span class="line"></span><br><span class="line">        //过滤</span><br><span class="line">        String[] picWhite = &#123;&quot;.png&quot;,&quot;.jpg&quot;,&quot;.gif&quot;,&quot;.webp&quot;,&quot;.bmp&quot;&#125;;</span><br><span class="line">        String[] white_type = &#123;&quot;image/gif&quot;,&quot;image/jpeg&quot;,&quot;image/jpg&quot;,&quot;image/png&quot;&#125;;</span><br><span class="line">        Boolean SuffixFlag = false;</span><br><span class="line">        Boolean TypeFlag = false;</span><br><span class="line">        for (String pic_suffix:picWhite)&#123;</span><br><span class="line">            if (suffix.toLowerCase().equals(pic_suffix))&#123;</span><br><span class="line">                SuffixFlag = true;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        for (String white_suffix:white_type)&#123;</span><br><span class="line">            if (contentType.toLowerCase().equals(white_suffix))&#123;</span><br><span class="line">                TypeFlag = true;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        if (!SuffixFlag||!TypeFlag)&#123;</span><br><span class="line">            return &quot;File Type not allow&quot;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String filePath = System.getProperty(&quot;user.dir&quot;)+&quot;/tmp&quot;;</span><br><span class="line"></span><br><span class="line">        Date date = new Date();</span><br><span class="line">        SimpleDateFormat dateFormat = new SimpleDateFormat(&quot;yyyyMMddhhmmss&quot;);</span><br><span class="line">        String newfileName = dateFormat.format(date)+Integer.toHexString((int)new Date().getTime())+suffix;</span><br><span class="line"></span><br><span class="line">        File dest = new File(filePath+File.separator+newfileName);</span><br><span class="line">        if (!dest.getParentFile().exists())&#123;</span><br><span class="line">            dest.getParentFile().mkdirs();</span><br><span class="line">        &#125;</span><br><span class="line">        try&#123;</span><br><span class="line">            file.transferTo(dest);</span><br><span class="line">            return &quot;上传成功&quot;;</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            return &quot;上传失败&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="fastjson"><a href="#fastjson" class="headerlink" title="fastjson"></a>fastjson</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">package FastjsonFilters;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">import java.util.Objects;</span><br><span class="line">import java.util.regex.Pattern;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> @ author: Drunkbaby</span><br><span class="line"> @ usages: 用于 Fastjson 的自定义防护</span><br><span class="line"> @ 针对 1.2.24 版本，则只添加过滤即可，若针对其他版本</span><br><span class="line"> ParserConfig.getGlobalInstance().setAutoTypeSupport(false); 将 autoTypeSupprt 设置为 false</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">public class Fastjson1224Filter &#123;</span><br><span class="line">    public String Unserjson(@RequestParam String str, @RequestParam String input) throws Exception &#123;</span><br><span class="line">        if (str != null &amp;&amp; Objects.hashCode(str) == secret.getKey().hashCode() &amp;&amp; !secret.getKey().equals(str)) &#123;</span><br><span class="line">            String pattern = &quot;.*rmi.*|.*jndi.*|.*ldap.*|.*\\\\x.*&quot;;</span><br><span class="line">            Pattern p = Pattern.compile(pattern, 2);</span><br><span class="line">            boolean StrMatch = p.matcher(input).matches();</span><br><span class="line">            if (StrMatch) &#123;</span><br><span class="line">                return &quot;Hacker get out!!!&quot;;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            ParserConfig.getGlobalInstance().setAutoTypeSupport(true);</span><br><span class="line">            JSON.parseObject(input);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        return &quot;hello&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Golang"><a href="#Golang" class="headerlink" title="Golang"></a>Golang</h2><p>自定义过滤关键词</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">filterList := []string&#123;&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;&#125;</span><br><span class="line">str := &quot;ana&quot; // 匹配包含&quot;ana&quot;的字符串</span><br><span class="line">for _, s := range filterList &#123;</span><br><span class="line">    if strings.Contains(s, str) &#123;</span><br><span class="line">        fmt.Println(&quot;Hacker!&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="防御修复"><a href="#防御修复" class="headerlink" title="防御修复"></a>防御修复</h1><h2 id="打包-解包"><a href="#打包-解包" class="headerlink" title="打包&amp;解包"></a>打包&amp;解包</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zcvf update.tar.gz update.sh file1 file2</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf 文件名.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>如果要求把要修补的文件上传到服务器里，替换原来服务器中的文件，所以我们要知道文件具体的路径，大概思路就是在根目录下查找该漏洞对应的文件路径，然后把我们修复的上传即可</p>
+<h2 id="PHP-1"><a href="#PHP-1" class="headerlink" title="PHP"></a>PHP</h2><p>php不用重启服务，我们先cp把源码保存下来</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp index.php ../index.php</span><br></pre></td></tr></table></figure>
+
+<p>然后把改好的文件移到对应位置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv -f explorer.php index/explorer.php</span><br></pre></td></tr></table></figure>
+
+<h2 id="python"><a href="#python" class="headerlink" title="python"></a>python</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">cp app.py /app/app.py</span><br><span class="line">ps -ef | grep python | grep -v grep | awk &#x27;&#123;print $2&#125;&#x27; | xargs kill -9</span><br><span class="line">cd /app &amp;&amp; nohup python app.py  &gt;&gt; /opt/app.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<h2 id="nodejs"><a href="#nodejs" class="headerlink" title="nodejs"></a>nodejs</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/sh</span><br><span class="line">cp ./app.js /app/app.js</span><br><span class="line">ps -ef | grep app.js | grep -v grep | awk &#x27;&#123;print $2&#125;&#x27; | xargs kill -9</span><br><span class="line">nohup node /app/app.js || tail -f /dev/null &amp;</span><br></pre></td></tr></table></figure>
+
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><p><a target="_blank" rel="noopener" href="https://5ime.cn/awdp.html">https://5ime.cn/awdp.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_51614272/article/details/125527593">https://blog.csdn.net/weixin_51614272/article/details/125527593</a></p>
+<p><a target="_blank" rel="noopener" href="https://fushuling.com/index.php/2024/06/15/ciscn%e8%a5%bf%e5%8d%97%e5%a4%8d%e8%b5%9bawdp-web/">https://fushuling.com/index.php/2024/06/15/ciscn%e8%a5%bf%e5%8d%97%e5%a4%8d%e8%b5%9bawdp-web/</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AWDP/" rel="tag"># AWDP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Runner-HackTheBox.html" rel="prev" title="Runner">
+      <i class="fa fa-chevron-left"></i> Runner
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/ISCC2024-%E6%95%B0%E6%8D%AE%E6%B3%84%E9%9C%B2.html" rel="next" title="ISCC2024-数据泄露">
+      ISCC2024-数据泄露 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AWDP"><span class="nav-number">2.</span> <span class="nav-text">AWDP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93"><span class="nav-number">3.</span> <span class="nav-text">文件传输</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%AE%88WAF"><span class="nav-number">4.</span> <span class="nav-text">防守WAF</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP"><span class="nav-number">4.1.</span> <span class="nav-text">PHP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RCE"><span class="nav-number">4.1.1.</span> <span class="nav-text">RCE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="nav-number">4.1.2.</span> <span class="nav-text">SQL注入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS"><span class="nav-number">4.1.3.</span> <span class="nav-text">XSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">4.1.4.</span> <span class="nav-text">文件上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XXE"><span class="nav-number">4.1.5.</span> <span class="nav-text">XXE</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python"><span class="nav-number">4.2.</span> <span class="nav-text">Python</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nodejs"><span class="nav-number">4.3.</span> <span class="nav-text">Nodejs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java"><span class="nav-number">4.4.</span> <span class="nav-text">Java</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E8%BF%87%E6%BB%A4%E5%85%B3%E9%94%AE%E8%AF%8D"><span class="nav-number">4.4.1.</span> <span class="nav-text">自定义过滤关键词</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SSRF"><span class="nav-number">4.4.2.</span> <span class="nav-text">SSRF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#log4j2"><span class="nav-number">4.4.3.</span> <span class="nav-text">log4j2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-1"><span class="nav-number">4.4.4.</span> <span class="nav-text">文件上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fastjson"><span class="nav-number">4.4.5.</span> <span class="nav-text">fastjson</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Golang"><span class="nav-number">4.5.</span> <span class="nav-text">Golang</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%98%B2%E5%BE%A1%E4%BF%AE%E5%A4%8D"><span class="nav-number">5.</span> <span class="nav-text">防御修复</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%8C%85-%E8%A7%A3%E5%8C%85"><span class="nav-number">5.1.</span> <span class="nav-text">打包&amp;解包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP-1"><span class="nav-number">5.2.</span> <span class="nav-text">PHP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python"><span class="nav-number">5.3.</span> <span class="nav-text">python</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#nodejs"><span class="nav-number">5.4.</span> <span class="nav-text">nodejs</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">6.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

